@@ -1,7 +1,7 @@
-### **Center**
+## **Center**
 [**github.com/SpaceTimee/SpaceTime-Center**](//github.com/SpaceTimee/SpaceTime-Center)
 
-### **Blog**
+## **Blog**
 [**cnblogs.com/spacetime**](//cnblogs.com/spacetime)
 
 •ᴗ•
