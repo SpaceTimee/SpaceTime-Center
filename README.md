@@ -8,7 +8,7 @@
 **It's a Place where I Keep My Blogs**
 
 ## **What's SpaceTime DeputyBase**
-**I haven't Figured It out yet...**
+**I haven't Settled yet...**
 
 ## **How Can I Get There**
 **Navigation.md will Tell U**
