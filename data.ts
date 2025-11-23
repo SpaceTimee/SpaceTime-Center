@@ -16,7 +16,7 @@ export const navigationLinks: NavigationLink[] = [
     description: "个人主页",
     url: "https://www.spacetimee.xyz",
     type: "Center",
-    tags: ["Github Pages"]
+    tags: ["React", "Tailwind"]
   },
   {
     title: "SpaceTime Blog",
@@ -161,6 +161,34 @@ export const projects: Project[] = [
     description: "继续学习 Unity",
     tags: ["Learning"],
     status: ProjectStatus.Planned
+  },
+  {
+    title: "YouTube Video Summarizer",
+    description: "油管视频总结器",
+    link: "https://summarizer.spacetimee.xyz",
+    tags: ["Google Opal"],
+    status: ProjectStatus.Completed
+  },
+  {
+    title: "Virtual Avatar Designer",
+    description: "虚拟形象设计器",
+    link: "https://designer.spacetimee.xyz",
+    tags: ["Google Opal"],
+    status: ProjectStatus.Completed
+  },
+  {
+    title: "Parallel World Imagineer",
+    description: "平行世界生成器",
+    link: "https://imagineer.spacetimee.xyz",
+    tags: ["Google Opal"],
+    status: ProjectStatus.Completed
+  },
+  {
+    title: "Veo Video Generator",
+    description: "Veo3.1 体验场",
+    link: "https://veo.spacetimee.xyz",
+    tags: ["Google Opal"],
+    status: ProjectStatus.Completed
   },
   {
     title: "Sheas Unlocker",
