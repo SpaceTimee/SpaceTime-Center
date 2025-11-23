@@ -52,7 +52,7 @@ const ContactSection: React.FC = React.memo(() => {
         <div className="mt-20 border-t border-gray-100 dark:border-gray-700 py-8 text-center">
           <div className="flex flex-col items-center gap-1">
             <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time</p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.0</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.1</p>
           </div>
         </div>
       </div>

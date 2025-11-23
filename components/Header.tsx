@@ -13,11 +13,17 @@ const Header: React.FC = React.memo(() => {
   const startY = useRef(0);
   const animationFrameId = useRef<number | null>(null);
   const resetTimer = useRef<number | null>(null);
-  const parallaxOffset = useRef({ x: 0, y: 0 });
+
+  const targetParallaxOffset = useRef({ x: 0, y: 0 });
+  const currentParallaxOffset = useRef({ x: 0, y: 0 });
+  const parallaxAnimationFrameId = useRef<number | null>(null);
+
   const touchStartPos = useRef({ x: 0, y: 0 });
   const isWaveActive = useRef(false);
   const mouseMoveTicking = useRef(false);
   const dimensions = useRef({ width: 0, height: 0, left: 0, top: 0 });
+
+  const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
 
   const updateParallaxState = () => {
     if (!imageRef.current) return;
@@ -36,7 +42,34 @@ const Header: React.FC = React.memo(() => {
     }
 
     const baseScale = 1.1;
-    imageRef.current.style.transform = `scale(${baseScale}) translate(${parallaxOffset.current.x}px, ${parallaxOffset.current.y}px)`;
+    imageRef.current.style.transform = `scale(${baseScale}) translate(${currentParallaxOffset.current.x}px, ${currentParallaxOffset.current.y}px)`;
+  };
+
+  const animateParallax = () => {
+    const ease = 0.1;
+    const targetX = targetParallaxOffset.current.x;
+    const targetY = targetParallaxOffset.current.y;
+
+    const currentX = currentParallaxOffset.current.x;
+    const currentY = currentParallaxOffset.current.y;
+
+    const newX = lerp(currentX, targetX, ease);
+    const newY = lerp(currentY, targetY, ease);
+
+    currentParallaxOffset.current = { x: newX, y: newY };
+    updateParallaxState();
+
+    if (Math.abs(newX - targetX) > 0.01 || Math.abs(newY - targetY) > 0.01) {
+      parallaxAnimationFrameId.current = requestAnimationFrame(animateParallax);
+    } else {
+      parallaxAnimationFrameId.current = null;
+    }
+  };
+
+  const startParallaxAnimation = () => {
+    if (!parallaxAnimationFrameId.current) {
+      parallaxAnimationFrameId.current = requestAnimationFrame(animateParallax);
+    }
   };
 
   const animateDecay = () => {
@@ -98,6 +131,10 @@ const Header: React.FC = React.memo(() => {
         cancelAnimationFrame(animationFrameId.current);
         animationFrameId.current = null;
       }
+      if (parallaxAnimationFrameId.current) {
+        cancelAnimationFrame(parallaxAnimationFrameId.current);
+        parallaxAnimationFrameId.current = null;
+      }
       if (resetTimer.current) {
         clearTimeout(resetTimer.current);
         resetTimer.current = null;
@@ -157,7 +194,9 @@ const Header: React.FC = React.memo(() => {
             if (limitX > 0 && limitY > 0) {
               const x = limitX * Math.tanh(deltaX / (limitX * resistance));
               const y = limitY * Math.tanh(deltaY / (limitY * resistance));
-              parallaxOffset.current = { x, y };
+
+              targetParallaxOffset.current = { x, y };
+              startParallaxAnimation();
             }
 
             if (isWaveActive.current && window.scrollY <= 0) {
@@ -179,8 +218,8 @@ const Header: React.FC = React.memo(() => {
     const handleTouchEnd = () => {
       isDragging.current = false;
       isWaveActive.current = false;
-      parallaxOffset.current = { x: 0, y: 0 };
-      updateParallaxState();
+      targetParallaxOffset.current = { x: 0, y: 0 };
+      startParallaxAnimation();
       animateDecay();
     };
 
@@ -214,16 +253,16 @@ const Header: React.FC = React.memo(() => {
       const x = clientX - rectLeft - width / 2;
       const y = clientY - rectTop - height / 2;
 
-      parallaxOffset.current = { x: x / 40, y: y / 40 };
-      updateParallaxState();
+      targetParallaxOffset.current = { x: x / 40, y: y / 40 };
+      startParallaxAnimation();
 
       mouseMoveTicking.current = false;
     });
   };
 
   const handleMouseLeave = () => {
-    parallaxOffset.current = { x: 0, y: 0 };
-    requestAnimationFrame(updateParallaxState);
+    targetParallaxOffset.current = { x: 0, y: 0 };
+    startParallaxAnimation();
   };
 
   return (
@@ -292,7 +331,7 @@ const Header: React.FC = React.memo(() => {
                 </span>
                 <span className="text-indigo-700 dark:text-indigo-300">.</span>
               </h1>
-              <p className="text-lg lg:text-xl text-gray-500 dark:text-gray-400 font-medium drop-shadow-[0_0px_2px_rgba(255,255,255,1)] dark:drop-shadow-none">
+              <p className="text-lg lg:text-xl text-gray-500 dark:text-gray-400 font-medium drop-shadow-[0_0px_3px_rgba(255,255,255,1)] dark:drop-shadow-none">
                 {profileData.tagline}
               </p>
             </div>
