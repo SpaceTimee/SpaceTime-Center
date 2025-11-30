@@ -290,38 +290,48 @@ const Header: React.FC = React.memo(() => {
 
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
-          <a
-            href="https://github.com/SpaceTimee"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative group block cursor-pointer"
-          >
-            <div className="w-28 h-28 lg:w-40 lg:h-40 rounded-full bg-gradient-to-br from-primary to-orange-300 p-[3px] shadow-[0_10px_40px_-10px_rgba(255,90,0,0.1)] hover:shadow-[0_20px_40px_-10px_rgba(255,90,0,0.2)] dark:bg-gray-800 transform transition-all duration-300 group-hover:scale-105 will-change-transform">
-              <div className="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center">
-                <img
-                  src="/avatar.png"
-                  alt="Avatar"
-                  className="w-full h-full object-cover block dark:hidden mix-blend-multiply"
-                  style={{ imageRendering: 'pixelated' }}
-                  decoding="async"
-                  fetchPriority="high"
-                  onError={(e) => e.currentTarget.style.display = 'none'}
-                />
-                <img
-                  src="/avatar-dark.png"
-                  alt="Avatar"
-                  className="w-full h-full object-cover hidden dark:block"
-                  style={{ imageRendering: 'pixelated' }}
-                  decoding="async"
-                  fetchPriority="high"
-                  onError={(e) => e.currentTarget.style.display = 'none'}
-                />
+          <div className="relative w-28 h-28 lg:w-40 lg:h-40">
+            <div className="absolute inset-0 rounded-full bg-transparent shadow-[0_10px_40px_-10px_rgba(255,90,0,0.1)] peer-hover:shadow-[0_20px_40px_-10px_rgba(255,90,0,0.2)] peer-hover:scale-105 transition-all duration-300 z-0 pointer-events-none will-change-transform"></div>
+            <a
+              href="https://github.com/SpaceTimee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="peer relative z-10 block w-full h-full rounded-full transform transition-all duration-300 hover:scale-105 will-change-transform"
+              style={{ clipPath: 'circle(50%)', WebkitClipPath: 'circle(50%)' }}
+            >
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-orange-300 p-[3px] dark:bg-gray-800">
+                <div className="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center">
+                  <img
+                    src="/avatar.png"
+                    alt="Avatar"
+                    className="w-full h-full object-cover block dark:hidden mix-blend-multiply"
+                    style={{ imageRendering: 'pixelated' }}
+                    decoding="async"
+                    fetchPriority="high"
+                    onError={(e) => e.currentTarget.style.display = 'none'}
+                  />
+                  <img
+                    src="/avatar-dark.png"
+                    alt="Avatar"
+                    className="w-full h-full object-cover hidden dark:block"
+                    style={{ imageRendering: 'pixelated' }}
+                    decoding="async"
+                    fetchPriority="high"
+                    onError={(e) => e.currentTarget.style.display = 'none'}
+                  />
+                </div>
               </div>
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md">
+            </a>
+
+            <a
+              href="https://huggingface.co/SpaceTimee"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform duration-200 z-20"
+            >
               <Sparkles className="w-5 h-5 text-primary" />
-            </div>
-          </a>
+            </a>
+          </div>
 
           <div className="flex-1 space-y-4">
             <div>
