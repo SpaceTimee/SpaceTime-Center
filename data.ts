@@ -159,36 +159,56 @@ export const projects: Project[] = [
   {
     title: "Unity Learning",
     description: "继续学习 Unity",
-    tags: ["Learning"],
+    tags: ["Unity"],
     status: ProjectStatus.Planned
+  },
+  {
+    title: "Suri Qwen 3.1 4B Uncensored",
+    description: "Qwen3 4B 无审查模型",
+    link: "https://huggingface.co/SpaceTimee/Suri-Qwen-3.1-4B-Uncensored",
+    tags: ["PyTorch"],
+    status: ProjectStatus.Completed,
+    icon: 'HuggingFace'
+  },
+  {
+    title: "Suri Qwen 3.1 4B Uncensored Hard",
+    description: "Qwen3 4B 无审查特化模型",
+    link: "https://huggingface.co/SpaceTimee/Suri-Qwen-3.1-4B-Uncensored-Hard",
+    tags: ["PyTorch"],
+    status: ProjectStatus.Completed,
+    icon: 'HuggingFace'
   },
   {
     title: "YouTube Video Summarizer",
     description: "油管视频总结器",
     link: "https://summarizer.spacetimee.xyz",
     tags: ["Google Opal"],
-    status: ProjectStatus.Completed
+    status: ProjectStatus.Completed,
+    icon: 'Gemini'
   },
   {
     title: "Virtual Avatar Designer",
     description: "虚拟形象设计器",
     link: "https://designer.spacetimee.xyz",
     tags: ["Google Opal"],
-    status: ProjectStatus.Completed
+    status: ProjectStatus.Completed,
+    icon: 'Gemini'
   },
   {
     title: "Parallel World Imagineer",
     description: "平行世界生成器",
     link: "https://imagineer.spacetimee.xyz",
     tags: ["Google Opal"],
-    status: ProjectStatus.Completed
+    status: ProjectStatus.Completed,
+    icon: 'Gemini'
   },
   {
     title: "Veo Video Generator",
     description: "Veo3.1 体验场",
     link: "https://veo.spacetimee.xyz",
     tags: ["Google Opal"],
-    status: ProjectStatus.Completed
+    status: ProjectStatus.Completed,
+    icon: 'Gemini'
   },
   {
     title: "Sheas Unlocker",
@@ -221,7 +241,7 @@ export const projects: Project[] = [
   {
     title: "Scratch Games",
     description: "一些用 Scratch 制作的小游戏 (弃坑多年，年久失修)",
-    tags: ["Scratch", "Archived"],
+    tags: ["Scratch"],
     status: ProjectStatus.Completed
   }
 ]

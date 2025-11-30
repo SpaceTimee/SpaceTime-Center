@@ -1,6 +1,6 @@
 import React from 'react';
 import { Project, ProjectStatus } from '../types';
-import { Github, ChevronRight, FolderCog, FolderCheck, FolderClock, Pin } from 'lucide-react';
+import { Github, ChevronRight, FolderCog, FolderCheck, FolderClock, Pin, Sparkles, Brain } from 'lucide-react';
 
 const getStatusIcon = (status: ProjectStatus) => {
   if (status === ProjectStatus.Completed) return <FolderCheck className="w-6 h-6" />;
@@ -10,6 +10,12 @@ const getStatusIcon = (status: ProjectStatus) => {
 
 const ProjectCard: React.FC<{ project: Project }> = React.memo(({ project }) => {
   const Component = project.link ? 'a' : 'div';
+
+  const getProjectIcon = () => {
+    if (project.icon === 'HuggingFace') return <Brain className="w-5 h-5" />;
+    if (project.icon === 'Gemini') return <Sparkles className="w-5 h-5" />;
+    return <Github className="w-5 h-5" />;
+  };
 
   return (
     <Component
@@ -31,7 +37,7 @@ const ProjectCard: React.FC<{ project: Project }> = React.memo(({ project }) => 
             </div>
           ) : (project.link && (
             <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">
-              <Github className="w-5 h-5" />
+              {getProjectIcon()}
             </div>
           ))}
         </div>

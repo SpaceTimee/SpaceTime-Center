@@ -4,6 +4,8 @@ export enum ProjectStatus {
   Planned = 'Planned'
 }
 
+export type ProjectIconType = 'Github' | 'HuggingFace' | 'Gemini';
+
 export interface Project {
   title: string;
   description: string;
@@ -11,6 +13,7 @@ export interface Project {
   tags: string[];
   status: ProjectStatus;
   pinned?: boolean;
+  icon?: ProjectIconType;
 }
 
 export interface NavigationLink {
