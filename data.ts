@@ -163,6 +163,14 @@ export const projects: Project[] = [
     status: ProjectStatus.Planned
   },
   {
+    title: "Suri Qwen 3 Playground",
+    description: "Suri Qwen 3 体验场",
+    link: "https://huggingface.co/spaces/SpaceTimee/Suri-Qwen-3-Playground",
+    tags: ["Chainlit"],
+    status: ProjectStatus.Completed,
+    icon: 'HuggingFace'
+  },
+  {
     title: "Suri Qwen 3.1 4B Uncensored",
     description: "Qwen3 4B 无审查模型",
     link: "https://huggingface.co/SpaceTimee/Suri-Qwen-3.1-4B-Uncensored",
