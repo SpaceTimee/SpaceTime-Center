@@ -166,7 +166,7 @@ export const projects: Project[] = [
     title: "Suri Qwen 3 Playground",
     description: "Suri Qwen 3 体验场",
     link: "https://huggingface.co/spaces/SpaceTimee/Suri-Qwen-3-Playground",
-    tags: ["Chainlit"],
+    tags: ["Chainlit", "FastAPI"],
     status: ProjectStatus.Completed,
     icon: 'HuggingFace'
   },
