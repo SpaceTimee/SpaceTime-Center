@@ -211,14 +211,6 @@ export const projects: Project[] = [
     icon: 'Gemini'
   },
   {
-    title: "Veo Video Generator",
-    description: "Veo3.1 体验场",
-    link: "https://veo.spacetimee.xyz",
-    tags: ["Google Opal"],
-    status: ProjectStatus.Completed,
-    icon: 'Gemini'
-  },
-  {
     title: "Sheas Unlocker",
     description: "Windows 外来文件解锁定工具",
     link: "https://github.com/SpaceTimee/Sheas-Unlocker",
