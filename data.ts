@@ -104,14 +104,14 @@ export const projects: Project[] = [
     title: "Bot CealingCat",
     description: "提供 SNI 伪造相关服务的 Telegram Bot",
     link: "https://github.com/SpaceTimee/Bot-CealingCat",
-    tags: ["WPF"],
+    tags: ["ASP.Net Core", "Vue"],
     status: ProjectStatus.InProgress
   },
   {
     title: "Console HostChecker",
     description: "Cealing Host 自动化检查工具",
     link: "https://github.com/SpaceTimee/Console-HostChecker",
-    tags: ["Pwsh"],
+    tags: ["Pwsh", "Github Workflows"],
     status: ProjectStatus.InProgress
   },
   {
