@@ -259,6 +259,36 @@ const Header: React.FC = React.memo(() => {
     startParallaxAnimation();
   };
 
+  const [shakingTagIndex, setShakingTagIndex] = React.useState<number | null>(null);
+  const [tagClicks, setTagClicks] = React.useState<Record<number, number>>({});
+  const [fallingTags, setFallingTags] = React.useState<Set<number>>(new Set());
+  const [collapsingTags, setCollapsingTags] = React.useState<Set<number>>(new Set());
+  const [removedTags, setRemovedTags] = React.useState<Set<number>>(new Set());
+
+  const handleTagClick = (index: number) => {
+    if (shakingTagIndex !== null || fallingTags.has(index)) return;
+
+    const currentClicks = (tagClicks[index] || 0) + 1;
+    setTagClicks(prev => ({ ...prev, [index]: currentClicks }));
+
+    if (currentClicks >= 10) {
+      setFallingTags(prev => new Set(prev).add(index));
+      setCollapsingTags(prev => new Set(prev).add(index));
+
+      setTimeout(() => {
+        setRemovedTags(prev => new Set(prev).add(index));
+      }, 600);
+    } else {
+      setShakingTagIndex(index);
+      if (navigator.vibrate) {
+        navigator.vibrate(50);
+      }
+      setTimeout(() => {
+        setShakingTagIndex(null);
+      }, 500);
+    }
+  };
+
   useEffect(() => {
     window.addEventListener('deviceorientation', handleDeviceOrientation, true);
     return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
@@ -370,13 +400,28 @@ const Header: React.FC = React.memo(() => {
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              {profileData.tags.map((detail, index) => (
-                <span key={index} className="inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-sm font-medium border border-gray-200 dark:border-gray-600 shadow-sm">
-                  <Code2 className="w-3.5 h-3.5 mr-1.5 text-primary flex-shrink-0" />
-                  {detail}
-                </span>
-              ))}
+            <div className={`flex flex-wrap -m-1.5 transition-all duration-700 ease-in-out overflow-hidden ${fallingTags.size === profileData.tags.length ? '!mt-0 !max-h-0 opacity-0' : 'mt-0 max-h-[500px] opacity-100'}`}>
+              {profileData.tags.map((detail, index) => {
+                if (removedTags.has(index)) return null;
+                const isFalling = fallingTags.has(index);
+                const isCollapsing = collapsingTags.has(index);
+                const isShaking = shakingTagIndex === index;
+
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleTagClick(index)}
+                    className={`inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-sm font-medium border border-gray-200 dark:border-gray-600 shadow-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600/50 transition-all duration-300 m-1.5
+                      ${isShaking ? 'animate-shake' : ''}
+                      ${isFalling ? 'animate-fall' : ''}
+                      ${isCollapsing ? '!max-w-0 !max-h-0 !p-0 !m-0 !border-0 opacity-0 overflow-hidden' : 'max-w-40 max-h-10'}`}
+                    disabled={isFalling}
+                  >
+                    <Code2 className="w-3.5 h-3.5 mr-1.5 text-primary flex-shrink-0" />
+                    <span className="whitespace-nowrap">{detail}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
