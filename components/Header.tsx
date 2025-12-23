@@ -235,9 +235,30 @@ const Header: React.FC = React.memo(() => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
+
       observer.disconnect();
       stopAnimation();
     };
+  }, []);
+
+  const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
+    if (isDragging.current || e.gamma === null || e.beta === null) return;
+
+    const maxTilt = 20;
+
+    const gamma = Math.min(Math.max(e.gamma, -maxTilt), maxTilt);
+    const beta = Math.min(Math.max(e.beta - 45, -maxTilt), maxTilt);
+
+    const x = gamma * 0.625;
+    const y = beta * 0.625;
+
+    targetParallaxOffset.current = { x, y };
+    startParallaxAnimation();
+  };
+
+  useEffect(() => {
+    window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+    return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
   }, []);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -341,7 +362,7 @@ const Header: React.FC = React.memo(() => {
                 </span>
                 <span className="text-indigo-700 dark:text-indigo-300">.</span>
               </h1>
-              <p className="text-lg lg:text-xl text-gray-500 dark:text-gray-400 font-medium drop-shadow-[0_0px_3px_rgba(255,255,255,1)] dark:drop-shadow-none">
+              <p className="text-lg lg:text-xl text-white dark:text-gray-400 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-none">
                 {profileData.tagline}
               </p>
             </div>
