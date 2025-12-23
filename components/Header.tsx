@@ -227,6 +227,7 @@ const Header: React.FC = React.memo(() => {
     window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchcancel', handleTouchEnd);
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -235,6 +236,8 @@ const Header: React.FC = React.memo(() => {
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleTouchEnd);
+      window.removeEventListener('touchcancel', handleTouchEnd);
+      window.removeEventListener('deviceorientation', handleDeviceOrientation);
 
       observer.disconnect();
       stopAnimation();
