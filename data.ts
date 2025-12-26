@@ -66,6 +66,13 @@ export const projects: Project[] = [
     status: ProjectStatus.InProgress
   },
   {
+    title: "Sheas Frameg",
+    description: "在线视频插帧工具",
+    link: "https://github.com/SpaceTimee/Sheas-Frameg",
+    tags: ["Next", "Tailwind"],
+    status: ProjectStatus.InProgress
+  },
+  {
     title: "Ona Dop",
     description: "在线 DNS 解析工具",
     link: "https://github.com/SpaceTimee/Ona-Dop",
@@ -146,7 +153,7 @@ export const projects: Project[] = [
     title: "Frok NextChat",
     description: "NextChat 分支",
     link: "https://github.com/SpaceTimee/Frok-NextChat",
-    tags: ["Next.js"],
+    tags: ["Next"],
     status: ProjectStatus.InProgress
   },
   {
