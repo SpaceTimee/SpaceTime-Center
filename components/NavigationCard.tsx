@@ -1,14 +1,16 @@
-import React from 'react'
-import { NavigationLink } from '../types'
+import { memo } from 'react'
+import type { NavigationLink } from '../types'
 import { Globe, Server, FileText, ChevronRight } from 'lucide-react'
 
-const getIcon = (type: string) => {
-  if (type === 'Blog') return <FileText className="w-5 h-5" />
-  if (type === 'Server') return <Server className="w-5 h-5" />
-  return <Globe className="w-5 h-5" />
+const ICON_MAP: Record<string, React.ReactNode> = {
+  Blog: <FileText className="w-5 h-5" />,
+  Server: <Server className="w-5 h-5" />,
+  default: <Globe className="w-5 h-5" />
 }
 
-const NavigationCard: React.FC<{ link: NavigationLink }> = React.memo(({ link }) => {
+const getIcon = (type: string) => ICON_MAP[type] || ICON_MAP.default
+
+const NavigationCard = memo(({ link }: { link: NavigationLink }) => {
   return (
     <a
       href={link.url}

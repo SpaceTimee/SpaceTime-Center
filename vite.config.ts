@@ -13,5 +13,15 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('.', import.meta.url))
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'lucide-vendor': ['lucide-react']
+        }
+      }
+    }
   }
 })

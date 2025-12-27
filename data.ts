@@ -1,4 +1,5 @@
-import { Project, ProjectStatus, NavigationLink, ContactInfo } from './types'
+import { ProjectStatus } from './types'
+import type { Project, NavigationLink, ContactInfo } from './types'
 
 export const profileData = {
   name: 'Space Time',
@@ -6,7 +7,7 @@ export const profileData = {
   tags: ['Web 全栈', '.Net 全端', '营养全面']
 }
 
-export const navigationLinks: NavigationLink[] = [
+export const navigationLinks: readonly NavigationLink[] = [
   {
     title: 'SpaceTime Center',
     description: '个人主页',
@@ -37,7 +38,7 @@ export const navigationLinks: NavigationLink[] = [
   }
 ]
 
-export const projects: Project[] = [
+export const projects: readonly Project[] = [
   {
     title: 'Sheas Cealer',
     description: '桌面端 SNI 伪造工具',
@@ -249,7 +250,7 @@ export const projects: Project[] = [
   }
 ]
 
-export const contactInfo: ContactInfo[] = [
+export const contactInfo: readonly ContactInfo[] = [
   {
     platform: 'Email',
     value: 'Zeus6_6@163.com',

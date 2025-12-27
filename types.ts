@@ -7,26 +7,26 @@ export enum ProjectStatus {
 export type ProjectIconType = 'Github' | 'HuggingFace' | 'Gemini'
 
 export interface Project {
-  title: string
-  description: string
-  link?: string
-  tags: string[]
-  status: ProjectStatus
-  pinned?: boolean
-  icon?: ProjectIconType
+  readonly title: string
+  readonly description: string
+  readonly link?: string
+  readonly tags: readonly string[]
+  readonly status: ProjectStatus
+  readonly pinned?: boolean
+  readonly icon?: ProjectIconType
 }
 
 export interface NavigationLink {
-  title: string
-  description: string
-  url: string
-  type: 'Center' | 'Blog' | 'Server' | 'Other'
-  tags?: string[]
+  readonly title: string
+  readonly description: string
+  readonly url: string
+  readonly type: 'Center' | 'Blog' | 'Server' | 'Other'
+  readonly tags?: readonly string[]
 }
 
 export interface ContactInfo {
-  platform: string
-  value: string
-  link?: string
-  isEmail?: boolean
+  readonly platform: string
+  readonly value: string
+  readonly link?: string
+  readonly isEmail?: boolean
 }

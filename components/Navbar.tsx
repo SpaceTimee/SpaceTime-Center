@@ -1,23 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { Menu, X, Home, Compass, Layers, MessageCircle, ChevronUp, Sun, Moon } from 'lucide-react'
+import { useState, useEffect, memo } from 'react'
+import { Menu, X, ChevronUp, Sun, Moon } from 'lucide-react'
+import { useTheme } from '../hooks/useTheme'
+import { SECTIONS_CONFIG, SECTION_IDS } from '../constants'
 
-const Navbar: React.FC = React.memo(() => {
+const Navbar = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [isDark, setIsDark] = useState(() => {
-    const savedTheme = localStorage.getItem('theme')
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-    return savedTheme === 'dark' || (!savedTheme && prefersDark)
-  })
   const [isScrollingToTop, setIsScrollingToTop] = useState(false)
 
-  useEffect(() => {
-    if (isDark) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [isDark])
+  const { isDark, toggleTheme } = useTheme()
 
   useEffect(() => {
     let ticking = false
@@ -37,27 +28,13 @@ const Navbar: React.FC = React.memo(() => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const toggleTheme = () => {
-    const newMode = !isDark
-    setIsDark(newMode)
-    document.documentElement.classList.toggle('dark', newMode)
-    localStorage.setItem('theme', newMode ? 'dark' : 'light')
-  }
-
-  const navItems = [
-    { id: 'home', label: 'About', icon: <Home className="w-4 h-4" /> },
-    { id: 'navigation', label: 'Navigation', icon: <Compass className="w-4 h-4" /> },
-    { id: 'projects', label: 'Projects', icon: <Layers className="w-4 h-4" /> },
-    { id: 'contact', label: 'Contact', icon: <MessageCircle className="w-4 h-4" /> }
-  ]
-
   const scrollToSection = (id: string) => {
     setIsOpen(false)
-    setIsScrollingToTop(id === 'home' && window.scrollY > 0)
+    setIsScrollingToTop(id === SECTION_IDS.HOME && window.scrollY > 0)
 
     const element = document.getElementById(id)
     if (element) {
-      const offset = id === 'contact' ? 56 : 80
+      const offset = id === SECTION_IDS.CONTACT ? 56 : 80
       const elementPosition = element.getBoundingClientRect().top + window.scrollY
       window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' })
     }
@@ -81,11 +58,15 @@ const Navbar: React.FC = React.memo(() => {
           <div className={navContainerClasses}>
             <div
               className="flex items-center gap-2 m-0.5 cursor-pointer group"
-              onClick={() => scrollToSection('home')}
+              onClick={() => scrollToSection(SECTION_IDS.HOME)}
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform relative overflow-hidden flex-shrink-0 will-change-transform">
                 <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isScrollingToTop ? '-translate-y-full opacity-0' : 'opacity-100 [@media(hover:hover)]:group-hover:-translate-y-full [@media(hover:hover)]:group-hover:opacity-0'}`}
+                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                    isScrollingToTop
+                      ? '-translate-y-full opacity-0'
+                      : 'opacity-100 [@media(hover:hover)]:group-hover:-translate-y-full [@media(hover:hover)]:group-hover:opacity-0'
+                  }`}
                 >
                   <img
                     src="/favicon.png"
@@ -99,7 +80,11 @@ const Navbar: React.FC = React.memo(() => {
                   />
                 </span>
                 <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isScrollingToTop ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100'}`}
+                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                    isScrollingToTop
+                      ? 'translate-y-0 opacity-100'
+                      : 'translate-y-full opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100'
+                  }`}
                 >
                   <ChevronUp className="w-5 h-5" strokeWidth={3} />
                 </span>
@@ -112,14 +97,14 @@ const Navbar: React.FC = React.memo(() => {
 
           <div className={`${navContainerClasses} flex items-center gap-4 ml-auto max-[364px]:hidden`}>
             <div className="hidden min-[830px]:flex items-center gap-1">
-              {navItems.map((item) => (
+              {SECTIONS_CONFIG.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all duration-300 font-medium text-sm whitespace-nowrap"
                 >
-                  {item.icon}
-                  {item.label}
+                  <item.icon className="w-4 h-4" />
+                  {item.title}
                 </button>
               ))}
             </div>
@@ -151,14 +136,14 @@ const Navbar: React.FC = React.memo(() => {
         }`}
       >
         <div className="p-4 space-y-2">
-          {navItems.map((item) => (
+          {SECTIONS_CONFIG.map((item) => (
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:bg-primary/10"
             >
-              {item.icon}
-              <span className="font-medium">{item.label}</span>
+              <item.icon className="w-4 h-4" />
+              <span className="font-medium">{item.title}</span>
             </button>
           ))}
         </div>

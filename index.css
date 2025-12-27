@@ -38,47 +38,6 @@
   background: #e04f00;
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-.animate-slide-in-left {
-  animation: slideInLeft 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
-}
-
 .waves {
   width: 100%;
   height: 100%;

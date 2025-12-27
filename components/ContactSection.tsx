@@ -1,19 +1,28 @@
-import React from 'react'
-import { contactInfo } from '../data'
+import { memo } from 'react'
 import { Mail, Github, Tv, ChevronRight, MessageCircle } from 'lucide-react'
+import { contactInfo } from '../data'
+import { SECTION_IDS } from '../constants'
 
-const getPlatformIcon = (platform: string) => {
-  const p = platform.toLowerCase()
-  if (p.includes('mail') || platform.includes('邮箱')) return <Mail className="w-5 h-5" />
-  if (p.includes('github')) return <Github className="w-5 h-5" />
-  if (p.includes('bilibili')) return <Tv className="w-5 h-5" />
-  return <MessageCircle className="w-5 h-5" />
+const ICON_MAP: Record<string, React.ReactNode> = {
+  email: <Mail className="w-5 h-5" />,
+  gmail: <Mail className="w-5 h-5" />,
+  github: <Github className="w-5 h-5" />,
+  bilibili: <Tv className="w-5 h-5" />,
+  default: <MessageCircle className="w-5 h-5" />
 }
 
-const ContactSection: React.FC = React.memo(() => {
+const getPlatformIcon = (platform: string) => {
+  const key = platform.toLowerCase()
+  if (key.includes('mail') || key.includes('邮箱')) return ICON_MAP.email
+  if (key.includes('github')) return ICON_MAP.github
+  if (key.includes('bilibili')) return ICON_MAP.bilibili
+  return ICON_MAP.default
+}
+
+const ContactSection = memo(() => {
   return (
-    <section
-      id="contact"
+    <footer
+      id={SECTION_IDS.CONTACT}
       className="bg-white dark:bg-gray-800 mt-12 pt-16 border-t border-gray-100 dark:border-gray-700 scroll-mt-16 transition-colors duration-300"
     >
       <div className="max-w-5xl mx-auto px-6">
@@ -56,11 +65,11 @@ const ContactSection: React.FC = React.memo(() => {
             <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">
               Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time
             </p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.5</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.6</p>
           </div>
         </div>
       </div>
-    </section>
+    </footer>
   )
 })
 
