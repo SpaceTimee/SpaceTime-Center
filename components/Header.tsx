@@ -1,323 +1,340 @@
-import React, { useEffect, useRef } from 'react';
-import { profileData } from '../data';
-import { Code2, Sparkles } from 'lucide-react';
+import React, { useEffect, useRef, useCallback } from 'react'
+import { profileData } from '../data'
+import { Code2, Sparkles } from 'lucide-react'
 
 const Header: React.FC = React.memo(() => {
-  const headerRef = useRef<HTMLElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
-  const waveRef = useRef<HTMLDivElement>(null);
-  const borderRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null)
+  const imageRef = useRef<HTMLImageElement>(null)
+  const waveRef = useRef<HTMLDivElement>(null)
+  const borderRef = useRef<HTMLDivElement>(null)
 
-  const pullDistance = useRef(0);
-  const isDragging = useRef(false);
-  const startY = useRef(0);
-  const animationFrameId = useRef<number | null>(null);
-  const resetTimer = useRef<number | null>(null);
+  const pullDistance = useRef(0)
+  const isDragging = useRef(false)
+  const startY = useRef(0)
+  const animationFrameId = useRef<number | null>(null)
+  const resetTimer = useRef<number | null>(null)
 
-  const targetParallaxOffset = useRef({ x: 0, y: 0 });
-  const currentParallaxOffset = useRef({ x: 0, y: 0 });
-  const parallaxAnimationFrameId = useRef<number | null>(null);
+  const targetParallaxOffset = useRef({ x: 0, y: 0 })
+  const currentParallaxOffset = useRef({ x: 0, y: 0 })
+  const parallaxAnimationFrameId = useRef<number | null>(null)
 
-  const touchStartPos = useRef({ x: 0, y: 0 });
-  const isWaveActive = useRef(false);
-  const mouseMoveTicking = useRef(false);
-  const dimensions = useRef({ width: 0, height: 0, left: 0, top: 0 });
+  const touchStartPos = useRef({ x: 0, y: 0 })
+  const isWaveActive = useRef(false)
+  const mouseMoveTicking = useRef(false)
+  const dimensions = useRef({ width: 0, height: 0, left: 0, top: 0 })
 
-  const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
+  const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor
 
-  const updateParallaxState = () => {
-    if (!imageRef.current) return;
+  const updateParallaxState = useCallback(() => {
+    if (!imageRef.current) return
 
-    const maxPull = 150;
-    const ratio = Math.min(pullDistance.current / maxPull, 1);
+    const maxPull = 150
+    const ratio = Math.min(pullDistance.current / maxPull, 1)
 
     if (borderRef.current) {
-      borderRef.current.style.opacity = `${1 - ratio}`;
+      borderRef.current.style.opacity = `${1 - ratio}`
     }
 
     if (waveRef.current) {
-      const height = ratio * 60;
-      waveRef.current.style.height = `${height}px`;
-      waveRef.current.style.opacity = `${ratio}`;
+      const height = ratio * 60
+      waveRef.current.style.height = `${height}px`
+      waveRef.current.style.opacity = `${ratio}`
     }
 
-    const baseScale = 1.1;
-    imageRef.current.style.transform = `scale(${baseScale}) translate(${currentParallaxOffset.current.x}px, ${currentParallaxOffset.current.y}px)`;
-  };
+    const baseScale = 1.1
+    imageRef.current.style.transform = `scale(${baseScale}) translate(${currentParallaxOffset.current.x}px, ${currentParallaxOffset.current.y}px)`
+  }, [])
 
-  const animateParallax = () => {
-    const ease = 0.1;
-    const targetX = targetParallaxOffset.current.x;
-    const targetY = targetParallaxOffset.current.y;
+  const animateParallaxRef = useRef<() => void>(null!)
+  const animateDecayRef = useRef<() => void>(null!)
 
-    const currentX = currentParallaxOffset.current.x;
-    const currentY = currentParallaxOffset.current.y;
+  const animateParallax = useCallback(() => {
+    const ease = 0.1
+    const targetX = targetParallaxOffset.current.x
+    const targetY = targetParallaxOffset.current.y
 
-    const newX = lerp(currentX, targetX, ease);
-    const newY = lerp(currentY, targetY, ease);
+    const currentX = currentParallaxOffset.current.x
+    const currentY = currentParallaxOffset.current.y
 
-    currentParallaxOffset.current = { x: newX, y: newY };
-    updateParallaxState();
+    const newX = lerp(currentX, targetX, ease)
+    const newY = lerp(currentY, targetY, ease)
+
+    currentParallaxOffset.current = { x: newX, y: newY }
+    updateParallaxState()
 
     if (Math.abs(newX - targetX) > 0.01 || Math.abs(newY - targetY) > 0.01) {
-      parallaxAnimationFrameId.current = requestAnimationFrame(animateParallax);
+      parallaxAnimationFrameId.current = requestAnimationFrame(() => animateParallaxRef.current())
     } else {
-      parallaxAnimationFrameId.current = null;
+      parallaxAnimationFrameId.current = null
     }
-  };
+  }, [updateParallaxState])
 
-  const startParallaxAnimation = () => {
+  useEffect(() => {
+    animateParallaxRef.current = animateParallax
+  }, [animateParallax])
+
+  const startParallaxAnimation = useCallback(() => {
     if (!parallaxAnimationFrameId.current) {
-      parallaxAnimationFrameId.current = requestAnimationFrame(animateParallax);
+      parallaxAnimationFrameId.current = requestAnimationFrame(animateParallax)
     }
-  };
+  }, [animateParallax])
 
-  const animateDecay = () => {
+  const animateDecay = useCallback(() => {
     if (!isDragging.current && pullDistance.current > 0) {
-      pullDistance.current *= 0.999;
-      if (pullDistance.current < 0.5) pullDistance.current = 0;
+      pullDistance.current *= 0.999
+      if (pullDistance.current < 0.5) pullDistance.current = 0
 
-      updateParallaxState();
+      updateParallaxState()
 
       if (pullDistance.current > 0) {
-        animationFrameId.current = requestAnimationFrame(animateDecay);
+        animationFrameId.current = requestAnimationFrame(() => animateDecayRef.current())
       } else {
-        animationFrameId.current = null;
+        animationFrameId.current = null
       }
     } else {
-      animationFrameId.current = null;
+      animationFrameId.current = null
     }
-  };
+  }, [updateParallaxState])
+
+  useEffect(() => {
+    animateDecayRef.current = animateDecay
+  }, [animateDecay])
+
+  const handleDeviceOrientation = useCallback(
+    (e: DeviceOrientationEvent) => {
+      if (isDragging.current || e.gamma === null || e.beta === null) return
+
+      const maxTilt = 20
+
+      const gamma = Math.min(Math.max(e.gamma, -maxTilt), maxTilt)
+      const beta = Math.min(Math.max(e.beta - 45, -maxTilt), maxTilt)
+
+      const x = gamma * 0.625
+      const y = beta * 0.625
+
+      targetParallaxOffset.current = { x, y }
+      startParallaxAnimation()
+    },
+    [startParallaxAnimation]
+  )
 
   useEffect(() => {
     const updateDimensions = () => {
       if (headerRef.current) {
-        const rect = headerRef.current.getBoundingClientRect();
+        const rect = headerRef.current.getBoundingClientRect()
         dimensions.current = {
           width: rect.width,
           height: rect.height,
           left: rect.left + window.scrollX,
           top: rect.top + window.scrollY
-        };
-      }
-    };
-
-    updateDimensions();
-
-    let resizeTimer: number;
-    const handleResize = () => {
-      if (resizeTimer) window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(updateDimensions, 150);
-    };
-
-    window.addEventListener('resize', handleResize);
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (headerRef.current) {
-          if (entry.isIntersecting) {
-            headerRef.current.classList.remove('paused-animations');
-          } else {
-            headerRef.current.classList.add('paused-animations');
-          }
         }
-      });
-    }, { threshold: 0 });
+      }
+    }
 
-    if (headerRef.current) observer.observe(headerRef.current);
+    updateDimensions()
+
+    let resizeTimer: number
+    const handleResize = () => {
+      if (resizeTimer) window.clearTimeout(resizeTimer)
+      resizeTimer = window.setTimeout(updateDimensions, 150)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (headerRef.current) {
+            if (entry.isIntersecting) {
+              headerRef.current.classList.remove('paused-animations')
+            } else {
+              headerRef.current.classList.add('paused-animations')
+            }
+          }
+        })
+      },
+      { threshold: 0 }
+    )
+
+    if (headerRef.current) observer.observe(headerRef.current)
 
     const stopAnimation = () => {
       if (animationFrameId.current) {
-        cancelAnimationFrame(animationFrameId.current);
-        animationFrameId.current = null;
+        cancelAnimationFrame(animationFrameId.current)
+        animationFrameId.current = null
       }
       if (parallaxAnimationFrameId.current) {
-        cancelAnimationFrame(parallaxAnimationFrameId.current);
-        parallaxAnimationFrameId.current = null;
+        cancelAnimationFrame(parallaxAnimationFrameId.current)
+        parallaxAnimationFrameId.current = null
       }
       if (resetTimer.current) {
-        clearTimeout(resetTimer.current);
-        resetTimer.current = null;
+        clearTimeout(resetTimer.current)
+        resetTimer.current = null
       }
-    };
+    }
 
     const handleWheel = (e: WheelEvent) => {
       if (window.scrollY === 0 && e.deltaY < 0) {
-        pullDistance.current = Math.max(0, Math.min(pullDistance.current - e.deltaY * 0.6, 250));
+        pullDistance.current = Math.max(0, Math.min(pullDistance.current - e.deltaY * 0.6, 250))
 
         if (!animationFrameId.current) {
           animationFrameId.current = requestAnimationFrame(() => {
-            updateParallaxState();
-            animationFrameId.current = null;
-          });
+            updateParallaxState()
+            animationFrameId.current = null
+          })
         }
 
-        if (resetTimer.current) clearTimeout(resetTimer.current);
+        if (resetTimer.current) clearTimeout(resetTimer.current)
         resetTimer.current = window.setTimeout(() => {
-          if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current);
-          animateDecay();
-        }, 20);
+          if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current)
+          animateDecay()
+        }, 20)
       }
-    };
+    }
 
     const handleTouchStart = (e: TouchEvent) => {
-      isDragging.current = true;
-      touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      isDragging.current = true
+      touchStartPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
 
       if (window.scrollY === 0) {
-        isWaveActive.current = true;
-        const currentVal = Math.max(0, pullDistance.current);
-        const currentDelta = Math.pow(currentVal / 1.5, 1 / 0.85);
-        startY.current = e.touches[0].clientY - currentDelta;
+        isWaveActive.current = true
+        const currentVal = Math.max(0, pullDistance.current)
+        const currentDelta = Math.pow(currentVal / 1.5, 1 / 0.85)
+        startY.current = e.touches[0].clientY - currentDelta
 
-        stopAnimation();
+        stopAnimation()
       } else {
-        isWaveActive.current = false;
+        isWaveActive.current = false
       }
-    };
+    }
 
     const handleTouchMove = (e: TouchEvent) => {
       if (isDragging.current) {
-        const clientX = e.touches[0].clientX;
-        const clientY = e.touches[0].clientY;
+        const clientX = e.touches[0].clientX
+        const clientY = e.touches[0].clientY
 
         if (!animationFrameId.current) {
           animationFrameId.current = requestAnimationFrame(() => {
-            const deltaX = clientX - touchStartPos.current.x;
-            const deltaY = clientY - touchStartPos.current.y;
+            const deltaX = clientX - touchStartPos.current.x
+            const deltaY = clientY - touchStartPos.current.y
 
-            const { width: offsetWidth, height: offsetHeight } = dimensions.current;
-            const limitX = offsetWidth * 0.05;
-            const limitY = offsetHeight * 0.05;
-            const resistance = 30;
+            const { width: offsetWidth, height: offsetHeight } = dimensions.current
+            const limitX = offsetWidth * 0.05
+            const limitY = offsetHeight * 0.05
+            const resistance = 30
 
             if (limitX > 0 && limitY > 0) {
-              const x = limitX * Math.tanh(deltaX / (limitX * resistance));
-              const y = limitY * Math.tanh(deltaY / (limitY * resistance));
+              const x = limitX * Math.tanh(deltaX / (limitX * resistance))
+              const y = limitY * Math.tanh(deltaY / (limitY * resistance))
 
-              targetParallaxOffset.current = { x, y };
-              startParallaxAnimation();
+              targetParallaxOffset.current = { x, y }
+              startParallaxAnimation()
             }
 
             if (isWaveActive.current && window.scrollY <= 0) {
-              const deltaWave = clientY - startY.current;
+              const deltaWave = clientY - startY.current
               if (deltaWave > 0) {
-                pullDistance.current = Math.min(Math.pow(deltaWave, 0.85) * 1.5, 250);
+                pullDistance.current = Math.min(Math.pow(deltaWave, 0.85) * 1.5, 250)
               } else {
-                pullDistance.current = 0;
+                pullDistance.current = 0
               }
             }
 
-            updateParallaxState();
-            animationFrameId.current = null;
-          });
+            updateParallaxState()
+            animationFrameId.current = null
+          })
         }
       }
-    };
+    }
 
     const handleTouchEnd = () => {
-      isDragging.current = false;
-      isWaveActive.current = false;
-      targetParallaxOffset.current = { x: 0, y: 0 };
-      startParallaxAnimation();
-      animateDecay();
-    };
+      isDragging.current = false
+      isWaveActive.current = false
+      targetParallaxOffset.current = { x: 0, y: 0 }
+      startParallaxAnimation()
+      animateDecay()
+    }
 
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('touchcancel', handleTouchEnd);
+    window.addEventListener('wheel', handleWheel, { passive: true })
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('touchend', handleTouchEnd)
+    window.addEventListener('touchcancel', handleTouchEnd)
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      if (resizeTimer) window.clearTimeout(resizeTimer);
-      window.removeEventListener('wheel', handleWheel);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('touchcancel', handleTouchEnd);
-      window.removeEventListener('deviceorientation', handleDeviceOrientation);
+      window.removeEventListener('resize', handleResize)
+      if (resizeTimer) window.clearTimeout(resizeTimer)
+      window.removeEventListener('wheel', handleWheel)
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleTouchEnd)
+      window.removeEventListener('touchcancel', handleTouchEnd)
+      window.removeEventListener('deviceorientation', handleDeviceOrientation)
 
-      observer.disconnect();
-      stopAnimation();
-    };
-  }, []);
+      observer.disconnect()
+      stopAnimation()
+    }
+  }, [animateDecay, startParallaxAnimation, handleDeviceOrientation, updateParallaxState])
 
-  const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
-    if (isDragging.current || e.gamma === null || e.beta === null) return;
-
-    const maxTilt = 20;
-
-    const gamma = Math.min(Math.max(e.gamma, -maxTilt), maxTilt);
-    const beta = Math.min(Math.max(e.beta - 45, -maxTilt), maxTilt);
-
-    const x = gamma * 0.625;
-    const y = beta * 0.625;
-
-    targetParallaxOffset.current = { x, y };
-    startParallaxAnimation();
-  };
-
-  const [shakingTagIndex, setShakingTagIndex] = React.useState<number | null>(null);
-  const [tagClicks, setTagClicks] = React.useState<Record<number, number>>({});
-  const [fallingTags, setFallingTags] = React.useState<Set<number>>(new Set());
-  const [collapsingTags, setCollapsingTags] = React.useState<Set<number>>(new Set());
-  const [removedTags, setRemovedTags] = React.useState<Set<number>>(new Set());
+  const [shakingTagIndex, setShakingTagIndex] = React.useState<number | null>(null)
+  const [tagClicks, setTagClicks] = React.useState<Record<number, number>>({})
+  const [fallingTags, setFallingTags] = React.useState<Set<number>>(new Set())
+  const [collapsingTags, setCollapsingTags] = React.useState<Set<number>>(new Set())
+  const [removedTags, setRemovedTags] = React.useState<Set<number>>(new Set())
 
   const handleTagClick = (index: number) => {
-    if (shakingTagIndex !== null || fallingTags.has(index)) return;
+    if (shakingTagIndex !== null || fallingTags.has(index)) return
 
-    const currentClicks = (tagClicks[index] || 0) + 1;
-    setTagClicks(prev => ({ ...prev, [index]: currentClicks }));
+    const currentClicks = (tagClicks[index] || 0) + 1
+    setTagClicks((prev) => ({ ...prev, [index]: currentClicks }))
 
     if (currentClicks >= 10) {
-      setFallingTags(prev => new Set(prev).add(index));
-      setCollapsingTags(prev => new Set(prev).add(index));
+      setFallingTags((prev) => new Set(prev).add(index))
+      setCollapsingTags((prev) => new Set(prev).add(index))
 
       setTimeout(() => {
-        setRemovedTags(prev => new Set(prev).add(index));
-      }, 600);
+        setRemovedTags((prev) => new Set(prev).add(index))
+      }, 600)
     } else {
-      setShakingTagIndex(index);
+      setShakingTagIndex(index)
       if (navigator.vibrate) {
-        navigator.vibrate(50);
+        navigator.vibrate(50)
       }
       setTimeout(() => {
-        setShakingTagIndex(null);
-      }, 500);
+        setShakingTagIndex(null)
+      }, 500)
     }
-  };
+  }
 
   useEffect(() => {
-    window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-    return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
-  }, []);
+    window.addEventListener('deviceorientation', handleDeviceOrientation, true)
+    return () => window.removeEventListener('deviceorientation', handleDeviceOrientation, true)
+  }, [handleDeviceOrientation])
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!headerRef.current || mouseMoveTicking.current) return;
-    const { clientX, clientY } = e;
+    if (!headerRef.current || mouseMoveTicking.current) return
+    const { clientX, clientY } = e
 
-    mouseMoveTicking.current = true;
+    mouseMoveTicking.current = true
     requestAnimationFrame(() => {
-      const rectLeft = dimensions.current.left - window.scrollX;
-      const rectTop = dimensions.current.top - window.scrollY;
-      const { width, height } = dimensions.current;
+      const rectLeft = dimensions.current.left - window.scrollX
+      const rectTop = dimensions.current.top - window.scrollY
+      const { width, height } = dimensions.current
 
-      const x = clientX - rectLeft - width / 2;
-      const y = clientY - rectTop - height / 2;
+      const x = clientX - rectLeft - width / 2
+      const y = clientY - rectTop - height / 2
 
-      targetParallaxOffset.current = { x: x / 40, y: y / 40 };
-      startParallaxAnimation();
+      targetParallaxOffset.current = { x: x / 40, y: y / 40 }
+      startParallaxAnimation()
 
-      mouseMoveTicking.current = false;
-    });
-  };
+      mouseMoveTicking.current = false
+    })
+  }
 
   const handleMouseLeave = () => {
-    targetParallaxOffset.current = { x: 0, y: 0 };
-    startParallaxAnimation();
-  };
+    targetParallaxOffset.current = { x: 0, y: 0 }
+    startParallaxAnimation()
+  }
 
   return (
     <header
@@ -337,7 +354,7 @@ const Header: React.FC = React.memo(() => {
           fetchPriority="high"
           loading="eager"
           decoding="async"
-          onError={(e) => e.currentTarget.style.display = 'none'}
+          onError={(e) => (e.currentTarget.style.display = 'none')}
         />
         <div className="absolute inset-0 transition-colors duration-500 ease-in-out z-10 pointer-events-none bg-transparent dark:bg-gray-900/90"></div>
       </div>
@@ -362,7 +379,7 @@ const Header: React.FC = React.memo(() => {
                     style={{ imageRendering: 'pixelated' }}
                     decoding="async"
                     fetchPriority="high"
-                    onError={(e) => e.currentTarget.style.display = 'none'}
+                    onError={(e) => (e.currentTarget.style.display = 'none')}
                   />
                   <img
                     src="/avatar-dark.png"
@@ -371,7 +388,7 @@ const Header: React.FC = React.memo(() => {
                     style={{ imageRendering: 'pixelated' }}
                     decoding="async"
                     fetchPriority="high"
-                    onError={(e) => e.currentTarget.style.display = 'none'}
+                    onError={(e) => (e.currentTarget.style.display = 'none')}
                   />
                 </div>
               </div>
@@ -400,12 +417,14 @@ const Header: React.FC = React.memo(() => {
               </p>
             </div>
 
-            <div className={`flex flex-wrap -m-1.5 transition-all duration-700 ease-in-out overflow-hidden ${fallingTags.size === profileData.tags.length ? '!mt-0 !max-h-0 opacity-0' : 'mt-0 max-h-[500px] opacity-100'}`}>
+            <div
+              className={`flex flex-wrap -m-1.5 transition-all duration-700 ease-in-out overflow-hidden ${fallingTags.size === profileData.tags.length ? '!mt-0 !max-h-0 opacity-0' : 'mt-0 max-h-[500px] opacity-100'}`}
+            >
               {profileData.tags.map((detail, index) => {
-                if (removedTags.has(index)) return null;
-                const isFalling = fallingTags.has(index);
-                const isCollapsing = collapsingTags.has(index);
-                const isShaking = shakingTagIndex === index;
+                if (removedTags.has(index)) return null
+                const isFalling = fallingTags.has(index)
+                const isCollapsing = collapsingTags.has(index)
+                const isShaking = shakingTagIndex === index
 
                 return (
                   <button
@@ -420,7 +439,7 @@ const Header: React.FC = React.memo(() => {
                     <Code2 className="w-3.5 h-3.5 mr-1.5 text-primary flex-shrink-0" />
                     <span className="whitespace-nowrap">{detail}</span>
                   </button>
-                );
+                )
               })}
             </div>
           </div>
@@ -439,10 +458,19 @@ const Header: React.FC = React.memo(() => {
         className="absolute bottom-0 left-0 right-0 w-full overflow-hidden z-30 pointer-events-none"
         style={{ height: 0, opacity: 0, willChange: 'height, opacity' }}
       >
-        <svg className="waves" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
-          viewBox="0 24 150 28" preserveAspectRatio="none" shapeRendering="auto">
+        <svg
+          className="waves"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlnsXlink="http://www.w3.org/1999/xlink"
+          viewBox="0 24 150 28"
+          preserveAspectRatio="none"
+          shapeRendering="auto"
+        >
           <defs>
-            <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+            <path
+              id="gentle-wave"
+              d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+            />
           </defs>
           <g className="parallax">
             <use xlinkHref="#gentle-wave" x="48" y="0" className="fill-white/70 dark:fill-gray-900/70" />
@@ -453,7 +481,7 @@ const Header: React.FC = React.memo(() => {
         </svg>
       </div>
     </header>
-  );
-});
+  )
+})
 
-export default Header;
+export default Header

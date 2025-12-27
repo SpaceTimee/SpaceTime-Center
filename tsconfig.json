@@ -13,9 +13,7 @@
     "jsx": "react-jsx",
     "isolatedModules": true,
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"]
     }
   }
 }

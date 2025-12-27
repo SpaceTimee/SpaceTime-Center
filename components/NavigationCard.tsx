@@ -1,12 +1,12 @@
-import React from 'react';
-import { NavigationLink } from '../types';
-import { Globe, Server, FileText, ChevronRight } from 'lucide-react';
+import React from 'react'
+import { NavigationLink } from '../types'
+import { Globe, Server, FileText, ChevronRight } from 'lucide-react'
 
 const getIcon = (type: string) => {
-  if (type === 'Blog') return <FileText className="w-5 h-5" />;
-  if (type === 'Server') return <Server className="w-5 h-5" />;
-  return <Globe className="w-5 h-5" />;
-};
+  if (type === 'Blog') return <FileText className="w-5 h-5" />
+  if (type === 'Server') return <Server className="w-5 h-5" />
+  return <Globe className="w-5 h-5" />
+}
 
 const NavigationCard: React.FC<{ link: NavigationLink }> = React.memo(({ link }) => {
   return (
@@ -23,7 +23,9 @@ const NavigationCard: React.FC<{ link: NavigationLink }> = React.memo(({ link })
           {getIcon(link.type)}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors truncate">{link.title}</h3>
+          <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors truncate">
+            {link.title}
+          </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-2 truncate">{link.description}</p>
           {link.tags && link.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
@@ -43,7 +45,7 @@ const NavigationCard: React.FC<{ link: NavigationLink }> = React.memo(({ link })
         </div>
       </div>
     </a>
-  );
-});
+  )
+})
 
-export default NavigationCard;
+export default NavigationCard

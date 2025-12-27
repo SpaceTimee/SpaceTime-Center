@@ -1,14 +1,14 @@
-import React from 'react';
-import { contactInfo } from '../data';
-import { Mail, Github, Tv, ChevronRight, MessageCircle } from 'lucide-react';
+import React from 'react'
+import { contactInfo } from '../data'
+import { Mail, Github, Tv, ChevronRight, MessageCircle } from 'lucide-react'
 
 const getPlatformIcon = (platform: string) => {
-  const p = platform.toLowerCase();
-  if (p.includes('mail') || platform.includes('邮箱')) return <Mail className="w-5 h-5" />;
-  if (p.includes('github')) return <Github className="w-5 h-5" />;
-  if (p.includes('bilibili')) return <Tv className="w-5 h-5" />;
-  return <MessageCircle className="w-5 h-5" />;
-};
+  const p = platform.toLowerCase()
+  if (p.includes('mail') || platform.includes('邮箱')) return <Mail className="w-5 h-5" />
+  if (p.includes('github')) return <Github className="w-5 h-5" />
+  if (p.includes('bilibili')) return <Tv className="w-5 h-5" />
+  return <MessageCircle className="w-5 h-5" />
+}
 
 const ContactSection: React.FC = React.memo(() => {
   return (
@@ -38,7 +38,9 @@ const ContactSection: React.FC = React.memo(() => {
                   {getPlatformIcon(info.platform)}
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors truncate">{info.platform}</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors truncate">
+                    {info.platform}
+                  </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{info.value}</p>
                 </div>
                 <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transform group-hover:translate-x-1 transition-all duration-300 flex-shrink-0">
@@ -51,13 +53,15 @@ const ContactSection: React.FC = React.memo(() => {
 
         <div className="mt-20 border-t border-gray-100 dark:border-gray-700 py-8 text-center">
           <div className="flex flex-col items-center gap-1">
-            <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">
+              Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time
+            </p>
             <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.5</p>
           </div>
         </div>
       </div>
     </section>
-  );
-});
+  )
+})
 
-export default ContactSection;
+export default ContactSection

@@ -1,27 +1,27 @@
-import React from 'react';
-import { Project, ProjectStatus } from '../types';
-import { Github, ChevronRight, FolderCog, FolderCheck, FolderClock, Pin, Sparkles, Brain } from 'lucide-react';
+import React from 'react'
+import { Project, ProjectStatus } from '../types'
+import { Github, ChevronRight, FolderCog, FolderCheck, FolderClock, Pin, Sparkles, Brain } from 'lucide-react'
 
 const getStatusIcon = (status: ProjectStatus) => {
-  if (status === ProjectStatus.Completed) return <FolderCheck className="w-6 h-6" />;
-  if (status === ProjectStatus.Planned) return <FolderClock className="w-6 h-6" />;
-  return <FolderCog className="w-6 h-6" />;
-};
+  if (status === ProjectStatus.Completed) return <FolderCheck className="w-6 h-6" />
+  if (status === ProjectStatus.Planned) return <FolderClock className="w-6 h-6" />
+  return <FolderCog className="w-6 h-6" />
+}
 
 const ProjectCard: React.FC<{ project: Project }> = React.memo(({ project }) => {
-  const Component = project.link ? 'a' : 'div';
+  const Component = project.link ? 'a' : 'div'
 
   const getProjectIcon = () => {
-    if (project.icon === 'HuggingFace') return <Brain className="w-5 h-5" />;
-    if (project.icon === 'Gemini') return <Sparkles className="w-5 h-5" />;
-    return <Github className="w-5 h-5" />;
-  };
+    if (project.icon === 'HuggingFace') return <Brain className="w-5 h-5" />
+    if (project.icon === 'Gemini') return <Sparkles className="w-5 h-5" />
+    return <Github className="w-5 h-5" />
+  }
 
   return (
     <Component
       href={project.link}
-      target={project.link ? "_blank" : undefined}
-      rel={project.link ? "noopener noreferrer" : undefined}
+      target={project.link ? '_blank' : undefined}
+      rel={project.link ? 'noopener noreferrer' : undefined}
       className="group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-lg hover:border-primary/30 dark:hover:border-primary/30 transition-all duration-300 h-full overflow-hidden cursor-pointer"
     >
       <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 dark:bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500 ease-out pointer-events-none will-change-transform transform-gpu" />
@@ -35,11 +35,13 @@ const ProjectCard: React.FC<{ project: Project }> = React.memo(({ project }) => 
             <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transform rotate-[-15deg] transition-colors duration-300">
               <Pin className="w-5 h-5" />
             </div>
-          ) : (project.link && (
-            <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">
-              {getProjectIcon()}
-            </div>
-          ))}
+          ) : (
+            project.link && (
+              <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">
+                {getProjectIcon()}
+              </div>
+            )
+          )}
         </div>
 
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-primary transition-colors">
@@ -70,7 +72,7 @@ const ProjectCard: React.FC<{ project: Project }> = React.memo(({ project }) => 
         </div>
       </div>
     </Component>
-  );
-});
+  )
+})
 
-export default ProjectCard;
+export default ProjectCard
