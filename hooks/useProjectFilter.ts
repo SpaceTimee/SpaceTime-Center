@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
-import { ProjectStatus } from '../types'
-import type { Project } from '../types'
 import { projects } from '../data'
+import { ProjectStatus, type Project } from '../types'
 
 export function useProjectFilter() {
   return useMemo(() => {

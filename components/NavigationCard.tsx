@@ -1,6 +1,6 @@
 import { memo } from 'react'
+import { ChevronRight, FileText, Globe, Server } from 'lucide-react'
 import type { NavigationLink } from '../types'
-import { Globe, Server, FileText, ChevronRight } from 'lucide-react'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Blog: <FileText className="w-5 h-5" />,

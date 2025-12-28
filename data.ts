@@ -1,5 +1,4 @@
-import { ProjectStatus } from './types'
-import type { Project, NavigationLink, ContactInfo } from './types'
+import { ProjectStatus, type Project, type NavigationLink, type ContactInfo } from './types'
 
 export const profileData = {
   name: 'Space Time',

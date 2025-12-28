@@ -1,4 +1,4 @@
-import { Home, Compass, Layers, MessageCircle, ListTodo, Archive } from 'lucide-react'
+import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-react'
 import { ProjectStatus } from './types'
 
 export const SECTION_IDS = {

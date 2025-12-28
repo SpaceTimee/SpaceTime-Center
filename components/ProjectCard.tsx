@@ -1,7 +1,6 @@
 import { memo } from 'react'
-import type { Project } from '../types'
-import { ProjectStatus, ProjectIconType } from '../types'
-import { Github, ChevronRight, FolderCog, FolderCheck, FolderClock, Pin, Sparkles, Brain } from 'lucide-react'
+import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Github, Pin, Sparkles } from 'lucide-react'
+import { ProjectStatus, type ProjectIconType, type Project } from '../types'
 
 const STATUS_ICON_MAP: Record<ProjectStatus, React.ReactNode> = {
   [ProjectStatus.Completed]: <FolderCheck className="w-6 h-6" />,

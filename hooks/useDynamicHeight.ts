@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import type { RefObject } from 'react'
+import { type RefObject, useEffect, useState } from 'react'
 
 export function useDynamicHeight(activeIndex: number, slidesRef: RefObject<(HTMLElement | null)[]>) {
   const [height, setHeight] = useState<number | 'auto'>('auto')

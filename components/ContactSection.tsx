@@ -1,7 +1,7 @@
 import { memo } from 'react'
-import { Mail, Github, Tv, ChevronRight, MessageCircle } from 'lucide-react'
-import { contactInfo } from '../data'
+import { ChevronRight, Github, Mail, MessageCircle, Tv } from 'lucide-react'
 import { SECTION_IDS } from '../constants'
+import { contactInfo } from '../data'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   email: <Mail className="w-5 h-5" />,
@@ -65,7 +65,7 @@ const ContactSection = memo(() => {
             <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">
               Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time
             </p>
-            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.6</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.0.7</p>
           </div>
         </div>
       </div>

@@ -1,5 +1,4 @@
-import { useRef, useCallback, useEffect } from 'react'
-import type { RefObject } from 'react'
+import { type RefObject, useCallback, useEffect, useRef } from 'react'
 
 interface UseHeaderAnimationProps {
   headerRef: RefObject<HTMLElement | null>
