@@ -2,13 +2,13 @@ import { useMemo, useRef, useState } from 'react'
 import ContactSection from './components/ContactSection'
 import Header from './components/Header'
 import Navbar from './components/Navbar'
-import NavigationCard from './components/NavigationCard'
+import PortalCard from './components/PortalCard'
 import ProjectCard from './components/ProjectCard'
 import { useDynamicHeight } from './hooks/useDynamicHeight'
 import { useProjectFilter } from './hooks/useProjectFilter'
 import { useScrollSpy } from './hooks/useScrollSpy'
 import { PROJECT_TABS_CONFIG, SECTIONS_CONFIG, SECTION_IDS } from './constants'
-import { navigationLinks } from './data'
+import { portalLinks } from './data'
 import { ProjectStatus } from './types'
 
 const App = () => {
@@ -42,17 +42,17 @@ const App = () => {
       <Header />
 
       <main className="max-w-5xl mx-auto px-6 mt-12 relative z-20 space-y-16">
-        <section id={SECTION_IDS.NAVIGATION} className="scroll-mt-24">
+        <section id={SECTION_IDS.PORTALS} className="scroll-mt-24">
           <div className="flex items-center justify-center sm:justify-start gap-2 mb-6">
             {(() => {
-              const SectionIcon = SECTIONS_CONFIG.find((s) => s.id === SECTION_IDS.NAVIGATION)?.icon
+              const SectionIcon = SECTIONS_CONFIG.find((s) => s.id === SECTION_IDS.PORTALS)?.icon
               return SectionIcon ? <SectionIcon className="w-6 h-6 text-primary" /> : null
             })()}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Navigation</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Portals</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {navigationLinks.map((link, idx) => (
-              <NavigationCard key={idx} link={link} />
+            {portalLinks.map((link, idx) => (
+              <PortalCard key={idx} link={link} />
             ))}
           </div>
         </section>

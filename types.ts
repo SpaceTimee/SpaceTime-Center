@@ -16,7 +16,7 @@ export interface Project {
   readonly icon?: ProjectIconType
 }
 
-export interface NavigationLink {
+export interface PortalLink {
   readonly title: string
   readonly description: string
   readonly url: string

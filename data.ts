@@ -1,4 +1,4 @@
-import { ProjectStatus, type Project, type NavigationLink, type ContactInfo } from './types'
+import { ProjectStatus, type ContactInfo, type PortalLink, type Project } from './types'
 
 export const profileData = {
   name: 'Space Time',
@@ -6,7 +6,7 @@ export const profileData = {
   tags: ['Web 全栈', '.Net 全端', '营养全面']
 }
 
-export const navigationLinks: readonly NavigationLink[] = [
+export const portalLinks: readonly PortalLink[] = [
   {
     title: 'SpaceTime Center',
     description: '个人主页',

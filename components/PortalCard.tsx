@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { ChevronRight, FileText, Globe, Server } from 'lucide-react'
-import type { NavigationLink } from '../types'
+import type { PortalLink } from '../types'
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Blog: <FileText className="w-5 h-5" />,
@@ -10,7 +10,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 const getIcon = (type: string) => ICON_MAP[type] || ICON_MAP.default
 
-const NavigationCard = memo(({ link }: { link: NavigationLink }) => {
+const PortalCard = memo(({ link }: { link: PortalLink }) => {
   return (
     <a
       href={link.url}
@@ -50,4 +50,4 @@ const NavigationCard = memo(({ link }: { link: NavigationLink }) => {
   )
 })
 
-export default NavigationCard
+export default PortalCard

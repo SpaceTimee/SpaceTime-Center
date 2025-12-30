@@ -3,7 +3,7 @@ import { ProjectStatus } from './types'
 
 export const SECTION_IDS = {
   HOME: 'home',
-  NAVIGATION: 'navigation',
+  PORTALS: 'portals',
   PROJECTS: 'projects',
   CONTACT: 'contact'
 } as const
@@ -15,8 +15,8 @@ export const SECTIONS_CONFIG = [
     icon: Home
   },
   {
-    id: SECTION_IDS.NAVIGATION,
-    title: 'Navigation',
+    id: SECTION_IDS.PORTALS,
+    title: 'Portals',
     icon: Compass
   },
   {
