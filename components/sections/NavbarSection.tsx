@@ -1,12 +1,13 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, useRef, memo } from 'react'
 import { Menu, X, ChevronUp, Sun, Moon } from 'lucide-react'
-import { useTheme } from '../hooks/useTheme'
-import { SECTIONS_CONFIG, SECTION_IDS } from '../constants'
+import { useTheme } from '../../hooks/useTheme'
+import { sectionIds, sections } from '../../consts'
 
-const Navbar = memo(() => {
+const NavbarSection = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isScrollingToTop, setIsScrollingToTop] = useState(false)
+  const prefersReducedMotionRef = useRef(false)
 
   const { isDark, toggleTheme } = useTheme()
 
@@ -28,19 +29,35 @@ const Navbar = memo(() => {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleChange = (event: MediaQueryListEvent) => {
+      prefersReducedMotionRef.current = event.matches
+    }
+
+    prefersReducedMotionRef.current = media.matches
+    media.addEventListener?.('change', handleChange)
+
+    return () => {
+      media.removeEventListener?.('change', handleChange)
+    }
+  }, [])
+
   const scrollToSection = (id: string) => {
     setIsOpen(false)
-    setIsScrollingToTop(id === SECTION_IDS.HOME && window.scrollY > 0)
+    setIsScrollingToTop(id === sectionIds.home && window.scrollY > 0)
 
     const element = document.getElementById(id)
     if (element) {
-      const offset = id === SECTION_IDS.CONTACT ? 56 : 80
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY
-      window.scrollTo({ top: elementPosition - offset, behavior: 'smooth' })
+      window.scrollTo({
+        top: element.getBoundingClientRect().top + window.scrollY - (id === sectionIds.contact ? 56 : 80),
+        behavior: prefersReducedMotionRef.current ? 'auto' : 'smooth'
+      })
     }
   }
 
-  const navContainerClasses =
+  const navContainerClass =
     !isScrolled && !isOpen
       ? 'bg-white/80 dark:bg-transparent backdrop-blur-md shadow-sm rounded-full px-2.5 py-2 transition-all duration-300 flex-shrink-0'
       : 'px-2 transition-all duration-300 flex-shrink-0'
@@ -55,10 +72,11 @@ const Navbar = memo(() => {
     >
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between max-[364px]:justify-center h-16 gap-4">
-          <div className={navContainerClasses}>
-            <div
-              className="flex items-center gap-2 m-0.5 cursor-pointer group"
-              onClick={() => scrollToSection(SECTION_IDS.HOME)}
+          <div className={navContainerClass}>
+            <button
+              type="button"
+              className="flex items-center gap-2 m-0.5 cursor-pointer group bg-transparent border-0 p-0"
+              onClick={() => scrollToSection(sectionIds.home)}
             >
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform relative overflow-hidden flex-shrink-0 will-change-transform">
                 <span
@@ -92,14 +110,15 @@ const Navbar = memo(() => {
               <span className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mx-1 whitespace-nowrap">
                 SpaceTime <span className="text-primary">Center</span>
               </span>
-            </div>
+            </button>
           </div>
 
-          <div className={`${navContainerClasses} flex items-center gap-4 ml-auto max-[364px]:hidden`}>
+          <div className={`${navContainerClass} flex items-center gap-4 ml-auto max-[364px]:hidden`}>
             <div className="hidden min-[830px]:flex items-center gap-1">
-              {SECTIONS_CONFIG.map((item) => (
+              {sections.map((item) => (
                 <button
                   key={item.id}
+                  type="button"
                   onClick={() => scrollToSection(item.id)}
                   className="flex items-center gap-2 px-4 py-2 rounded-full text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all duration-300 font-medium text-sm whitespace-nowrap"
                 >
@@ -110,6 +129,7 @@ const Navbar = memo(() => {
             </div>
 
             <button
+              type="button"
               onClick={toggleTheme}
               className="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-primary transition-colors flex-shrink-0"
               aria-label="Toggle Theme"
@@ -119,6 +139,7 @@ const Navbar = memo(() => {
 
             <div className="min-[830px]:hidden flex-shrink-0 max-[415px]:hidden">
               <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-primary transition-colors"
                 aria-label="Toggle Menu"
@@ -136,9 +157,10 @@ const Navbar = memo(() => {
         }`}
       >
         <div className="p-4 space-y-2">
-          {SECTIONS_CONFIG.map((item) => (
+          {sections.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => scrollToSection(item.id)}
               className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:bg-primary/10"
             >
@@ -152,4 +174,4 @@ const Navbar = memo(() => {
   )
 })
 
-export default Navbar
+export default NavbarSection

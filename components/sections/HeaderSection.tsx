@@ -1,53 +1,52 @@
-import { useRef, memo } from 'react'
+import { memo, useEffect, useRef, type MouseEvent } from 'react'
 import { Code2, Sparkles } from 'lucide-react'
-import { useHeaderAnimation, ANIMATION_CONFIG } from '../hooks/useHeaderAnimation'
-import { useTagInteraction } from '../hooks/useTagInteraction'
-import { profileData } from '../data'
-import { SECTION_IDS } from '../constants'
+import { useHeaderAnimation, ANIMATION_CONFIG } from '../../hooks/useHeaderAnimation'
+import { useTagInteraction } from '../../hooks/useTagInteraction'
+import { profile } from '../../data'
+import { externalLinkProps, sectionIds } from '../../consts'
 
-const Header = memo(() => {
+const HeaderSection = memo(() => {
   const headerRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const borderRef = useRef<HTMLDivElement>(null)
-  const mouseMoveTicking = useRef(false)
+  const mouseMoveTickingRef = useRef(false)
+  const rafIdRef = useRef<number | null>(null)
 
-  const { dimensionsRef, targetParallaxOffsetRef, startParallaxAnimation } = useHeaderAnimation({
-    headerRef,
-    imageRef,
-    waveRef,
-    borderRef
-  })
+  const { dimensionsRef, targetParallaxOffsetRef, startParallaxAnimation, prefersReducedMotion } =
+    useHeaderAnimation({
+      headerRef,
+      imageRef,
+      waveRef,
+      borderRef
+    })
 
   const { shakingTagIndex, fallingTags, collapsingTags, removedTags, handleTagClick } = useTagInteraction()
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (
-      !headerRef.current ||
-      mouseMoveTicking.current ||
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    )
-      return
-    const { clientX, clientY } = e
+  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
+    if (!headerRef.current || mouseMoveTickingRef.current || prefersReducedMotion) return
 
-    mouseMoveTicking.current = true
-    requestAnimationFrame(() => {
-      const { left, top, width, height } = dimensionsRef.current
-      const rectLeft = left - window.scrollX
-      const rectTop = top - window.scrollY
-
-      const x = clientX - rectLeft - width / 2
-      const y = clientY - rectTop - height / 2
-
+    mouseMoveTickingRef.current = true
+    rafIdRef.current = requestAnimationFrame(() => {
       targetParallaxOffsetRef.current = {
-        x: x / ANIMATION_CONFIG.PARALLAX_FACTOR,
-        y: y / ANIMATION_CONFIG.PARALLAX_FACTOR
+        x:
+          (e.clientX - (dimensionsRef.current.left - window.scrollX) - dimensionsRef.current.width / 2) /
+          ANIMATION_CONFIG.PARALLAX_FACTOR,
+        y:
+          (e.clientY - (dimensionsRef.current.top - window.scrollY) - dimensionsRef.current.height / 2) /
+          ANIMATION_CONFIG.PARALLAX_FACTOR
       }
       startParallaxAnimation()
 
-      mouseMoveTicking.current = false
+      mouseMoveTickingRef.current = false
     })
   }
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+    }
+  }, [])
 
   const handleMouseLeave = () => {
     targetParallaxOffsetRef.current = { x: 0, y: 0 }
@@ -56,10 +55,10 @@ const Header = memo(() => {
 
   return (
     <header
-      id={SECTION_IDS.HOME}
+      id={sectionIds.home}
       ref={headerRef}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
+      onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
       className="relative w-full pt-32 pb-12 lg:pt-40 lg:pb-20 px-6 overflow-hidden transition-colors duration-300"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
@@ -83,11 +82,10 @@ const Header = memo(() => {
             <div className="absolute inset-0 rounded-full bg-transparent shadow-[0_10px_40px_-10px_rgba(255,90,0,0.1)] peer-hover:shadow-[0_20px_40px_-10px_rgba(255,90,0,0.2)] peer-hover:scale-105 transition-all duration-300 z-0 pointer-events-none will-change-transform" />
             <a
               href="https://github.com/SpaceTimee"
-              target="_blank"
-              rel="noopener noreferrer"
+              {...externalLinkProps}
               className="peer relative z-10 block w-full h-full rounded-full transform transition-all duration-300 hover:scale-105 will-change-transform"
               style={{ clipPath: 'circle(50%)', WebkitClipPath: 'circle(50%)' }}
-              aria-label="GitHub Profile"
+              aria-label="Github Profile"
             >
               <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-orange-300 p-[3px] dark:bg-gray-800">
                 <div className="w-full h-full rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden flex items-center justify-center">
@@ -115,8 +113,7 @@ const Header = memo(() => {
 
             <a
               href="https://huggingface.co/SpaceTimee"
-              target="_blank"
-              rel="noopener noreferrer"
+              {...externalLinkProps}
               className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform duration-200 z-20"
               aria-label="Hugging Face Profile"
             >
@@ -128,36 +125,38 @@ const Header = memo(() => {
             <div>
               <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-2 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-700 dark:from-primary dark:via-purple-300 dark:to-indigo-300">
-                  {profileData.name}
+                  {profile.name}
                 </span>
                 <span className="text-indigo-700 dark:text-indigo-300">.</span>
               </h1>
               <p className="text-lg lg:text-xl text-white dark:text-gray-400 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-none">
-                {profileData.tagline}
+                {profile.description}
               </p>
             </div>
 
             <div
               className={`flex flex-wrap -m-1.5 transition-all duration-700 ease-in-out overflow-hidden ${
-                fallingTags.size === profileData.tags.length
+                fallingTags.size === profile.tags.length
                   ? '!mt-0 !max-h-0 opacity-0'
                   : 'mt-0 max-h-[500px] opacity-100'
               }`}
             >
-              {profileData.tags.map((detail, index) => {
+              {profile.tags.map((detail, index) => {
                 if (removedTags.has(index)) return null
                 const isFalling = fallingTags.has(index)
-                const isCollapsing = collapsingTags.has(index)
-                const isShaking = shakingTagIndex === index
-
                 return (
                   <button
-                    key={index}
+                    key={`${detail}-${index}`}
+                    type="button"
                     onClick={() => handleTagClick(index)}
                     className={`inline-flex items-center px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700/50 text-gray-600 dark:text-gray-300 text-sm font-medium border border-gray-200 dark:border-gray-600 shadow-sm cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600/50 transition-all duration-300 m-1.5
-                      ${isShaking ? 'animate-shake' : ''}
+                      ${shakingTagIndex === index ? 'animate-shake' : ''}
                       ${isFalling ? 'animate-fall' : ''}
-                      ${isCollapsing ? '!max-w-0 !max-h-0 !p-0 !m-0 !border-0 opacity-0 overflow-hidden' : 'max-w-40 max-h-10'}`}
+                      ${
+                        collapsingTags.has(index)
+                          ? '!max-w-0 !max-h-0 !p-0 !m-0 !border-0 opacity-0 overflow-hidden'
+                          : 'max-w-40 max-h-10'
+                      }`}
                     disabled={isFalling}
                   >
                     <Code2 className="w-3.5 h-3.5 mr-1.5 text-primary flex-shrink-0" />
@@ -205,4 +204,4 @@ const Header = memo(() => {
   )
 })
 
-export default Header
+export default HeaderSection

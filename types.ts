@@ -4,29 +4,41 @@ export enum ProjectStatus {
   Planned = 'Planned'
 }
 
-export type ProjectIconType = 'Github' | 'HuggingFace' | 'Gemini'
+export type PortalType = 'Center' | 'Blog' | 'Server'
+export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini'
+export type ContactType = 'Mail' | 'Github' | 'Bilibili'
 
-export interface Project {
-  readonly title: string
+interface BaseInfo {
   readonly description: string
-  readonly link?: string
+}
+
+interface NamedInfo {
+  readonly name: string
+}
+
+interface LinkedInfo {
+  readonly link: string
+}
+
+interface TaggedInfo {
   readonly tags: readonly string[]
-  readonly status: ProjectStatus
-  readonly pinned?: boolean
-  readonly icon?: ProjectIconType
 }
 
-export interface PortalLink {
-  readonly title: string
-  readonly description: string
-  readonly url: string
-  readonly type: 'Center' | 'Blog' | 'Server' | 'Other'
-  readonly tags?: readonly string[]
+interface TypedInfo<TType> {
+  readonly type?: TType
 }
 
-export interface ContactInfo {
-  readonly platform: string
-  readonly value: string
-  readonly link?: string
-  readonly isEmail?: boolean
-}
+export type ProfileInfo = BaseInfo & NamedInfo & TaggedInfo
+
+export type PortalInfo = BaseInfo & NamedInfo & LinkedInfo & TaggedInfo & TypedInfo<PortalType>
+
+export type ProjectInfo = BaseInfo &
+  NamedInfo &
+  TaggedInfo &
+  TypedInfo<ProjectType> & {
+    readonly link?: string
+    readonly status: ProjectStatus
+    readonly pinned?: boolean
+  }
+
+export type ContactInfo = BaseInfo & NamedInfo & LinkedInfo & TypedInfo<ContactType>

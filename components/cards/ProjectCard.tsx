@@ -1,29 +1,28 @@
-import { memo } from 'react'
+import { memo, type ReactNode } from 'react'
 import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Github, Pin, Sparkles } from 'lucide-react'
-import { ProjectStatus, type ProjectIconType, type Project } from '../types'
+import { externalLinkProps, tagPillProps } from '../../consts'
+import { ProjectStatus, type ProjectInfo, type ProjectType } from '../../types'
 
-const STATUS_ICON_MAP: Record<ProjectStatus, React.ReactNode> = {
+const PROJECT_STATUS_ICON_MAP = {
   [ProjectStatus.Completed]: <FolderCheck className="w-6 h-6" />,
   [ProjectStatus.Planned]: <FolderClock className="w-6 h-6" />,
   [ProjectStatus.InProgress]: <FolderCog className="w-6 h-6" />
-}
+} as const satisfies Record<ProjectStatus, ReactNode>
 
-const PROJECT_ICON_MAP: Record<ProjectIconType | 'default', React.ReactNode> = {
+const PROJECT_TYPE_ICON_MAP = {
+  Github: <Github className="w-5 h-5" />,
   HuggingFace: <Brain className="w-5 h-5" />,
   Gemini: <Sparkles className="w-5 h-5" />,
-  Github: <Github className="w-5 h-5" />,
-  default: <Github className="w-5 h-5" />
-}
+  Default: <Github className="w-5 h-5" />
+} as const satisfies Record<ProjectType | 'Default', ReactNode>
 
-const ProjectCard = memo(({ project }: { project: Project }) => {
-  const Component = project.link ? 'a' : 'div'
-  const isLink = !!project.link
+const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
+  const isLink = Boolean(info.link)
+  const Wrapper = isLink ? 'a' : 'div'
 
   return (
-    <Component
-      href={project.link}
-      target={isLink ? '_blank' : undefined}
-      rel={isLink ? 'noopener noreferrer' : undefined}
+    <Wrapper
+      {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
       className={`group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm transition-all duration-300 h-full overflow-hidden ${
         isLink
           ? 'hover:shadow-lg hover:border-primary/30 dark:hover:border-primary/30 cursor-pointer'
@@ -35,36 +34,33 @@ const ProjectCard = memo(({ project }: { project: Project }) => {
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex justify-between items-center mb-4">
           <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-            {STATUS_ICON_MAP[project.status]}
+            {PROJECT_STATUS_ICON_MAP[info.status]}
           </div>
-          {project.pinned ? (
+          {info.pinned ? (
             <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transform rotate-[-15deg] transition-colors duration-300">
               <Pin className="w-5 h-5" />
             </div>
           ) : (
             isLink && (
               <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">
-                {PROJECT_ICON_MAP[project.icon || 'default']}
+                {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
               </div>
             )
           )}
         </div>
 
         <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-primary transition-colors">
-          {project.title}
+          {info.name}
         </h3>
 
         <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
-          {project.description}
+          {info.description}
         </p>
 
         <div className="mt-auto flex items-center justify-between gap-4">
           <div className="flex flex-wrap gap-2">
-            {project.tags.map((tag, idx) => (
-              <span
-                key={idx}
-                className="inline-block px-2.5 py-1 text-xs font-semibold rounded-md bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary dark:group-hover:text-primary transition-all"
-              >
+            {info.tags.map((tag) => (
+              <span key={`${info.name}-${tag}`} {...tagPillProps.md}>
                 {tag}
               </span>
             ))}
@@ -77,7 +73,7 @@ const ProjectCard = memo(({ project }: { project: Project }) => {
           )}
         </div>
       </div>
-    </Component>
+    </Wrapper>
   )
 })
 

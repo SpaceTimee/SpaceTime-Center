@@ -1,24 +1,20 @@
 import { type RefObject, useEffect, useState } from 'react'
 
-export function useDynamicHeight(activeIndex: number, slidesRef: RefObject<(HTMLElement | null)[]>) {
+export function useDynamicHeight(activeIndex: number, tabRefs: RefObject<(HTMLElement | null)[]>) {
   const [height, setHeight] = useState<number | 'auto'>('auto')
 
   useEffect(() => {
-    const activeElement = slidesRef.current?.[activeIndex]
+    const activeElement = tabRefs.current?.[activeIndex]
     if (!activeElement) return
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.target === activeElement) {
-          setHeight(entry.contentRect.height)
-        }
-      }
+    const observer = new ResizeObserver(([entry]) => {
+      setHeight(entry.contentRect.height || 'auto')
     })
 
     observer.observe(activeElement)
 
     return () => observer.disconnect()
-  }, [activeIndex, slidesRef])
+  }, [activeIndex, tabRefs])
 
   return height
 }

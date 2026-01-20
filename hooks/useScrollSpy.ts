@@ -5,21 +5,43 @@ interface Section {
   readonly title: string
 }
 
-export function useScrollSpy(sections: readonly Section[], defaultTitle: string = 'SpaceTime Center') {
-  const currentTitleRef = useRef<string>(defaultTitle)
+interface ScrollSpyOptions {
+  readonly titleSuffix?: string
+  readonly contactId?: string
+}
+
+export function useScrollSpy(
+  sections: readonly Section[],
+  { titleSuffix = 'SpaceTime Center', contactId = 'contact' }: ScrollSpyOptions = {}
+) {
+  const currentTitleRef = useRef<string>(titleSuffix)
+  const isContactActiveRef = useRef(false)
 
   useEffect(() => {
+    const buildTitle = (title: string) => `${title} ❤️ ${titleSuffix}`
+    const sectionTitleById = new Map(sections.map((section) => [section.id, buildTitle(section.title)]))
+    const contactTitle = sectionTitleById.get(contactId) ?? buildTitle('Contact')
+    const initialTitle = sectionTitleById.get(sections[0]?.id ?? '') ?? titleSuffix
+    currentTitleRef.current = initialTitle
+
+    const setTitle = (title: string) => {
+      if (document.title !== title) {
+        document.title = title
+      }
+    }
+    setTitle(initialTitle)
+
     const sectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const section = sections.find((s) => s.id === entry.target.id)
-            if (section && section.id !== 'contact') {
-              currentTitleRef.current = `${section.title} ❤️ SpaceTime Center`
-              if (document.title !== 'Contact ❤️ SpaceTime Center') {
-                document.title = currentTitleRef.current
-              }
-            }
+          if (!entry.isIntersecting) return
+
+          const nextTitle = sectionTitleById.get(entry.target.id)
+          if (!nextTitle || entry.target.id === contactId) return
+
+          currentTitleRef.current = nextTitle
+          if (!isContactActiveRef.current) {
+            setTitle(nextTitle)
           }
         })
       },
@@ -34,7 +56,8 @@ export function useScrollSpy(sections: readonly Section[], defaultTitle: string 
     const bottomObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          document.title = entry.isIntersecting ? 'Contact ❤️ SpaceTime Center' : currentTitleRef.current
+          isContactActiveRef.current = entry.isIntersecting
+          setTitle(entry.isIntersecting ? contactTitle : currentTitleRef.current)
         })
       },
       { rootMargin: '0px', threshold: 0 }
@@ -47,5 +70,5 @@ export function useScrollSpy(sections: readonly Section[], defaultTitle: string 
       sectionObserver.disconnect()
       bottomObserver.disconnect()
     }
-  }, [sections])
+  }, [sections, titleSuffix, contactId])
 }

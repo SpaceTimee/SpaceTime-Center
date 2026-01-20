@@ -66,6 +66,19 @@
   animation-play-state: paused;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html,
+  html.scroll-smooth {
+    scroll-behavior: auto;
+  }
+
+  .parallax > use,
+  .animate-shake,
+  .animate-fall {
+    animation: none !important;
+  }
+}
+
 @keyframes move-forever {
   0% {
     transform: translate3d(-90px, 0, 0);

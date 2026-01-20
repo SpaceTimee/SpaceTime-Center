@@ -3,10 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="description" content="SpaceTime Center - Welcome To My Home Page ~" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preload" as="image" href="/banner.webp" fetchpriority="high" />
-    <link rel="preconnect" href="https://fonts.bunny.net" />
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
     <link
       href="https://fonts.bunny.net/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Inter:wght@300;400;600;700&display=swap"
       rel="stylesheet"
@@ -15,14 +16,9 @@
     <title>SpaceTime Center</title>
 
     <script>
-      if (
-        localStorage.getItem('theme') === 'dark' ||
-        (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-      ) {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
+      const savedTheme = localStorage.getItem('theme')
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      document.documentElement.classList.toggle('dark', savedTheme === 'dark' || (!savedTheme && prefersDark))
     </script>
   </head>
 
