@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, memo } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, ChevronUp, Sun, Moon } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
-import { sectionIds, sections } from '../../consts'
+import { sectionIds, sections, springTransition } from '../../consts'
 
 const NavbarSection = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
@@ -63,8 +64,11 @@ const NavbarSection = memo(() => {
       : 'px-2 transition-all duration-300 flex-shrink-0'
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <motion.nav
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ ...springTransition, delay: 0.1 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${
         isScrolled || isOpen
           ? 'bg-white/90 dark:bg-gray-900/90 backdrop-blur-md shadow-sm border-b border-gray-100 dark:border-gray-800'
           : 'bg-transparent'
@@ -151,26 +155,32 @@ const NavbarSection = memo(() => {
         </div>
       </div>
 
-      <div
-        className={`min-[830px]:hidden absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-lg transition-all duration-300 ease-in-out overflow-hidden ${
-          isOpen ? 'max-h-64 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="p-4 space-y-2">
-          {sections.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => scrollToSection(item.id)}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:bg-primary/10"
-            >
-              <item.icon className="w-4 h-4" />
-              <span className="font-medium">{item.title}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-    </nav>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="min-[830px]:hidden absolute top-16 left-0 right-0 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 shadow-lg overflow-hidden"
+          >
+            <div className="p-4 space-y-2">
+              {sections.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => scrollToSection(item.id)}
+                  className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 transition-all active:bg-primary/10"
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span className="font-medium">{item.title}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   )
 })
 

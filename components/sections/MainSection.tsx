@@ -1,7 +1,8 @@
 import { memo, useRef, useState } from 'react'
+import { motion } from 'framer-motion'
 import PortalCard from '../cards/PortalCard'
 import ProjectCard from '../cards/ProjectCard'
-import { cardGridClass, projectTabs, sectionIds, sections } from '../../consts'
+import { cardGridClass, projectTabs, sectionIds, sections, springTransition } from '../../consts'
 import { portals, projects } from '../../data'
 import { useDynamicHeight } from '../../hooks/useDynamicHeight'
 import { ProjectStatus, type ProjectInfo } from '../../types'
@@ -38,7 +39,14 @@ const MainSection = memo(() => {
 
   return (
     <main className="max-w-5xl mx-auto px-6 mt-12 relative z-20 space-y-16">
-      <section id={sectionIds.portals} className="scroll-mt-24">
+      <motion.section
+        id={sectionIds.portals}
+        className="scroll-mt-24"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={springTransition}
+      >
         <div className="flex items-center justify-center sm:justify-start gap-2 mb-6">
           {portalsSection && portalsSection.icon ? (
             <portalsSection.icon className="w-6 h-6 text-primary" />
@@ -47,14 +55,44 @@ const MainSection = memo(() => {
             {portalsSection?.title ?? 'Portals'}
           </h2>
         </div>
-        <div className={cardGridClass}>
+        <motion.div
+          className={cardGridClass}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '50px' }}
+          variants={{
+            hidden: {},
+            visible: {
+              transition: { staggerChildren: 0.1 }
+            }
+          }}
+        >
           {portals.map((portal) => (
-            <PortalCard key={portal.link} info={portal} />
+            <motion.div
+              key={portal.link}
+              variants={{
+                hidden: { opacity: 0, y: 30 },
+                visible: {
+                  opacity: 1,
+                  y: 0,
+                  transition: springTransition
+                }
+              }}
+            >
+              <PortalCard info={portal} />
+            </motion.div>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </motion.section>
 
-      <section id={sectionIds.projects} className="scroll-mt-24">
+      <motion.section
+        id={sectionIds.projects}
+        className="scroll-mt-24"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: '-50px' }}
+        transition={springTransition}
+      >
         <div className="flex flex-col items-center sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <div className="flex items-center gap-2">
             {projectsSection && projectsSection.icon ? (
@@ -122,11 +160,37 @@ const MainSection = memo(() => {
                   tabRefs.current[index] = el
                 }}
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {tab.projects.map((project, index) => (
-                    <ProjectCard key={`${tab.id}-${project.link ?? project.name}-${index}`} info={project} />
-                  ))}
-                </div>
+                <motion.div
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '50px' }}
+                >
+                  {tab.projects.map((project, index) => {
+                    const row = Math.floor(index / 3)
+                    const col = index % 3
+                    const delay = row * 0.1 + col * 0.1
+
+                    return (
+                      <motion.div
+                        key={`${tab.id}-${project.link ?? project.name}-${index}`}
+                        variants={{
+                          hidden: { opacity: 0, y: 30 },
+                          visible: {
+                            opacity: 1,
+                            y: 0,
+                            transition: {
+                              ...springTransition,
+                              delay: delay
+                            }
+                          }
+                        }}
+                      >
+                        <ProjectCard info={project} />
+                      </motion.div>
+                    )
+                  })}
+                </motion.div>
 
                 {tab.projects.length === 0 && (
                   <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/30 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
@@ -137,7 +201,7 @@ const MainSection = memo(() => {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
     </main>
   )
 })

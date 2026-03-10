@@ -1,9 +1,10 @@
 import { memo, useEffect, useRef, type MouseEvent } from 'react'
+import { motion } from 'framer-motion'
 import { Code2, Sparkles } from 'lucide-react'
 import { useHeaderAnimation, ANIMATION_CONFIG } from '../../hooks/useHeaderAnimation'
 import { useTagInteraction } from '../../hooks/useTagInteraction'
 import { profile } from '../../data'
-import { externalLinkProps, sectionIds } from '../../consts'
+import { externalLinkProps, sectionIds, springTransition } from '../../consts'
 
 const HeaderSection = memo(() => {
   const headerRef = useRef<HTMLElement>(null)
@@ -78,7 +79,12 @@ const HeaderSection = memo(() => {
 
       <div className="max-w-5xl mx-auto relative z-10">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8">
-          <div className="relative w-28 h-28 lg:w-40 lg:h-40">
+          <motion.div
+            initial={{ scale: 0.5, opacity: 0, rotate: -15 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ ...springTransition, delay: 0.1 }}
+            className="relative w-28 h-28 lg:w-40 lg:h-40"
+          >
             <div className="absolute inset-0 rounded-full bg-transparent shadow-[0_10px_40px_-10px_rgba(255,90,0,0.1)] peer-hover:shadow-[0_20px_40px_-10px_rgba(255,90,0,0.2)] peer-hover:scale-105 transition-all duration-300 z-0 pointer-events-none will-change-transform" />
             <a
               href="https://github.com/SpaceTimee"
@@ -119,9 +125,14 @@ const HeaderSection = memo(() => {
             >
               <Sparkles className="w-5 h-5 text-primary" />
             </a>
-          </div>
+          </motion.div>
 
-          <div className="flex-1 space-y-4">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ...springTransition, delay: 0.1 }}
+            className="flex-1 space-y-4"
+          >
             <div>
               <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-2 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-700 dark:from-primary dark:via-purple-300 dark:to-indigo-300">
@@ -165,7 +176,7 @@ const HeaderSection = memo(() => {
                 )
               })}
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 

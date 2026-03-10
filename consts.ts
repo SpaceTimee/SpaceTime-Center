@@ -1,6 +1,12 @@
 import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-react'
 import { ProjectStatus } from './types'
 
+export const springTransition = {
+  type: 'spring',
+  stiffness: 260,
+  damping: 20
+} as const
+
 export const externalLinkProps = {
   target: '_blank',
   rel: 'noopener noreferrer'
