@@ -2,6 +2,7 @@ import FooterSection from './components/sections/FooterSection'
 import MainSection from './components/sections/MainSection'
 import HeaderSection from './components/sections/HeaderSection'
 import NavbarSection from './components/sections/NavbarSection'
+import { ScrollProgress } from './components/ui/ScrollProgress'
 import { useScrollSpy } from './hooks/useScrollSpy'
 import { sectionIds, sections } from './consts'
 
@@ -14,6 +15,7 @@ const App = () => {
       <HeaderSection />
       <MainSection />
       <FooterSection />
+      <ScrollProgress />
     </div>
   )
 }

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { Code2, Sparkles } from 'lucide-react'
 import { useHeaderAnimation, ANIMATION_CONFIG } from '../../hooks/useHeaderAnimation'
 import { useTagInteraction } from '../../hooks/useTagInteraction'
+import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { profile } from '../../data'
 import { externalLinkProps, sectionIds, springTransition } from '../../consts'
 
@@ -23,6 +24,14 @@ const HeaderSection = memo(() => {
     })
 
   const { shakingTagIndex, fallingTags, collapsingTags, removedTags, handleTagClick } = useTagInteraction()
+
+  const {
+    ref: hfRef,
+    spotlightBackground: hfSpotlightBackground,
+    spotlightBorder: hfSpotlightBorder,
+    handleMouseMove: handleHfMouseMove,
+    handleMouseLeave: handleHfMouseLeave
+  } = useCardAnimation<HTMLAnchorElement>()
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
     if (!headerRef.current || mouseMoveTickingRef.current || prefersReducedMotion) return
@@ -117,14 +126,34 @@ const HeaderSection = memo(() => {
               </div>
             </a>
 
-            <a
-              href="https://huggingface.co/SpaceTimee"
-              {...externalLinkProps}
-              className="absolute -bottom-2 -right-2 bg-white dark:bg-gray-700 p-2 rounded-full shadow-md hover:scale-110 transition-transform duration-200 z-20"
-              aria-label="Hugging Face Profile"
-            >
-              <Sparkles className="w-5 h-5 text-primary" />
-            </a>
+            <div className="absolute -bottom-2 -right-2 z-20">
+              <motion.a
+                href="https://huggingface.co/SpaceTimee"
+                {...externalLinkProps}
+                ref={hfRef}
+                onMouseMove={handleHfMouseMove}
+                onMouseLeave={handleHfMouseLeave}
+                className="group relative flex items-center justify-center w-9 h-9 bg-white dark:bg-gray-700 rounded-full p-[1px] shadow-md hover:scale-110 transition-all duration-300 transform-gpu will-change-transform cursor-pointer overflow-hidden"
+                aria-label="Hugging Face Profile"
+              >
+                <motion.div
+                  className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300 pointer-events-none"
+                  style={{ background: hfSpotlightBorder }}
+                />
+
+                <div className="absolute inset-0 z-0 rounded-full border border-gray-100 dark:border-gray-700 group-hover:border-primary/30 dark:group-hover:border-primary/30 transition-colors duration-300 pointer-events-none" />
+
+                <div className="relative z-10 flex items-center justify-center w-full h-full bg-white dark:bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div
+                    className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05] transition-opacity duration-300 pointer-events-none mix-blend-screen"
+                    style={{ background: hfSpotlightBackground }}
+                  />
+                  <div className="relative z-20">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                </div>
+              </motion.a>
+            </div>
           </motion.div>
 
           <motion.div

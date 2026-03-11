@@ -61,7 +61,7 @@ const FooterSection = memo(() => {
               <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">
                 Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time
               </p>
-              <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.1.1</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.1.2</p>
             </div>
           </div>
         </div>
