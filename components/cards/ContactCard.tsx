@@ -13,15 +13,22 @@ const CONTACT_TYPE_ICON_MAP = {
 } as const satisfies Record<ContactType | 'Default', ReactNode>
 
 const ContactCard = memo(({ info }: { info: ContactInfo }) => {
-  const { ref, rotateX, rotateY, spotlightBackground, spotlightBorder, handleMouseMove, handleMouseLeave } =
-    useCardAnimation<HTMLAnchorElement>()
+  const {
+    ref,
+    rotateX,
+    rotateY,
+    spotlightBackground,
+    spotlightBorder,
+    handlePointerMove,
+    handlePointerLeave
+  } = useCardAnimation<HTMLAnchorElement>()
 
   return (
     <div style={{ perspective: 1200 }} className="h-full">
       <motion.a
         ref={ref}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
         style={{
           rotateX,
           rotateY,
@@ -30,10 +37,15 @@ const ContactCard = memo(({ info }: { info: ContactInfo }) => {
         href={info.link}
         {...externalLinkProps}
         whileHover={{ y: -4 }}
-        className="block group relative bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm hover:shadow-lg transition-shadow duration-300 transform-gpu will-change-transform cursor-pointer h-full overflow-hidden"
+        className="block group relative bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm transition-shadow duration-300 transform-gpu will-change-transform cursor-pointer h-full"
       >
+        <div
+          className="absolute inset-0 z-[-1] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{ transform: 'translateZ(-15px)' }}
+        />
+
         <motion.div
-          className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
+          className="absolute inset-0 z-0 rounded-xl opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
           style={{ background: spotlightBorder }}
         />
 

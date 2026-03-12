@@ -22,16 +22,23 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   const isLink = Boolean(info.link)
   const Wrapper = isLink ? motion.a : motion.div
 
-  const { ref, rotateX, rotateY, spotlightBackground, spotlightBorder, handleMouseMove, handleMouseLeave } =
-    useCardAnimation<HTMLElement>()
+  const {
+    ref,
+    rotateX,
+    rotateY,
+    spotlightBackground,
+    spotlightBorder,
+    handlePointerMove,
+    handlePointerLeave
+  } = useCardAnimation<HTMLElement>()
 
   return (
     <div style={{ perspective: 1200 }} className="h-full">
       <Wrapper
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={ref as any}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseLeave}
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
         style={{
           rotateX,
           rotateY,
@@ -39,12 +46,17 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         }}
         {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
         whileHover={{ y: -4 }}
-        className={`group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm hover:shadow-lg transition-shadow duration-300 overflow-hidden h-full will-change-transform ${
+        className={`group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm transition-shadow duration-300 transform-gpu will-change-transform h-full ${
           isLink ? 'cursor-pointer' : 'cursor-default'
         }`}
       >
+        <div
+          className="absolute inset-0 z-[-1] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+          style={{ transform: 'translateZ(-15px)' }}
+        />
+
         <motion.div
-          className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
+          className="absolute inset-0 z-0 rounded-xl opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
           style={{ background: spotlightBorder }}
         />
 

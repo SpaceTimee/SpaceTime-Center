@@ -2,7 +2,7 @@ import { ProjectStatus, type ContactInfo, type PortalInfo, type ProfileInfo, typ
 
 export const profile = {
   name: 'Space Time',
-  description: '个人势 VCoder，独立死灵法师，项目皆为设定，请勿带入现实哦',
+  description: '个人势 VCoder，独立死灵法师，项目皆为设定，请勿带入现实',
   tags: ['Web 全栈', '.Net 全端', '营养全面']
 } as const satisfies ProfileInfo
 

@@ -29,8 +29,8 @@ const HeaderSection = memo(() => {
     ref: hfRef,
     spotlightBackground: hfSpotlightBackground,
     spotlightBorder: hfSpotlightBorder,
-    handleMouseMove: handleHfMouseMove,
-    handleMouseLeave: handleHfMouseLeave
+    handlePointerMove: handleHfPointerMove,
+    handlePointerLeave: handleHfPointerLeave
   } = useCardAnimation<HTMLAnchorElement>()
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
@@ -131,8 +131,8 @@ const HeaderSection = memo(() => {
                 href="https://huggingface.co/SpaceTimee"
                 {...externalLinkProps}
                 ref={hfRef}
-                onMouseMove={handleHfMouseMove}
-                onMouseLeave={handleHfMouseLeave}
+                onPointerMove={handleHfPointerMove}
+                onPointerLeave={handleHfPointerLeave}
                 className="group relative flex items-center justify-center w-9 h-9 bg-white dark:bg-gray-700 rounded-full p-[1px] shadow-md hover:scale-110 transition-all duration-300 transform-gpu will-change-transform cursor-pointer overflow-hidden"
                 aria-label="Hugging Face Profile"
               >

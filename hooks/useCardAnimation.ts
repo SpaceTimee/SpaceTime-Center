@@ -42,8 +42,8 @@ export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
       `radial-gradient(600px circle at ${latestX}px ${latestY}px, var(--color-primary), transparent 40%)`
   )
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLElement>) => {
-    if (!ref.current) return
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (!ref.current || e.pointerType === 'touch') return
 
     const rect = ref.current.getBoundingClientRect()
 
@@ -60,7 +60,7 @@ export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
     y.set(yPct)
   }
 
-  const handleMouseLeave = () => {
+  const handlePointerLeave = () => {
     x.set(0)
     y.set(0)
   }
@@ -71,7 +71,7 @@ export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
     rotateY,
     spotlightBackground,
     spotlightBorder,
-    handleMouseMove,
-    handleMouseLeave
+    handlePointerMove,
+    handlePointerLeave
   }
 }
