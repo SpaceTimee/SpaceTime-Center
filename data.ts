@@ -62,6 +62,30 @@ export const projects = [
     status: ProjectStatus.InProgress
   },
   {
+    name: 'Suri Simu 1 LoRA',
+    description: '像素猫猫 LoRA 模型',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-simu-1',
+    tags: ['Civitai'],
+    status: ProjectStatus.InProgress,
+    type: 'HuggingFace'
+  },
+  {
+    name: 'Suri Qwen 3 Uncensored',
+    description: 'Qwen 3.x 无审查模型',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
+    tags: ['PyTorch'],
+    status: ProjectStatus.InProgress,
+    type: 'HuggingFace'
+  },
+  {
+    name: 'Suri Qwen 3 Playground',
+    description: 'Suri Qwen 3 体验场',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
+    tags: ['Chainlit', 'FastAPI'],
+    status: ProjectStatus.InProgress,
+    type: 'HuggingFace'
+  },
+  {
     name: 'Sheas Frameg',
     description: '在线视频插帧工具',
     link: 'https://github.com/SpaceTimee/Sheas-Frameg',
@@ -164,38 +188,6 @@ export const projects = [
     description: '继续学习 Unity',
     tags: ['Unity'],
     status: ProjectStatus.Planned
-  },
-  {
-    name: 'Suri Simu 1.0 LoRA',
-    description: '像素猫猫 LoRA 模型',
-    link: 'https://huggingface.co/SpaceTimee/Suri-Simu-1.0-LoRA',
-    tags: ['Civitai'],
-    status: ProjectStatus.Completed,
-    type: 'HuggingFace'
-  },
-  {
-    name: 'Suri Qwen 3 Playground',
-    description: 'Suri Qwen 3 体验场',
-    link: 'https://huggingface.co/spaces/SpaceTimee/Suri-Qwen-3-Playground',
-    tags: ['Chainlit', 'FastAPI'],
-    status: ProjectStatus.Completed,
-    type: 'HuggingFace'
-  },
-  {
-    name: 'Suri Qwen 3.1 4B Uncensored',
-    description: 'Qwen3 4B 无审查模型',
-    link: 'https://huggingface.co/SpaceTimee/Suri-Qwen-3.1-4B-Uncensored',
-    tags: ['PyTorch'],
-    status: ProjectStatus.Completed,
-    type: 'HuggingFace'
-  },
-  {
-    name: 'Suri Qwen 3.1 4B Uncensored Hard',
-    description: 'Qwen3 4B 无审查特化模型',
-    link: 'https://huggingface.co/SpaceTimee/Suri-Qwen-3.1-4B-Uncensored-Hard',
-    tags: ['PyTorch'],
-    status: ProjectStatus.Completed,
-    type: 'HuggingFace'
   },
   {
     name: 'YouTube Video Summarizer',
