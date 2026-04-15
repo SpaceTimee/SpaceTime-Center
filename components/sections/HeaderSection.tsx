@@ -99,7 +99,6 @@ const HeaderSection = memo(() => {
               href="https://github.com/SpaceTimee"
               {...externalLinkProps}
               className="peer relative z-10 block w-full h-full rounded-full transform transition-all duration-300 hover:scale-105 will-change-transform"
-              style={{ clipPath: 'circle(50%)', WebkitClipPath: 'circle(50%)' }}
               aria-label="Github Profile"
             >
               <div className="w-full h-full rounded-full bg-gradient-to-br from-primary to-orange-300 p-[3px] dark:bg-gray-800">

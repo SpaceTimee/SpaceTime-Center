@@ -1,6 +1,7 @@
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Github, Pin, Sparkles } from 'lucide-react'
+import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Pin, Sparkles } from 'lucide-react'
+import GithubIcon from '../icons/GithubIcon'
 import { externalLinkProps, tagPillProps } from '../../consts'
 import { ProjectStatus, type ProjectInfo, type ProjectType } from '../../types'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
@@ -12,10 +13,10 @@ const PROJECT_STATUS_ICON_MAP = {
 } as const satisfies Record<ProjectStatus, ReactNode>
 
 const PROJECT_TYPE_ICON_MAP = {
-  Github: <Github className="w-5 h-5" />,
+  Github: <GithubIcon className="w-5 h-5" />,
   HuggingFace: <Brain className="w-5 h-5" />,
   Gemini: <Sparkles className="w-5 h-5" />,
-  Default: <Github className="w-5 h-5" />
+  Default: <GithubIcon className="w-5 h-5" />
 } as const satisfies Record<ProjectType | 'Default', ReactNode>
 
 const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {

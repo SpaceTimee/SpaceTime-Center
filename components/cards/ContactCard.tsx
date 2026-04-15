@@ -1,13 +1,14 @@
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronRight, Github, Mail, MessageCircle, Tv } from 'lucide-react'
+import { ChevronRight, Mail, MessageCircle, Tv } from 'lucide-react'
+import GithubIcon from '../icons/GithubIcon'
 import { externalLinkProps } from '../../consts'
 import type { ContactInfo, ContactType } from '../../types'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
 
 const CONTACT_TYPE_ICON_MAP = {
   Mail: <Mail className="w-5 h-5" />,
-  Github: <Github className="w-5 h-5" />,
+  Github: <GithubIcon className="w-5 h-5" />,
   Bilibili: <Tv className="w-5 h-5" />,
   Default: <MessageCircle className="w-5 h-5" />
 } as const satisfies Record<ContactType | 'Default', ReactNode>

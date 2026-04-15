@@ -79,37 +79,39 @@ const NavbarSection = memo(() => {
           <div className={navContainerClass}>
             <button
               type="button"
-              className="flex items-center gap-2 m-0.5 cursor-pointer group bg-transparent border-0 p-0"
+              className="flex items-center gap-2 m-0.5 cursor-pointer group bg-transparent border-0 p-0 rounded-full"
               onClick={() => scrollToSection(sectionIds.home)}
             >
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform relative overflow-hidden flex-shrink-0 will-change-transform">
-                <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-                    isScrollingToTop
-                      ? '-translate-y-full opacity-0'
-                      : 'opacity-100 [@media(hover:hover)]:group-hover:-translate-y-full [@media(hover:hover)]:group-hover:opacity-0'
-                  }`}
-                >
-                  <img
-                    src="/favicon.png"
-                    alt="Favicon"
-                    className="w-6 h-6 object-contain"
-                    decoding="async"
-                    fetchPriority="high"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none'
-                    }}
-                  />
-                </span>
-                <span
-                  className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
-                    isScrollingToTop
-                      ? 'translate-y-0 opacity-100'
-                      : 'translate-y-full opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100'
-                  }`}
-                >
-                  <ChevronUp className="w-5 h-5" strokeWidth={3} />
-                </span>
+              <div className="w-8 h-8 flex-shrink-0 overflow-hidden rounded-full">
+                <div className="w-full h-full bg-primary rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-primary/30 group-hover:scale-105 transition-transform relative overflow-hidden will-change-transform">
+                  <span
+                    className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                      isScrollingToTop
+                        ? '-translate-y-full opacity-0'
+                        : 'opacity-100 [@media(hover:hover)]:group-hover:-translate-y-full [@media(hover:hover)]:group-hover:opacity-0'
+                    }`}
+                  >
+                    <img
+                      src="/favicon.png"
+                      alt="Favicon"
+                      className="w-6 h-6 object-contain"
+                      decoding="async"
+                      fetchPriority="high"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                      }}
+                    />
+                  </span>
+                  <span
+                    className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${
+                      isScrollingToTop
+                        ? 'translate-y-0 opacity-100'
+                        : 'translate-y-full opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100'
+                    }`}
+                  >
+                    <ChevronUp className="w-5 h-5" strokeWidth={3} />
+                  </span>
+                </div>
               </div>
               <span className="text-xl font-bold text-gray-900 dark:text-gray-100 tracking-tight mx-1 whitespace-nowrap">
                 SpaceTime <span className="text-primary">Center</span>
