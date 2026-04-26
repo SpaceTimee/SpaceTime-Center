@@ -184,6 +184,12 @@ export const projects = [
     status: ProjectStatus.InProgress
   },
   {
+    name: 'Vight Rand',
+    description: 'MDRI 数字随机性量化工具',
+    tags: ['Spline', 'Vanilla Web'],
+    status: ProjectStatus.Planned
+  },
+  {
     name: 'Unity Learning',
     description: '继续学习 Unity',
     tags: ['Unity'],
