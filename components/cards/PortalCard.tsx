@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { ChevronRight, FileText, Globe, Server } from 'lucide-react'
+import { BookOpenText, ChevronRight, CircleUser, FileText, Globe, Server } from 'lucide-react'
 import { externalLinkProps, tagPillProps } from '../../consts'
 import type { PortalInfo, PortalType } from '../../types'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
@@ -9,6 +9,8 @@ const PORTAL_TYPE_ICON_MAP = {
   Center: <Globe className="w-5 h-5" />,
   Blog: <FileText className="w-5 h-5" />,
   Server: <Server className="w-5 h-5" />,
+  Docs: <BookOpenText className="w-5 h-5" />,
+  Account: <CircleUser className="w-5 h-5" />,
   Default: <Globe className="w-5 h-5" />
 } as const satisfies Record<PortalType | 'Default', ReactNode>
 

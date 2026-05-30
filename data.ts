@@ -29,6 +29,20 @@ export const portals = [
     tags: ['ASP.NET Core', 'Vue']
   },
   {
+    name: 'SpaceTime Docs',
+    description: '文档中心',
+    link: 'https://docs.spacetimee.xyz',
+    type: 'Docs',
+    tags: ['VitePress']
+  },
+  {
+    name: 'SpaceTime Account',
+    description: '账号中心',
+    link: 'https://account.spacetimee.xyz',
+    type: 'Account',
+    tags: ['Casdoor']
+  },
+  {
     name: 'SpaceTime Alternative Blog',
     description: '备用博客',
     link: 'https://www.cnblogs.com/spacetime',

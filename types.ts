@@ -4,7 +4,7 @@ export enum ProjectStatus {
   Planned = 'Planned'
 }
 
-export type PortalType = 'Center' | 'Blog' | 'Server'
+export type PortalType = 'Center' | 'Blog' | 'Server' | 'Docs' | 'Account'
 export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini'
 export type ContactType = 'Mail' | 'Github' | 'Bilibili'
 
