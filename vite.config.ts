@@ -5,6 +5,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import Sitemap from 'vite-plugin-sitemap'
+import { AtomFeed } from './plugins/atom-feed'
 
 export default defineConfig({
   server: {
@@ -37,6 +38,11 @@ export default defineConfig({
     }),
     Sitemap({
       hostname: 'https://www.spacetimee.xyz'
+    }),
+    AtomFeed({
+      title: 'SpaceTime Center',
+      description: 'Welcome To My Home Page ~',
+      siteUrl: 'https://www.spacetimee.xyz'
     })
   ],
   resolve: {
