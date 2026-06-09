@@ -69,7 +69,7 @@ const HeaderSection = memo(() => {
       ref={headerRef}
       onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
-      className="relative w-full pt-32 pb-12 lg:pt-40 lg:pb-20 px-6 overflow-hidden transition-colors duration-300"
+      className="relative w-full pt-28 pb-12 lg:pt-48 lg:pb-32 px-6 overflow-hidden transition-colors duration-300"
     >
       <div className="absolute inset-0 z-0 overflow-hidden">
         <img
@@ -159,16 +159,16 @@ const HeaderSection = memo(() => {
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ ...springTransition, delay: 0.1 }}
-            className="flex-1 space-y-4"
+            className="flex-1 space-y-6"
           >
             <div>
-              <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-2 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-700 dark:from-primary dark:via-purple-300 dark:to-indigo-300">
+              <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-600 dark:from-primary dark:via-purple-300 dark:to-indigo-300">
                   {profile.name}
                 </span>
-                <span className="text-indigo-700 dark:text-indigo-300">.</span>
+                <span className="text-indigo-600 dark:text-indigo-300">.</span>
               </h1>
-              <p className="text-lg lg:text-xl text-white dark:text-gray-400 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-none">
+              <p className="text-lg lg:text-2xl text-white dark:text-gray-400 font-medium drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] dark:drop-shadow-none">
                 {profile.description}
               </p>
             </div>
