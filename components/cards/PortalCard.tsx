@@ -1,9 +1,9 @@
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { BookOpenText, ChevronRight, CircleUser, FileText, Globe, Server } from 'lucide-react'
+import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { externalLinkProps, tagPillProps } from '../../consts'
 import type { PortalInfo, PortalType } from '../../types'
-import { useCardAnimation } from '../../hooks/useCardAnimation'
 
 const PORTAL_TYPE_ICON_MAP = {
   Center: <Globe className="w-5 h-5" />,
@@ -16,13 +16,13 @@ const PORTAL_TYPE_ICON_MAP = {
 
 const PortalCard = memo(({ info }: { info: PortalInfo }) => {
   const {
+    handlePointerLeave,
+    handlePointerMove,
     ref,
     rotateX,
     rotateY,
     spotlightBackground,
-    spotlightBorder,
-    handlePointerMove,
-    handlePointerLeave
+    spotlightBorder
   } = useCardAnimation<HTMLAnchorElement>()
 
   return (

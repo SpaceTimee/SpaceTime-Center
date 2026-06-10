@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 export function useTheme() {
   const [isDark, setIsDark] = useState(() => {
@@ -9,37 +9,33 @@ export function useTheme() {
   })
 
   useEffect(() => {
-    const root = document.documentElement
-    if (isDark) {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
+    document.documentElement.classList.toggle('dark', isDark)
   }, [isDark])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    const controller = new AbortController()
 
     const media = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (event: MediaQueryListEvent) => {
-      if (localStorage.getItem('theme') !== null) return
-      setIsDark(event.matches)
-    }
+    media.addEventListener(
+      'change',
+      (event) => {
+        if (localStorage.getItem('theme') !== null) return
+        setIsDark(event.matches)
+      },
+      { signal: controller.signal }
+    )
 
-    media.addEventListener?.('change', handleChange)
-
-    return () => {
-      media.removeEventListener?.('change', handleChange)
-    }
+    return () => controller.abort()
   }, [])
 
-  const toggleTheme = () => {
+  const toggleTheme = useCallback(() => {
     setIsDark((prev) => {
       const newMode = !prev
       localStorage.setItem('theme', newMode ? 'dark' : 'light')
       return newMode
     })
-  }
+  }, [])
 
   return { isDark, toggleTheme }
 }

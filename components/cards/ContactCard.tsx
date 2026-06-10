@@ -2,9 +2,9 @@ import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { ChevronRight, Mail, MessageCircle, Tv } from 'lucide-react'
 import GithubIcon from '../icons/GithubIcon'
+import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { externalLinkProps } from '../../consts'
 import type { ContactInfo, ContactType } from '../../types'
-import { useCardAnimation } from '../../hooks/useCardAnimation'
 
 const CONTACT_TYPE_ICON_MAP = {
   Mail: <Mail className="w-5 h-5" />,
@@ -15,13 +15,13 @@ const CONTACT_TYPE_ICON_MAP = {
 
 const ContactCard = memo(({ info }: { info: ContactInfo }) => {
   const {
+    handlePointerLeave,
+    handlePointerMove,
     ref,
     rotateX,
     rotateY,
     spotlightBackground,
-    spotlightBorder,
-    handlePointerMove,
-    handlePointerLeave
+    spotlightBorder
   } = useCardAnimation<HTMLAnchorElement>()
 
   return (

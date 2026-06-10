@@ -1,4 +1,3 @@
-import { URL, fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import react from '@vitejs/plugin-react'
@@ -47,14 +46,14 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('.', import.meta.url))
+      '@': import.meta.dirname
     }
   },
   build: {
     rollupOptions: {
       output: {
         manualChunks(id) {
-          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom')) {
             return 'react-vendor'
           }
           if (id.includes('node_modules/lucide-react')) {

@@ -1,19 +1,19 @@
-import { useRef } from 'react'
+import { useRef, type PointerEvent } from 'react'
 import { useMotionValue, useSpring, useTransform, type SpringOptions } from 'framer-motion'
 
 const tiltSpringOptions: SpringOptions = {
-  stiffness: 300,
   damping: 30,
-  mass: 1
+  mass: 1,
+  stiffness: 300
 }
 
 const spotlightSpringOptions: SpringOptions = {
-  stiffness: 400,
   damping: 40,
-  mass: 0.5
+  mass: 0.5,
+  stiffness: 400
 }
 
-export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
+export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const ref = useRef<T>(null)
 
   const x = useMotionValue(0)
@@ -42,7 +42,7 @@ export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
       `radial-gradient(600px circle at ${latestX}px ${latestY}px, var(--color-primary), transparent 40%)`
   )
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+  const handlePointerMove = (e: PointerEvent<HTMLElement>) => {
     if (!ref.current || e.pointerType === 'touch') return
 
     const rect = ref.current.getBoundingClientRect()
@@ -66,12 +66,12 @@ export const useCardAnimation = <T extends HTMLElement = HTMLElement>() => {
   }
 
   return {
+    handlePointerLeave,
+    handlePointerMove,
     ref,
     rotateX,
     rotateY,
     spotlightBackground,
-    spotlightBorder,
-    handlePointerMove,
-    handlePointerLeave
+    spotlightBorder
   }
 }

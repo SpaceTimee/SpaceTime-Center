@@ -1,41 +1,47 @@
 import { memo, useEffect, useRef, type MouseEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Code2, Sparkles } from 'lucide-react'
-import { useHeaderAnimation, ANIMATION_CONFIG } from '../../hooks/useHeaderAnimation'
-import { useTagInteraction } from '../../hooks/useTagInteraction'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
-import { profile } from '../../data'
+import { ANIMATION_CONFIG, useHeaderAnimation } from '../../hooks/useHeaderAnimation'
+import { useTagInteraction } from '../../hooks/useTagInteraction'
 import { externalLinkProps, sectionIds, springTransition } from '../../consts'
+import { profile } from '../../data'
 
-const { WAVE_HEIGHT_FACTOR: waveHeightFactor, MENISCUS_SPREAD: meniscusSpread } = ANIMATION_CONFIG
+const { MENISCUS_SPREAD: meniscusSpread, WAVE_HEIGHT_FACTOR: waveHeightFactor } = ANIMATION_CONFIG
 
 const HeaderSection = memo(() => {
+  const borderRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
-  const waveRef = useRef<HTMLDivElement>(null)
-  const borderRef = useRef<HTMLDivElement>(null)
   const meniscusRef = useRef<SVGGElement>(null)
   const mouseMoveTickingRef = useRef(false)
-  const rafIdRef = useRef<number | null>(null)
-
-  const { dimensionsRef, targetParallaxOffsetRef, startParallaxAnimation, prefersReducedMotion } =
-    useHeaderAnimation({
-      headerRef,
-      imageRef,
-      waveRef,
-      borderRef,
-      meniscusRef
-    })
-
-  const { shakingTagIndex, fallingTags, collapsingTags, removedTags, handleTagClick } = useTagInteraction()
+  const rafIdRef = useRef<number>(null)
+  const waveRef = useRef<HTMLDivElement>(null)
 
   const {
     ref: hfRef,
-    spotlightBackground: hfSpotlightBackground,
-    spotlightBorder: hfSpotlightBorder,
+    handlePointerLeave: handleHfPointerLeave,
     handlePointerMove: handleHfPointerMove,
-    handlePointerLeave: handleHfPointerLeave
+    spotlightBackground: hfSpotlightBackground,
+    spotlightBorder: hfSpotlightBorder
   } = useCardAnimation<HTMLAnchorElement>()
+
+  const { dimensionsRef, prefersReducedMotion, startParallaxAnimation, targetParallaxOffsetRef } =
+    useHeaderAnimation({
+      borderRef,
+      headerRef,
+      imageRef,
+      meniscusRef,
+      waveRef
+    })
+
+  const { collapsingTags, fallingTags, handleTagClick, removedTags, shakingTagIndex } = useTagInteraction()
+
+  useEffect(() => {
+    return () => {
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+    }
+  }, [])
 
   const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
     if (!headerRef.current || mouseMoveTickingRef.current || prefersReducedMotion) return
@@ -55,12 +61,6 @@ const HeaderSection = memo(() => {
       mouseMoveTickingRef.current = false
     })
   }
-
-  useEffect(() => {
-    return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
-    }
-  }, [])
 
   const handleMouseLeave = () => {
     targetParallaxOffsetRef.current = { x: 0, y: 0 }
@@ -82,9 +82,9 @@ const HeaderSection = memo(() => {
           alt="Banner"
           className="w-full h-full object-cover object-center will-change-transform"
           style={{ transform: 'scale(1.1)' }}
+          decoding="async"
           fetchPriority="high"
           loading="eager"
-          decoding="async"
           onError={(e) => (e.currentTarget.style.display = 'none')}
         />
         <div className="absolute inset-0 transition-colors duration-500 ease-in-out z-10 pointer-events-none bg-transparent dark:bg-gray-900/90" />

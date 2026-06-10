@@ -1,36 +1,38 @@
-import { type RefObject, useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
 
 interface UseHeaderAnimationProps {
+  borderRef: RefObject<HTMLDivElement | null>
   headerRef: RefObject<HTMLElement | null>
   imageRef: RefObject<HTMLImageElement | null>
-  waveRef: RefObject<HTMLDivElement | null>
-  borderRef: RefObject<HTMLDivElement | null>
   meniscusRef: RefObject<SVGGElement | null>
+  waveRef: RefObject<HTMLDivElement | null>
 }
 
 export const ANIMATION_CONFIG = {
-  MAX_PULL: 150,
   BASE_SCALE: 1.1,
-  WAVE_HEIGHT_FACTOR: 60,
-  PARALLAX_FACTOR: 40,
-  LERP_EASE: 0.1,
   DECAY_RATE: 0.999,
+  LERP_EASE: 0.1,
+  MAX_PULL: 150,
   MAX_TILT: 20,
-  TILT_OFFSET: 45,
-  TILT_FACTOR: 0.625,
-  PULL_LIMIT: 250,
-  SCROLL_WHEEL_FACTOR: 0.6,
+  MENISCUS_SPREAD: 80,
+  PARALLAX_FACTOR: 40,
   PULL_DRAG_DIVISOR: 1.5,
   PULL_DRAG_POW: 0.85,
-  MENISCUS_SPREAD: 80
+  PULL_LIMIT: 250,
+  SCROLL_WHEEL_FACTOR: 0.6,
+  TILT_FACTOR: 0.625,
+  TILT_OFFSET: 45,
+  WAVE_HEIGHT_FACTOR: 60
 } as const
 
+const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor
+
 export function useHeaderAnimation({
+  borderRef,
   headerRef,
   imageRef,
-  waveRef,
-  borderRef,
-  meniscusRef
+  meniscusRef,
+  waveRef
 }: UseHeaderAnimationProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -38,12 +40,12 @@ export function useHeaderAnimation({
   const pullDistanceRef = useRef(-ANIMATION_CONFIG.MAX_PULL)
   const isDraggingRef = useRef(false)
   const startYRef = useRef(0)
-  const animationFrameIdRef = useRef<number | null>(null)
-  const resetTimerRef = useRef<number | null>(null)
+  const animationFrameIdRef = useRef<number>(null)
+  const resetTimerRef = useRef<number>(null)
 
   const targetParallaxOffsetRef = useRef({ x: 0, y: 0 })
   const currentParallaxOffsetRef = useRef({ x: 0, y: 0 })
-  const parallaxAnimationFrameIdRef = useRef<number | null>(null)
+  const parallaxAnimationFrameIdRef = useRef<number>(null)
 
   const touchStartPosRef = useRef({ x: 0, y: 0 })
   const isWaveActiveRef = useRef(false)
@@ -52,24 +54,20 @@ export function useHeaderAnimation({
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    const controller = new AbortController()
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = (event: MediaQueryListEvent) => {
-      setPrefersReducedMotion(event.matches)
-    }
 
-    media.addEventListener?.('change', handleChange)
+    media.addEventListener('change', (event) => setPrefersReducedMotion(event.matches), {
+      signal: controller.signal
+    })
 
-    return () => {
-      media.removeEventListener?.('change', handleChange)
-    }
+    return () => controller.abort()
   }, [])
-
-  const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor
 
   const updateParallaxState = useCallback(() => {
     if (!imageRef.current) return
 
-    const { MAX_PULL, WAVE_HEIGHT_FACTOR, MENISCUS_SPREAD, BASE_SCALE } = ANIMATION_CONFIG
+    const { BASE_SCALE, MAX_PULL, MENISCUS_SPREAD, WAVE_HEIGHT_FACTOR } = ANIMATION_CONFIG
     const pullDistance = pullDistanceRef.current
 
     if (pullDistance <= 0) {
@@ -115,10 +113,10 @@ export function useHeaderAnimation({
     }
 
     imageRef.current.style.transform = `scale(${BASE_SCALE}) translate(${currentParallaxOffsetRef.current.x}px, ${currentParallaxOffsetRef.current.y}px)`
-  }, [imageRef, borderRef, waveRef, meniscusRef])
+  }, [borderRef, imageRef, meniscusRef, waveRef])
 
-  const animateParallaxRef = useRef<() => void>(null!)
-  const animateDecayRef = useRef<() => void>(null!)
+  const animateParallaxRef = useRef<(() => void) | null>(null)
+  const animateDecayRef = useRef<(() => void) | null>(null)
 
   const animateParallax = useCallback(() => {
     const { x: targetX, y: targetY } = targetParallaxOffsetRef.current
@@ -131,7 +129,7 @@ export function useHeaderAnimation({
     updateParallaxState()
 
     if (Math.abs(newX - targetX) > 0.01 || Math.abs(newY - targetY) > 0.01) {
-      parallaxAnimationFrameIdRef.current = requestAnimationFrame(() => animateParallaxRef.current())
+      parallaxAnimationFrameIdRef.current = requestAnimationFrame(() => animateParallaxRef.current?.())
     } else {
       parallaxAnimationFrameIdRef.current = null
     }
@@ -171,7 +169,7 @@ export function useHeaderAnimation({
     updateParallaxState()
 
     if (needsFrame) {
-      animationFrameIdRef.current = requestAnimationFrame(() => animateDecayRef.current())
+      animationFrameIdRef.current = requestAnimationFrame(() => animateDecayRef.current?.())
     } else {
       animationFrameIdRef.current = null
     }
@@ -197,7 +195,7 @@ export function useHeaderAnimation({
       targetParallaxOffsetRef.current = { x, y }
       startParallaxAnimation()
     },
-    [startParallaxAnimation, prefersReducedMotion]
+    [prefersReducedMotion, startParallaxAnimation]
   )
 
   useEffect(() => {
@@ -221,7 +219,10 @@ export function useHeaderAnimation({
       resizeTimer = window.setTimeout(updateDimensions, 150)
     }
 
-    window.addEventListener('resize', handleResize)
+    const controller = new AbortController()
+    const { signal } = controller
+
+    window.addEventListener('resize', handleResize, { signal })
 
     const handleWheel = (e: WheelEvent) => {
       if (window.scrollY === 0 && e.deltaY < 0) {
@@ -326,25 +327,19 @@ export function useHeaderAnimation({
     }
 
     if (!prefersReducedMotion) {
-      window.addEventListener('deviceorientation', handleDeviceOrientation, true)
-      window.addEventListener('wheel', handleWheel, { passive: true })
-      window.addEventListener('touchstart', handleTouchStart, { passive: true })
-      window.addEventListener('touchmove', handleTouchMove, { passive: true })
-      window.addEventListener('touchend', handleTouchEnd)
-      window.addEventListener('touchcancel', handleTouchEnd)
+      window.addEventListener('deviceorientation', handleDeviceOrientation, { capture: true, signal })
+      window.addEventListener('wheel', handleWheel, { passive: true, signal })
+      window.addEventListener('touchstart', handleTouchStart, { passive: true, signal })
+      window.addEventListener('touchmove', handleTouchMove, { passive: true, signal })
+      window.addEventListener('touchend', handleTouchEnd, { signal })
+      window.addEventListener('touchcancel', handleTouchEnd, { signal })
     }
 
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (headerRef.current) {
-            if (entry.isIntersecting) {
-              headerRef.current.classList.remove('paused-animations')
-            } else {
-              headerRef.current.classList.add('paused-animations')
-            }
-          }
-        })
+        for (const entry of entries) {
+          headerRef.current?.classList.toggle('paused-animations', !entry.isIntersecting)
+        }
       },
       { threshold: 0 }
     )
@@ -352,33 +347,27 @@ export function useHeaderAnimation({
     if (headerRef.current) observer.observe(headerRef.current)
 
     return () => {
-      window.removeEventListener('resize', handleResize)
-      if (resizeTimer) window.clearTimeout(resizeTimer)
-      window.removeEventListener('deviceorientation', handleDeviceOrientation, true)
-      window.removeEventListener('wheel', handleWheel)
-      window.removeEventListener('touchstart', handleTouchStart)
-      window.removeEventListener('touchmove', handleTouchMove)
-      window.removeEventListener('touchend', handleTouchEnd)
-      window.removeEventListener('touchcancel', handleTouchEnd)
+      controller.abort()
       observer.disconnect()
 
+      if (resizeTimer) window.clearTimeout(resizeTimer)
       if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current)
       if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current)
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current)
     }
   }, [
-    headerRef,
     animateDecay,
-    startParallaxAnimation,
     handleDeviceOrientation,
-    updateParallaxState,
-    prefersReducedMotion
+    headerRef,
+    prefersReducedMotion,
+    startParallaxAnimation,
+    updateParallaxState
   ])
 
   return {
-    dimensionsRef: dimensionsRef,
-    targetParallaxOffsetRef: targetParallaxOffsetRef,
+    dimensionsRef,
+    prefersReducedMotion,
     startParallaxAnimation,
-    prefersReducedMotion
+    targetParallaxOffsetRef
   }
 }

@@ -1,6 +1,6 @@
-import { useState, useEffect, useRef, memo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, ChevronUp, Sun, Moon } from 'lucide-react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ChevronUp, Menu, Moon, Sun, X } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
 import { sectionIds, sections, springTransition } from '../../consts'
 
@@ -13,39 +13,42 @@ const NavbarSection = memo(() => {
   const { isDark, toggleTheme } = useTheme()
 
   useEffect(() => {
+    const controller = new AbortController()
     let ticking = false
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY
-          setIsScrolled(currentScrollY > 20)
-          if (currentScrollY === 0) setIsScrollingToTop(false)
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
 
-    return () => window.removeEventListener('scroll', handleScroll)
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            const currentScrollY = window.scrollY
+            setIsScrolled(currentScrollY > 20)
+            if (currentScrollY === 0) setIsScrollingToTop(false)
+            ticking = false
+          })
+          ticking = true
+        }
+      },
+      { passive: true, signal: controller.signal }
+    )
+
+    return () => controller.abort()
   }, [])
 
   useEffect(() => {
     if (typeof window === 'undefined') return
+    const controller = new AbortController()
     const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = (event: MediaQueryListEvent) => {
-      prefersReducedMotionRef.current = event.matches
-    }
 
     prefersReducedMotionRef.current = media.matches
-    media.addEventListener?.('change', handleChange)
+    media.addEventListener('change', (event) => (prefersReducedMotionRef.current = event.matches), {
+      signal: controller.signal
+    })
 
-    return () => {
-      media.removeEventListener?.('change', handleChange)
-    }
+    return () => controller.abort()
   }, [])
 
-  const scrollToSection = (id: string) => {
+  const scrollToSection = useCallback((id: string) => {
     setIsOpen(false)
     setIsScrollingToTop(id === sectionIds.home && window.scrollY > 0)
 
@@ -56,7 +59,7 @@ const NavbarSection = memo(() => {
         behavior: prefersReducedMotionRef.current ? 'auto' : 'smooth'
       })
     }
-  }
+  }, [])
 
   const navContainerClass =
     !isScrolled && !isOpen
@@ -146,7 +149,7 @@ const NavbarSection = memo(() => {
             <div className="min-[830px]:hidden flex-shrink-0 max-[415px]:hidden">
               <button
                 type="button"
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={() => setIsOpen((prev) => !prev)}
                 className="p-2 rounded-full text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-primary dark:hover:text-primary transition-colors"
                 aria-label="Toggle Menu"
               >

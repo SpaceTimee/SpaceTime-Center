@@ -1,16 +1,16 @@
-import { motion, useScroll, useSpring, useMotionValueEvent } from 'framer-motion'
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 
 export const ScrollProgress = () => {
+  const [isVisible, setIsVisible] = useState(false)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
+
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
+    stiffness: 100
   })
-
-  const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useMotionValueEvent(scaleX, 'change', () => {
     setIsVisible(true)

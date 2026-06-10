@@ -1,4 +1,4 @@
-import { type RefObject, useEffect, useState } from 'react'
+import { useEffect, useState, type RefObject } from 'react'
 
 export function useDynamicHeight(activeIndex: number, tabRefs: RefObject<(HTMLElement | null)[]>) {
   const [height, setHeight] = useState<number | 'auto'>('auto')

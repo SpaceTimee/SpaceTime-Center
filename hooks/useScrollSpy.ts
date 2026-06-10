@@ -6,13 +6,13 @@ interface Section {
 }
 
 interface ScrollSpyOptions {
-  readonly titleSuffix?: string
   readonly contactId?: string
+  readonly titleSuffix?: string
 }
 
 export function useScrollSpy(
   sections: readonly Section[],
-  { titleSuffix = 'SpaceTime Center', contactId = 'contact' }: ScrollSpyOptions = {}
+  { contactId = 'contact', titleSuffix = 'SpaceTime Center' }: ScrollSpyOptions = {}
 ) {
   const currentTitleRef = useRef<string>(titleSuffix)
   const isContactActiveRef = useRef(false)
@@ -33,32 +33,32 @@ export function useScrollSpy(
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
 
           const nextTitle = sectionTitleById.get(entry.target.id)
-          if (!nextTitle || entry.target.id === contactId) return
+          if (!nextTitle || entry.target.id === contactId) continue
 
           currentTitleRef.current = nextTitle
           if (!isContactActiveRef.current) {
             setTitle(nextTitle)
           }
-        })
+        }
       },
       { rootMargin: '-70px 0px -80% 0px', threshold: 0 }
     )
 
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id)
+    for (const section of sections) {
+      const el = document.getElementById(section.id)
       if (el) sectionObserver.observe(el)
-    })
+    }
 
     const bottomObserver = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        for (const entry of entries) {
           isContactActiveRef.current = entry.isIntersecting
           setTitle(entry.isIntersecting ? contactTitle : currentTitleRef.current)
-        })
+        }
       },
       { rootMargin: '0px', threshold: 0 }
     )
@@ -70,5 +70,5 @@ export function useScrollSpy(
       sectionObserver.disconnect()
       bottomObserver.disconnect()
     }
-  }, [sections, titleSuffix, contactId])
+  }, [contactId, sections, titleSuffix])
 }

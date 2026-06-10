@@ -11,43 +11,43 @@ export const portals = [
     name: 'SpaceTime Center',
     description: '个人主页',
     link: 'https://www.spacetimee.xyz',
-    type: 'Center',
-    tags: ['React', 'Tailwind']
+    tags: ['React', 'Tailwind'],
+    type: 'Center'
   },
   {
     name: 'SpaceTime Blog',
     description: '个人博客',
     link: 'https://blog.spacetimee.xyz',
-    type: 'Blog',
-    tags: ['Hexo']
+    tags: ['Hexo'],
+    type: 'Blog'
   },
   {
     name: 'SpaceTime Server',
     description: '多功能服务器',
     link: 'https://server.spacetimee.xyz',
-    type: 'Server',
-    tags: ['ASP.NET Core', 'Vue']
+    tags: ['ASP.NET Core', 'Vue'],
+    type: 'Server'
   },
   {
     name: 'SpaceTime Docs',
     description: '文档中心',
     link: 'https://docs.spacetimee.xyz',
-    type: 'Docs',
-    tags: ['VitePress']
+    tags: ['VitePress'],
+    type: 'Docs'
   },
   {
     name: 'SpaceTime Account',
     description: '账号中心',
     link: 'https://account.spacetimee.xyz',
-    type: 'Account',
-    tags: ['Casdoor']
+    tags: ['Casdoor'],
+    type: 'Account'
   },
   {
     name: 'SpaceTime Alternative Blog',
     description: '备用博客',
     link: 'https://www.cnblogs.com/spacetime',
-    type: 'Blog',
-    tags: ['Vanilla Web']
+    tags: ['Vanilla Web'],
+    type: 'Blog'
   }
 ] as const satisfies readonly PortalInfo[]
 
@@ -80,24 +80,24 @@ export const projects = [
     description: '像素猫猫 LoRA 模型',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-simu-1',
     tags: ['Civitai'],
-    status: ProjectStatus.InProgress,
-    type: 'HuggingFace'
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
   },
   {
     name: 'Suri Qwen 3 Uncensored',
     description: 'Qwen 3.x 无审查模型',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
     tags: ['PyTorch'],
-    status: ProjectStatus.InProgress,
-    type: 'HuggingFace'
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
   },
   {
     name: 'Suri Qwen 3 Playground',
     description: 'Suri Qwen 3 体验场',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
     tags: ['Chainlit', 'FastAPI'],
-    status: ProjectStatus.InProgress,
-    type: 'HuggingFace'
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
   },
   {
     name: 'Sheas Frameg',
@@ -214,24 +214,24 @@ export const projects = [
     description: '油管视频总结器',
     link: 'https://summarizer.spacetimee.xyz',
     tags: ['Google Opal'],
-    status: ProjectStatus.Completed,
-    type: 'Gemini'
+    type: 'Gemini',
+    status: ProjectStatus.Completed
   },
   {
     name: 'Virtual Avatar Designer',
     description: '虚拟形象设计器',
     link: 'https://designer.spacetimee.xyz',
     tags: ['Google Opal'],
-    status: ProjectStatus.Completed,
-    type: 'Gemini'
+    type: 'Gemini',
+    status: ProjectStatus.Completed
   },
   {
     name: 'Parallel World Imagineer',
     description: '平行世界生成器',
     link: 'https://imagineer.spacetimee.xyz',
     tags: ['Google Opal'],
-    status: ProjectStatus.Completed,
-    type: 'Gemini'
+    type: 'Gemini',
+    status: ProjectStatus.Completed
   },
   {
     name: 'Sheas Unlocker',

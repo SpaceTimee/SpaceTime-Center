@@ -2,22 +2,22 @@ import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-
 import { ProjectStatus } from './types'
 
 export const springTransition = {
-  type: 'spring',
+  damping: 20,
   stiffness: 260,
-  damping: 20
+  type: 'spring'
 } as const
 
 export const externalLinkProps = {
-  target: '_blank',
-  rel: 'noopener noreferrer'
+  rel: 'noopener noreferrer',
+  target: '_blank'
 } as const
 
 const tagPillClass =
   'inline-block text-xs font-semibold rounded-md bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary dark:group-hover:text-primary transition-all'
 
 export const tagPillProps = {
-  sm: { className: `${tagPillClass} px-2 py-0.5` },
-  md: { className: `${tagPillClass} px-2.5 py-1` }
+  md: { className: `${tagPillClass} px-2.5 py-1` },
+  sm: { className: `${tagPillClass} px-2 py-0.5` }
 } as const
 
 export const cardGridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4'

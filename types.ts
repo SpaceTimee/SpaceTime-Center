@@ -8,12 +8,12 @@ export type PortalType = 'Center' | 'Blog' | 'Server' | 'Docs' | 'Account'
 export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini'
 export type ContactType = 'Mail' | 'Github' | 'Bilibili'
 
-interface BaseInfo {
-  readonly description: string
-}
-
 interface NamedInfo {
   readonly name: string
+}
+
+interface BaseInfo {
+  readonly description: string
 }
 
 interface LinkedInfo {
@@ -28,12 +28,12 @@ interface TypedInfo<TType> {
   readonly type?: TType
 }
 
-export type ProfileInfo = BaseInfo & NamedInfo & TaggedInfo
+export type ProfileInfo = NamedInfo & BaseInfo & TaggedInfo
 
-export type PortalInfo = BaseInfo & NamedInfo & LinkedInfo & TaggedInfo & TypedInfo<PortalType>
+export type PortalInfo = NamedInfo & BaseInfo & LinkedInfo & TaggedInfo & TypedInfo<PortalType>
 
-export type ProjectInfo = BaseInfo &
-  NamedInfo &
+export type ProjectInfo = NamedInfo &
+  BaseInfo &
   TaggedInfo &
   TypedInfo<ProjectType> & {
     readonly link?: string
@@ -41,4 +41,4 @@ export type ProjectInfo = BaseInfo &
     readonly pinned?: boolean
   }
 
-export type ContactInfo = BaseInfo & NamedInfo & LinkedInfo & TypedInfo<ContactType>
+export type ContactInfo = NamedInfo & BaseInfo & LinkedInfo & TypedInfo<ContactType>

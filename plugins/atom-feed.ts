@@ -1,16 +1,16 @@
-import type { Plugin, ResolvedConfig } from 'vite'
+import { rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { build } from 'esbuild'
 import { XMLParser } from 'fast-xml-parser'
 import { Feed } from 'feed'
-import { rm } from 'node:fs/promises'
-import { join } from 'node:path'
-import { tmpdir } from 'node:os'
-import { pathToFileURL } from 'node:url'
+import type { Plugin, ResolvedConfig } from 'vite'
 
 interface AtomFeedOptions {
-  readonly siteUrl: string
   readonly title: string
   readonly description: string
+  readonly siteUrl: string
 }
 
 interface ExistingEntry {
@@ -46,7 +46,7 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
         typeof value === 'string'
           ? value
           : value && typeof value === 'object' && '#text' in value
-            ? String((value as Record<string, unknown>)['#text'])
+            ? String(value['#text'])
             : String(value ?? '')
 
       const tmpFile = join(tmpdir(), `atom-feed-data-${Date.now()}.mjs`)
@@ -95,29 +95,29 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
       }
 
       const currentEntries: DataEntry[] = [
-        ...(portals as DataEntry[]).map((portal) => ({
-          name: portal.name,
-          description: portal.description,
-          link: portal.link,
-          tags: portal.tags
+        ...(portals as DataEntry[]).map(({ name, description, link, tags }) => ({
+          name,
+          description,
+          link,
+          tags
         })),
-        ...(projects as DataEntry[]).map((project) => ({
-          name: project.name,
-          description: project.description,
-          link: project.link,
-          tags: project.tags
+        ...(projects as DataEntry[]).map(({ name, description, link, tags }) => ({
+          name,
+          description,
+          link,
+          tags
         })),
-        ...(contacts as DataEntry[]).map((contact) => ({
-          name: contact.name,
-          description: contact.description,
-          link: contact.link
+        ...(contacts as DataEntry[]).map(({ name, description, link }) => ({
+          name,
+          description,
+          link
         }))
       ]
 
       const currentNames = new Set(currentEntries.map((entry) => entry.name))
-      const hasDeletedEntries = [...existingEntries.keys()].some(
-        (existingTitle) => !currentNames.has(existingTitle)
-      )
+      const hasDeletedEntries = existingEntries
+        .keys()
+        .some((existingTitle) => !currentNames.has(existingTitle))
 
       let feedUpdated = new Date(0)
 

@@ -2,27 +2,20 @@ import { memo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import PortalCard from '../cards/PortalCard'
 import ProjectCard from '../cards/ProjectCard'
+import { useDynamicHeight } from '../../hooks/useDynamicHeight'
 import { cardGridClass, projectTabs, sectionIds, sections, springTransition } from '../../consts'
 import { portals, projects } from '../../data'
-import { useDynamicHeight } from '../../hooks/useDynamicHeight'
 import { ProjectStatus, type ProjectInfo } from '../../types'
 
-const tabs = (() => {
-  const groups: Record<ProjectStatus, ProjectInfo[]> = {
-    [ProjectStatus.InProgress]: [],
-    [ProjectStatus.Completed]: [],
-    [ProjectStatus.Planned]: []
-  }
+const projectsByStatus = Object.groupBy(projects, ({ status }) => status)
 
-  projects.forEach((project) => {
-    groups[project.status].push(project)
-  })
+const tabs = projectTabs.map((tab) => ({
+  ...tab,
+  projects: (projectsByStatus[tab.id] ?? []) as ProjectInfo[]
+}))
 
-  return projectTabs.map((tab) => ({
-    ...tab,
-    projects: groups[tab.id]
-  }))
-})()
+const portalsSection = sections.find((section) => section.id === sectionIds.portals)
+const projectsSection = sections.find((section) => section.id === sectionIds.projects)
 
 const MainSection = memo(() => {
   const [activeTab, setActiveTab] = useState<ProjectStatus>(ProjectStatus.InProgress)
@@ -33,9 +26,6 @@ const MainSection = memo(() => {
     tabs.findIndex((tab) => tab.id === activeTab)
   )
   const containerHeight = useDynamicHeight(activeTabIndex, tabRefs)
-
-  const portalsSection = sections.find((section) => section.id === sectionIds.portals)
-  const projectsSection = sections.find((section) => section.id === sectionIds.projects)
 
   return (
     <main className="max-w-5xl mx-auto px-6 mt-12 relative z-20 space-y-16">
@@ -48,9 +38,7 @@ const MainSection = memo(() => {
         transition={springTransition}
       >
         <div className="flex items-center justify-center sm:justify-start gap-2 mb-6">
-          {portalsSection && portalsSection.icon ? (
-            <portalsSection.icon className="w-6 h-6 text-primary" />
-          ) : null}
+          {portalsSection?.icon ? <portalsSection.icon className="w-6 h-6 text-primary" /> : null}
           <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
             {portalsSection?.title ?? 'Portals'}
           </h2>
@@ -95,9 +83,7 @@ const MainSection = memo(() => {
       >
         <div className="flex flex-col items-center sm:flex-row sm:items-center justify-between mb-8 gap-4">
           <div className="flex items-center gap-2">
-            {projectsSection && projectsSection.icon ? (
-              <projectsSection.icon className="w-6 h-6 text-primary" />
-            ) : null}
+            {projectsSection?.icon ? <projectsSection.icon className="w-6 h-6 text-primary" /> : null}
             <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
               {projectsSection?.title ?? 'Projects'}
             </h2>
@@ -159,7 +145,7 @@ const MainSection = memo(() => {
                 ref={(el) => {
                   tabRefs.current[index] = el
                 }}
-                inert={tab.id !== activeTab ? true : undefined}
+                inert={tab.id !== activeTab || undefined}
               >
                 <motion.div
                   className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -182,7 +168,7 @@ const MainSection = memo(() => {
                             y: 0,
                             transition: {
                               ...springTransition,
-                              delay: delay
+                              delay
                             }
                           }
                         }}

@@ -2,14 +2,14 @@ import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Pin, Sparkles } from 'lucide-react'
 import GithubIcon from '../icons/GithubIcon'
+import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { externalLinkProps, tagPillProps } from '../../consts'
 import { ProjectStatus, type ProjectInfo, type ProjectType } from '../../types'
-import { useCardAnimation } from '../../hooks/useCardAnimation'
 
 const PROJECT_STATUS_ICON_MAP = {
+  [ProjectStatus.InProgress]: <FolderCog className="w-6 h-6" />,
   [ProjectStatus.Completed]: <FolderCheck className="w-6 h-6" />,
-  [ProjectStatus.Planned]: <FolderClock className="w-6 h-6" />,
-  [ProjectStatus.InProgress]: <FolderCog className="w-6 h-6" />
+  [ProjectStatus.Planned]: <FolderClock className="w-6 h-6" />
 } as const satisfies Record<ProjectStatus, ReactNode>
 
 const PROJECT_TYPE_ICON_MAP = {
@@ -24,20 +24,20 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   const Wrapper = isLink ? motion.a : motion.div
 
   const {
+    handlePointerLeave,
+    handlePointerMove,
     ref,
     rotateX,
     rotateY,
     spotlightBackground,
-    spotlightBorder,
-    handlePointerMove,
-    handlePointerLeave
+    spotlightBorder
   } = useCardAnimation<HTMLElement>()
 
   return (
     <div style={{ perspective: 1200 }} className="h-full">
       <Wrapper
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ref={ref as any}
+        // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
+        ref={ref}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         style={{

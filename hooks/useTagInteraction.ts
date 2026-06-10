@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-const TAG_FALL_TRIGGER = 10
-const TAG_SHAKE_LIMIT = 9
-const TAG_SHAKE_DURATION_MS = 500
 const TAG_FALL_DELAY_MS = 600
+const TAG_FALL_TRIGGER = 10
+const TAG_SHAKE_DURATION_MS = 500
+const TAG_SHAKE_LIMIT = 9
 const TAG_VIBRATE_MS = 50
 
 export function useTagInteraction() {
@@ -17,6 +17,27 @@ export function useTagInteraction() {
     typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const controller = new AbortController()
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    prefersReducedMotionRef.current = media.matches
+    media.addEventListener('change', (event) => (prefersReducedMotionRef.current = event.matches), {
+      signal: controller.signal
+    })
+
+    return () => controller.abort()
+  }, [])
+
+  useEffect(() => {
+    const timeoutIds = timeoutIdsRef
+    return () => {
+      for (const timeoutId of timeoutIds.current) clearTimeout(timeoutId)
+      timeoutIds.current.clear()
+    }
+  }, [])
+
   const scheduleTimeout = useCallback((callback: () => void, delay: number) => {
     const timeoutId = setTimeout(() => {
       timeoutIdsRef.current.delete(timeoutId)
@@ -26,35 +47,12 @@ export function useTagInteraction() {
     timeoutIdsRef.current.add(timeoutId)
   }, [])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = (event: MediaQueryListEvent) => {
-      prefersReducedMotionRef.current = event.matches
-    }
-
-    prefersReducedMotionRef.current = media.matches
-    media.addEventListener?.('change', handleChange)
-
-    return () => {
-      media.removeEventListener?.('change', handleChange)
-    }
-  }, [])
-
-  useEffect(() => {
-    const timeoutIds = timeoutIdsRef
-    return () => {
-      timeoutIds.current.forEach((timeoutId) => clearTimeout(timeoutId))
-      timeoutIds.current.clear()
-    }
-  }, [])
-
   const handleTagClick = useCallback(
     (index: number) => {
       if (shakingTagIndex !== null || fallingTags.has(index)) return
 
-      const currentClicks = (tagClicksRef.current[index] ?? 0) + 1
-      tagClicksRef.current[index] = currentClicks
+      tagClicksRef.current[index] ??= 0
+      const currentClicks = ++tagClicksRef.current[index]
 
       if (currentClicks >= TAG_FALL_TRIGGER) {
         setFallingTags((tags) => new Set(tags).add(index))
@@ -64,20 +62,20 @@ export function useTagInteraction() {
 
       if (currentClicks <= TAG_SHAKE_LIMIT) {
         setShakingTagIndex(index)
-        if (!prefersReducedMotionRef.current && typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(TAG_VIBRATE_MS)
+        if (!prefersReducedMotionRef.current) {
+          navigator.vibrate?.(TAG_VIBRATE_MS)
         }
         scheduleTimeout(() => setShakingTagIndex(null), TAG_SHAKE_DURATION_MS)
       }
     },
-    [shakingTagIndex, fallingTags, scheduleTimeout]
+    [fallingTags, scheduleTimeout, shakingTagIndex]
   )
 
   return {
-    shakingTagIndex,
-    fallingTags,
     collapsingTags,
+    fallingTags,
+    handleTagClick,
     removedTags,
-    handleTagClick
+    shakingTagIndex
   }
 }
