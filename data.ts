@@ -43,11 +43,11 @@ export const portals = [
     type: 'Account'
   },
   {
-    name: 'SpaceTime Alternative Blog',
-    description: '备用博客',
-    link: 'https://www.cnblogs.com/spacetime',
-    tags: ['Vanilla Web'],
-    type: 'Blog'
+    name: 'SpaceTime Status',
+    description: '服务监测',
+    link: 'https://status.spacetimee.xyz',
+    tags: ['BetterStack'],
+    type: 'Status'
   }
 ] as const satisfies readonly PortalInfo[]
 
@@ -94,6 +94,14 @@ export const projects = [
   {
     name: 'Suri Qwen 3 Playground',
     description: 'Suri Qwen 3 体验场',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
+    tags: ['Chainlit', 'FastAPI'],
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
+  },
+  {
+    name: 'Suri Qwen 3 Autochat',
+    description: 'Suri Qwen 3 自聊群',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
     tags: ['Chainlit', 'FastAPI'],
     type: 'HuggingFace',
@@ -231,6 +239,13 @@ export const projects = [
     link: 'https://imagineer.spacetimee.xyz',
     tags: ['Google Opal'],
     type: 'Gemini',
+    status: ProjectStatus.Completed
+  },
+  {
+    name: 'SpaceTime Alternative Blog',
+    description: '备用博客',
+    link: 'https://www.cnblogs.com/spacetime',
+    tags: ['Vanilla Web'],
     status: ProjectStatus.Completed
   },
   {
