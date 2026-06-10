@@ -5,6 +5,7 @@ interface UseHeaderAnimationProps {
   imageRef: RefObject<HTMLImageElement | null>
   waveRef: RefObject<HTMLDivElement | null>
   borderRef: RefObject<HTMLDivElement | null>
+  meniscusRef: RefObject<SVGGElement | null>
 }
 
 export const ANIMATION_CONFIG = {
@@ -20,14 +21,21 @@ export const ANIMATION_CONFIG = {
   PULL_LIMIT: 250,
   SCROLL_WHEEL_FACTOR: 0.6,
   PULL_DRAG_DIVISOR: 1.5,
-  PULL_DRAG_POW: 0.85
+  PULL_DRAG_POW: 0.85,
+  MENISCUS_SPREAD: 80
 } as const
 
-export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: UseHeaderAnimationProps) {
+export function useHeaderAnimation({
+  headerRef,
+  imageRef,
+  waveRef,
+  borderRef,
+  meniscusRef
+}: UseHeaderAnimationProps) {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   )
-  const pullDistanceRef = useRef(0)
+  const pullDistanceRef = useRef(-ANIMATION_CONFIG.MAX_PULL)
   const isDraggingRef = useRef(false)
   const startYRef = useRef(0)
   const animationFrameIdRef = useRef<number | null>(null)
@@ -61,20 +69,53 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
   const updateParallaxState = useCallback(() => {
     if (!imageRef.current) return
 
-    const ratio = Math.min(pullDistanceRef.current / ANIMATION_CONFIG.MAX_PULL, 1)
+    const { MAX_PULL, WAVE_HEIGHT_FACTOR, MENISCUS_SPREAD, BASE_SCALE } = ANIMATION_CONFIG
+    const pullDistance = pullDistanceRef.current
 
-    if (borderRef.current) {
-      borderRef.current.style.opacity = `${1 - ratio}`
+    if (pullDistance <= 0) {
+      const meniscusHeight = Math.min(-pullDistance / MAX_PULL, 1) * WAVE_HEIGHT_FACTOR
+
+      if (meniscusRef.current) {
+        if (meniscusHeight > 0.5) {
+          const topY = WAVE_HEIGHT_FACTOR - meniscusHeight
+          const controlY = topY + meniscusHeight * 0.95
+          const controlX = MENISCUS_SPREAD * 0.08
+          meniscusRef.current.children[0].setAttribute(
+            'd',
+            `M 0,${topY} C 0,${controlY} ${controlX},${WAVE_HEIGHT_FACTOR} ${MENISCUS_SPREAD},${WAVE_HEIGHT_FACTOR} L 0,${WAVE_HEIGHT_FACTOR} Z`
+          )
+          meniscusRef.current.children[1].setAttribute(
+            'd',
+            `M 1000,${topY} C 1000,${controlY} ${1000 - controlX},${WAVE_HEIGHT_FACTOR} ${1000 - MENISCUS_SPREAD},${WAVE_HEIGHT_FACTOR} L 1000,${WAVE_HEIGHT_FACTOR} Z`
+          )
+        } else {
+          meniscusRef.current.children[0].setAttribute('d', '')
+          meniscusRef.current.children[1].setAttribute('d', '')
+        }
+      }
+
+      if (borderRef.current) borderRef.current.style.opacity = '1'
+      if (waveRef.current) {
+        waveRef.current.style.height = '0px'
+        waveRef.current.style.opacity = '0'
+      }
+    } else {
+      if (meniscusRef.current) {
+        meniscusRef.current.children[0].setAttribute('d', '')
+        meniscusRef.current.children[1].setAttribute('d', '')
+      }
+
+      const ratio = Math.min(pullDistance / MAX_PULL, 1)
+      if (borderRef.current) borderRef.current.style.opacity = `${1 - ratio}`
+      if (waveRef.current) {
+        const height = ratio * WAVE_HEIGHT_FACTOR
+        waveRef.current.style.height = `${height}px`
+        waveRef.current.style.opacity = `${ratio}`
+      }
     }
 
-    if (waveRef.current) {
-      const height = ratio * ANIMATION_CONFIG.WAVE_HEIGHT_FACTOR
-      waveRef.current.style.height = `${height}px`
-      waveRef.current.style.opacity = `${ratio}`
-    }
-
-    imageRef.current.style.transform = `scale(${ANIMATION_CONFIG.BASE_SCALE}) translate(${currentParallaxOffsetRef.current.x}px, ${currentParallaxOffsetRef.current.y}px)`
-  }, [imageRef, borderRef, waveRef])
+    imageRef.current.style.transform = `scale(${BASE_SCALE}) translate(${currentParallaxOffsetRef.current.x}px, ${currentParallaxOffsetRef.current.y}px)`
+  }, [imageRef, borderRef, waveRef, meniscusRef])
 
   const animateParallaxRef = useRef<() => void>(null!)
   const animateDecayRef = useRef<() => void>(null!)
@@ -108,17 +149,29 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
   }, [animateParallax, prefersReducedMotion])
 
   const animateDecay = useCallback(() => {
-    if (!isDraggingRef.current && pullDistanceRef.current > 0) {
-      pullDistanceRef.current *= ANIMATION_CONFIG.DECAY_RATE
+    if (isDraggingRef.current) {
+      animationFrameIdRef.current = null
+      return
+    }
+
+    const { DECAY_RATE, MAX_PULL } = ANIMATION_CONFIG
+    let needsFrame = false
+
+    if (pullDistanceRef.current > 0) {
+      pullDistanceRef.current *= DECAY_RATE
       if (pullDistanceRef.current < 0.5) pullDistanceRef.current = 0
+      needsFrame = true
+    } else if (pullDistanceRef.current > -MAX_PULL) {
+      const gap = MAX_PULL + pullDistanceRef.current
+      pullDistanceRef.current = -MAX_PULL + gap * DECAY_RATE
+      if (gap * DECAY_RATE < 0.5) pullDistanceRef.current = -MAX_PULL
+      needsFrame = pullDistanceRef.current > -MAX_PULL
+    }
 
-      updateParallaxState()
+    updateParallaxState()
 
-      if (pullDistanceRef.current > 0) {
-        animationFrameIdRef.current = requestAnimationFrame(() => animateDecayRef.current())
-      } else {
-        animationFrameIdRef.current = null
-      }
+    if (needsFrame) {
+      animationFrameIdRef.current = requestAnimationFrame(() => animateDecayRef.current())
     } else {
       animationFrameIdRef.current = null
     }
@@ -161,6 +214,7 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
     }
 
     updateDimensions()
+    updateParallaxState()
     let resizeTimer: number
     const handleResize = () => {
       if (resizeTimer) window.clearTimeout(resizeTimer)
@@ -171,12 +225,9 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
 
     const handleWheel = (e: WheelEvent) => {
       if (window.scrollY === 0 && e.deltaY < 0) {
-        pullDistanceRef.current = Math.max(
-          0,
-          Math.min(
-            pullDistanceRef.current - e.deltaY * ANIMATION_CONFIG.SCROLL_WHEEL_FACTOR,
-            ANIMATION_CONFIG.PULL_LIMIT
-          )
+        pullDistanceRef.current = Math.min(
+          pullDistanceRef.current - e.deltaY * ANIMATION_CONFIG.SCROLL_WHEEL_FACTOR,
+          ANIMATION_CONFIG.PULL_LIMIT
         )
 
         if (!animationFrameIdRef.current) {
@@ -200,11 +251,9 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
 
       if (window.scrollY === 0) {
         isWaveActiveRef.current = true
-        const currentVal = Math.max(0, pullDistanceRef.current)
-        const currentDelta = Math.pow(
-          currentVal / ANIMATION_CONFIG.PULL_DRAG_DIVISOR,
-          1 / ANIMATION_CONFIG.PULL_DRAG_POW
-        )
+        const currentVal = Math.max(0, pullDistanceRef.current + ANIMATION_CONFIG.MAX_PULL)
+        const currentDelta =
+          (currentVal / ANIMATION_CONFIG.PULL_DRAG_DIVISOR) ** (1 / ANIMATION_CONFIG.PULL_DRAG_POW)
         startYRef.current = e.touches[0].clientY - currentDelta
 
         if (animationFrameIdRef.current) {
@@ -250,12 +299,14 @@ export function useHeaderAnimation({ headerRef, imageRef, waveRef, borderRef }: 
             if (isWaveActiveRef.current && window.scrollY <= 0) {
               const deltaWave = clientY - startYRef.current
               if (deltaWave > 0) {
+                const totalPull =
+                  deltaWave ** ANIMATION_CONFIG.PULL_DRAG_POW * ANIMATION_CONFIG.PULL_DRAG_DIVISOR
                 pullDistanceRef.current = Math.min(
-                  Math.pow(deltaWave, ANIMATION_CONFIG.PULL_DRAG_POW) * ANIMATION_CONFIG.PULL_DRAG_DIVISOR,
+                  -ANIMATION_CONFIG.MAX_PULL + totalPull,
                   ANIMATION_CONFIG.PULL_LIMIT
                 )
               } else {
-                pullDistanceRef.current = 0
+                pullDistanceRef.current = -ANIMATION_CONFIG.MAX_PULL
               }
             }
 

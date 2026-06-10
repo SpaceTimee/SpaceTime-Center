@@ -7,11 +7,14 @@ import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { profile } from '../../data'
 import { externalLinkProps, sectionIds, springTransition } from '../../consts'
 
+const { WAVE_HEIGHT_FACTOR: waveHeightFactor, MENISCUS_SPREAD: meniscusSpread } = ANIMATION_CONFIG
+
 const HeaderSection = memo(() => {
   const headerRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const borderRef = useRef<HTMLDivElement>(null)
+  const meniscusRef = useRef<SVGGElement>(null)
   const mouseMoveTickingRef = useRef(false)
   const rafIdRef = useRef<number | null>(null)
 
@@ -20,7 +23,8 @@ const HeaderSection = memo(() => {
       headerRef,
       imageRef,
       waveRef,
-      borderRef
+      borderRef,
+      meniscusRef
     })
 
   const { shakingTagIndex, fallingTags, collapsingTags, removedTags, handleTagClick } = useTagInteraction()
@@ -209,6 +213,24 @@ const HeaderSection = memo(() => {
       </div>
 
       <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-primary/5 dark:bg-primary/5 rounded-full blur-3xl pointer-events-none z-0" />
+
+      <svg
+        className="absolute bottom-0 left-0 w-full pointer-events-none z-20 text-white dark:text-gray-900"
+        fill="currentColor"
+        height={waveHeightFactor}
+        viewBox={`0 0 1000 ${waveHeightFactor}`}
+        preserveAspectRatio="none"
+        shapeRendering="geometricPrecision"
+      >
+        <g ref={meniscusRef}>
+          <path
+            d={`M 0,0 C 0,${waveHeightFactor * 0.95} ${meniscusSpread * 0.08},${waveHeightFactor} ${meniscusSpread},${waveHeightFactor} L 0,${waveHeightFactor} Z`}
+          />
+          <path
+            d={`M 1000,0 C 1000,${waveHeightFactor * 0.95} ${1000 - meniscusSpread * 0.08},${waveHeightFactor} ${1000 - meniscusSpread},${waveHeightFactor} L 1000,${waveHeightFactor} Z`}
+          />
+        </g>
+      </svg>
 
       <div ref={borderRef} className="absolute bottom-0 left-0 right-0 h-px bg-gray-200 dark:bg-gray-800" />
 
