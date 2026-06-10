@@ -246,6 +246,7 @@ export const projects = [
     description: '备用博客',
     link: 'https://www.cnblogs.com/spacetime',
     tags: ['Vanilla Web'],
+    type: 'External',
     status: ProjectStatus.Completed
   },
   {

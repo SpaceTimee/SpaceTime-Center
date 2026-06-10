@@ -5,7 +5,7 @@ export enum ProjectStatus {
 }
 
 export type PortalType = 'Account' | 'Blog' | 'Center' | 'Docs' | 'Server' | 'Status'
-export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini'
+export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini' | 'External'
 export type ContactType = 'Mail' | 'Github' | 'Bilibili'
 
 interface NamedInfo {

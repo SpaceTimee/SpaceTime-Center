@@ -1,6 +1,6 @@
 import { memo, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, ChevronRight, FolderCheck, FolderClock, FolderCog, Pin, Sparkles } from 'lucide-react'
+import { Brain, ChevronRight, ExternalLink, FolderCheck, FolderClock, FolderCog, Pin, Sparkles } from 'lucide-react'
 import GithubIcon from '../icons/GithubIcon'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { externalLinkProps, tagPillProps } from '../../consts'
@@ -16,6 +16,7 @@ const PROJECT_TYPE_ICON_MAP = {
   Github: <GithubIcon className="w-5 h-5" />,
   HuggingFace: <Brain className="w-5 h-5" />,
   Gemini: <Sparkles className="w-5 h-5" />,
+  External: <ExternalLink className="w-5 h-5" />,
   Default: <GithubIcon className="w-5 h-5" />
 } as const satisfies Record<ProjectType | 'Default', ReactNode>
 
