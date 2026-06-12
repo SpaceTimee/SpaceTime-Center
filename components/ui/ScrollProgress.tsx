@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
 
 export const ScrollProgress = () => {
@@ -15,14 +15,19 @@ export const ScrollProgress = () => {
   useMotionValueEvent(scaleX, 'change', () => {
     setIsVisible(true)
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
     timeoutRef.current = setTimeout(() => {
       setIsVisible(false)
     }, 200)
   })
+
+  useEffect(
+    () => () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    },
+    []
+  )
 
   return (
     <motion.div

@@ -1,7 +1,17 @@
-import { memo, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, ChevronRight, ExternalLink, FolderCheck, FolderClock, FolderCog, Pin, Sparkles } from 'lucide-react'
+import {
+  Brain,
+  ChevronRight,
+  ExternalLink,
+  FolderCheck,
+  FolderClock,
+  FolderCog,
+  Pin,
+  Sparkles
+} from 'lucide-react'
 import GithubIcon from '../icons/GithubIcon'
+import { ProjectTooltip } from '../ui/ProjectTooltip'
 import { useCardAnimation } from '../../hooks/useCardAnimation'
 import { externalLinkProps, tagPillProps } from '../../consts'
 import { ProjectStatus, type ProjectInfo, type ProjectType } from '../../types'
@@ -20,13 +30,12 @@ const PROJECT_TYPE_ICON_MAP = {
   Default: <GithubIcon className="w-5 h-5" />
 } as const satisfies Record<ProjectType | 'Default', ReactNode>
 
-const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
-  const isLink = Boolean(info.link)
-  const Wrapper = isLink ? motion.a : motion.div
+const summaryCache = new Map<string, string>()
 
+const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   const {
-    handlePointerLeave,
-    handlePointerMove,
+    handlePointerLeave: cardPointerLeave,
+    handlePointerMove: cardPointerMove,
     ref,
     rotateX,
     rotateY,
@@ -34,11 +43,166 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
     spotlightBorder
   } = useCardAnimation<HTMLElement>()
 
+  const isLink = Boolean(info.link)
+  const Wrapper = isLink ? motion.a : motion.div
+
+  const [tooltipText, setTooltipText] = useState('')
+  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const fetchIdRef = useRef(0)
+  const loadingRef = useRef<ReturnType<typeof setInterval>>(null)
+
+  const clearLoading = () => {
+    if (loadingRef.current) {
+      clearInterval(loadingRef.current)
+      loadingRef.current = null
+    }
+  }
+
+  useEffect(
+    () => () => {
+      clearLoading()
+      fetchIdRef.current++
+    },
+    []
+  )
+
+  const handlePointerEnter = useCallback(async () => {
+    const fallback = `${info.name} 是 ${info.description}`
+
+    if (!info.link?.startsWith('https://github.com/')) {
+      setTooltipText(fallback)
+      setTooltipVisible(true)
+      if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
+      return
+    }
+
+    const cached = summaryCache.get(info.link)
+    if (cached) {
+      setTooltipText(cached)
+      setTooltipVisible(true)
+      if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
+      return
+    }
+
+    let dots = 0
+    setTooltipText('.')
+    setTooltipVisible(true)
+    if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
+    loadingRef.current = setInterval(() => {
+      dots = (dots + 1) % 3
+      setTooltipText('.'.repeat(dots + 1))
+    }, 400)
+
+    const id = ++fetchIdRef.current
+
+    try {
+      let summary: string | null = null
+      const match = info.link.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
+      if (match) {
+        const readme = await Promise.any(
+          ['main', 'master'].map(async (branch) => {
+            const response = await fetch(
+              `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`
+            )
+            if (!response.ok) throw new Error()
+            return response.text()
+          })
+        ).catch(() => null)
+
+        if (readme) {
+          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/ai/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                { role: 'user', content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}` }
+              ]
+            })
+          })
+
+          if (aiResponse.ok) {
+            const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
+            if (!error && content) summary = content
+          }
+        }
+      }
+
+      if (fetchIdRef.current !== id) return
+      clearLoading()
+
+      if (summary) {
+        summaryCache.set(info.link, summary)
+
+        let charIndex = 0
+        const interval = setInterval(() => {
+          if (fetchIdRef.current !== id) {
+            clearInterval(interval)
+            return
+          }
+          charIndex++
+          setTooltipText(summary.slice(0, charIndex))
+          if (charIndex >= summary.length) clearInterval(interval)
+        }, 30)
+      } else {
+        setTooltipText(fallback)
+      }
+    } catch {
+      if (fetchIdRef.current !== id) return
+      clearLoading()
+      setTooltipText(fallback)
+    }
+  }, [info])
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      cardPointerMove(e)
+
+      const tooltip = tooltipRef.current
+      if (tooltip) {
+        const flipX = e.clientX + 280 > window.innerWidth
+        const flipY = e.clientY + 100 > window.innerHeight
+        if (flipX) {
+          tooltip.style.left = 'auto'
+          tooltip.style.right = `${window.innerWidth - e.clientX + 12}px`
+        } else {
+          tooltip.style.right = 'auto'
+          tooltip.style.left = `${e.clientX + 12}px`
+        }
+        if (flipY) {
+          tooltip.style.top = 'auto'
+          tooltip.style.bottom = `${window.innerHeight - e.clientY + 12}px`
+        } else {
+          tooltip.style.bottom = 'auto'
+          tooltip.style.top = `${e.clientY + 12}px`
+        }
+        tooltip.style.clipPath = 'inset(-3px round 12px)'
+      }
+    },
+    [cardPointerMove]
+  )
+
+  const handlePointerLeave = useCallback(() => {
+    cardPointerLeave()
+    setTooltipVisible(false)
+    const tooltip = tooltipRef.current
+    if (tooltip) {
+      const flipX = tooltip.style.left === 'auto'
+      const flipY = tooltip.style.top === 'auto'
+      const [top, bottom] = flipY ? ['100%', '-3px'] : ['-3px', '100%']
+      const [right, left] = flipX ? ['-3px', '100%'] : ['100%', '-3px']
+      tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round 12px)`
+    }
+    fetchIdRef.current++
+    clearLoading()
+  }, [cardPointerLeave])
+
   return (
     <div style={{ perspective: 1200 }} className="h-full">
       <Wrapper
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
+        onPointerEnter={handlePointerEnter}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         style={{
@@ -119,6 +283,8 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
           </div>
         </div>
       </Wrapper>
+
+      <ProjectTooltip ref={tooltipRef} text={tooltipText} visible={tooltipVisible} />
     </div>
   )
 })
