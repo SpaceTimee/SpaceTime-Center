@@ -38,8 +38,8 @@ export const portals = [
   {
     name: 'SpaceTime Account',
     description: '账号中心',
-    link: 'https://account.spacetimee.xyz',
-    tags: ['Casdoor'],
+    link: 'https://accounts.spacetimee.xyz',
+    tags: ['Clerk'],
     type: 'Account'
   },
   {
