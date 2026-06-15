@@ -1,5 +1,5 @@
 <h1 align="center">SpaceTime ○ Center</h1>
-<h3 align="center">Welcome To My Home Page ~</h3>
+<h3 align="center">- Welcome To My Home Page ~ -</h3>
 </br>
 
 ## 自我介绍
