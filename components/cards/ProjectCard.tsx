@@ -111,7 +111,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         ).catch(() => null)
 
         if (readme) {
-          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/ai/chat`, {
+          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
