@@ -100,8 +100,8 @@ const NavbarSection = memo(() => {
                       className="w-6 h-6 object-contain"
                       decoding="async"
                       fetchPriority="high"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none'
                       }}
                     />
                   </span>

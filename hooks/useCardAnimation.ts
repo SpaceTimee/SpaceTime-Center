@@ -42,13 +42,13 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
       `radial-gradient(600px circle at ${latestX}px ${latestY}px, var(--color-primary), transparent 40%)`
   )
 
-  const handlePointerMove = (e: PointerEvent<HTMLElement>) => {
-    if (!ref.current || e.pointerType === 'touch') return
+  const handlePointerMove = (event: PointerEvent<HTMLElement>) => {
+    if (!ref.current || event.pointerType === 'touch') return
 
     const rect = ref.current.getBoundingClientRect()
 
-    const clientX = e.clientX - rect.left
-    const clientY = e.clientY - rect.top
+    const clientX = event.clientX - rect.left
+    const clientY = event.clientY - rect.top
 
     mouseX.set(clientX)
     mouseY.set(clientY)

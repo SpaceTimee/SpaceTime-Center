@@ -43,17 +43,17 @@ const HeaderSection = memo(() => {
     }
   }, [])
 
-  const handleMouseMove = (e: MouseEvent<HTMLElement>) => {
+  const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
     if (!headerRef.current || mouseMoveTickingRef.current || prefersReducedMotion) return
 
     mouseMoveTickingRef.current = true
     rafIdRef.current = requestAnimationFrame(() => {
       targetParallaxOffsetRef.current = {
         x:
-          (e.clientX - (dimensionsRef.current.left - window.scrollX) - dimensionsRef.current.width / 2) /
+          (event.clientX - (dimensionsRef.current.left - window.scrollX) - dimensionsRef.current.width / 2) /
           ANIMATION_CONFIG.PARALLAX_FACTOR,
         y:
-          (e.clientY - (dimensionsRef.current.top - window.scrollY) - dimensionsRef.current.height / 2) /
+          (event.clientY - (dimensionsRef.current.top - window.scrollY) - dimensionsRef.current.height / 2) /
           ANIMATION_CONFIG.PARALLAX_FACTOR
       }
       startParallaxAnimation()
@@ -85,7 +85,7 @@ const HeaderSection = memo(() => {
           decoding="async"
           fetchPriority="high"
           loading="eager"
-          onError={(e) => (e.currentTarget.style.display = 'none')}
+          onError={(event) => (event.currentTarget.style.display = 'none')}
         />
         <div className="absolute inset-0 transition-colors duration-500 ease-in-out z-10 pointer-events-none bg-transparent dark:bg-gray-900/90" />
       </div>
@@ -114,7 +114,7 @@ const HeaderSection = memo(() => {
                     style={{ imageRendering: 'pixelated' }}
                     decoding="async"
                     fetchPriority="high"
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
+                    onError={(event) => (event.currentTarget.style.display = 'none')}
                   />
                   <img
                     src="/avatar-dark.png"
@@ -123,7 +123,7 @@ const HeaderSection = memo(() => {
                     style={{ imageRendering: 'pixelated' }}
                     decoding="async"
                     fetchPriority="high"
-                    onError={(e) => (e.currentTarget.style.display = 'none')}
+                    onError={(event) => (event.currentTarget.style.display = 'none')}
                   />
                 </div>
               </div>
@@ -166,7 +166,7 @@ const HeaderSection = memo(() => {
             className="flex-1 space-y-6"
           >
             <div>
-              <h1 className="text-4xl lg:text-6xl font-bold tracking-tight mb-4 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
+              <h1 className="font-display text-4xl lg:text-6xl font-bold tracking-tight mb-4 drop-shadow-[0_0px_6px_rgba(255,255,255,1)] dark:drop-shadow-none">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-purple-600 to-indigo-600 dark:from-primary dark:via-purple-300 dark:to-indigo-300">
                   {profile.name}
                 </span>

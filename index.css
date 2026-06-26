@@ -2,6 +2,7 @@
 
 @theme {
   --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
+  --font-display: 'Tektur', 'Inter', 'Noto Sans SC', sans-serif;
 
   --color-primary: #ff5a00;
   --color-primary-hover: #e04f00;
