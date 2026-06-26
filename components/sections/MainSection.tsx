@@ -7,11 +7,11 @@ import { cardGridClass, projectTabs, sectionIds, sections, springTransition } fr
 import { portals, projects } from '../../data'
 import { ProjectStatus, type ProjectInfo } from '../../types'
 
-const projectsByStatus = Object.groupBy(projects, ({ status }) => status)
+const projectsByStatus = Object.groupBy<ProjectStatus, ProjectInfo>(projects, ({ status }) => status)
 
 const tabs = projectTabs.map((tab) => ({
   ...tab,
-  projects: (projectsByStatus[tab.id] ?? []) as ProjectInfo[]
+  projects: projectsByStatus[tab.id] ?? []
 }))
 
 const portalsSection = sections.find((section) => section.id === sectionIds.portals)
@@ -153,30 +153,24 @@ const MainSection = memo(() => {
                   whileInView="visible"
                   viewport={{ once: true, margin: '50px' }}
                 >
-                  {tab.projects.map((project, index) => {
-                    const row = Math.floor(index / 3)
-                    const col = index % 3
-                    const delay = row * 0.1 + col * 0.1
-
-                    return (
-                      <motion.div
-                        key={`${tab.id}-${project.link ?? project.name}-${index}`}
-                        variants={{
-                          hidden: { opacity: 0, y: 30 },
-                          visible: {
-                            opacity: 1,
-                            y: 0,
-                            transition: {
-                              ...springTransition,
-                              delay
-                            }
+                  {tab.projects.map((project, index) => (
+                    <motion.div
+                      key={`${tab.id}-${project.link ?? project.name}-${index}`}
+                      variants={{
+                        hidden: { opacity: 0, y: 30 },
+                        visible: {
+                          opacity: 1,
+                          y: 0,
+                          transition: {
+                            ...springTransition,
+                            delay: index * 0.1
                           }
-                        }}
-                      >
-                        <ProjectCard info={project} />
-                      </motion.div>
-                    )
-                  })}
+                        }
+                      }}
+                    >
+                      <ProjectCard info={project} />
+                    </motion.div>
+                  ))}
                 </motion.div>
 
                 {tab.projects.length === 0 && (

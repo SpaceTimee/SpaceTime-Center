@@ -3,7 +3,7 @@ import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion
 
 export const ScrollProgress = () => {
   const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>(null)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, {

@@ -14,7 +14,7 @@ const spotlightSpringOptions: SpringOptions = {
 }
 
 export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
-  const ref = useRef<T>(null)
+  const ref = useRef<T | null>(null)
 
   const x = useMotionValue(0)
   const y = useMotionValue(0)
@@ -42,13 +42,13 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
       `radial-gradient(600px circle at ${latestX}px ${latestY}px, var(--color-primary), transparent 40%)`
   )
 
-  const handlePointerMove = (e: PointerEvent<HTMLElement>) => {
-    if (!ref.current || e.pointerType === 'touch') return
+  const handlePointerMove = (event: PointerEvent<T>) => {
+    if (!ref.current || event.pointerType === 'touch') return
 
     const rect = ref.current.getBoundingClientRect()
 
-    const clientX = e.clientX - rect.left
-    const clientY = e.clientY - rect.top
+    const clientX = event.clientX - rect.left
+    const clientY = event.clientY - rect.top
 
     mouseX.set(clientX)
     mouseY.set(clientY)

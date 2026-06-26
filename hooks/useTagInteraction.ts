@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useReducedMotion } from './useReducedMotion'
 
 const TAG_FALL_DELAY_MS = 600
 const TAG_FALL_TRIGGER = 10
@@ -13,22 +14,7 @@ export function useTagInteraction() {
   const [removedTags, setRemovedTags] = useState<Set<number>>(new Set())
   const tagClicksRef = useRef<Record<number, number>>({})
   const timeoutIdsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
-  const prefersReducedMotionRef = useRef(
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const controller = new AbortController()
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    prefersReducedMotionRef.current = media.matches
-    media.addEventListener('change', (event) => (prefersReducedMotionRef.current = event.matches), {
-      signal: controller.signal
-    })
-
-    return () => controller.abort()
-  }, [])
+  const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
     const timeoutIds = timeoutIdsRef
@@ -62,13 +48,13 @@ export function useTagInteraction() {
 
       if (currentClicks <= TAG_SHAKE_LIMIT) {
         setShakingTagIndex(index)
-        if (!prefersReducedMotionRef.current) {
+        if (!prefersReducedMotion) {
           navigator.vibrate?.(TAG_VIBRATE_MS)
         }
         scheduleTimeout(() => setShakingTagIndex(null), TAG_SHAKE_DURATION_MS)
       }
     },
-    [fallingTags, scheduleTimeout, shakingTagIndex]
+    [fallingTags, prefersReducedMotion, scheduleTimeout, shakingTagIndex]
   )
 
   return {

@@ -1,6 +1,7 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronUp, Menu, Moon, Sun, X } from 'lucide-react'
+import { useReducedMotion } from '../../hooks/useReducedMotion'
 import { useTheme } from '../../hooks/useTheme'
 import { sectionIds, sections, springTransition } from '../../consts'
 
@@ -8,7 +9,7 @@ const NavbarSection = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isScrollingToTop, setIsScrollingToTop] = useState(false)
-  const prefersReducedMotionRef = useRef(false)
+  const prefersReducedMotion = useReducedMotion()
 
   const { isDark, toggleTheme } = useTheme()
 
@@ -35,31 +36,21 @@ const NavbarSection = memo(() => {
     return () => controller.abort()
   }, [])
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const controller = new AbortController()
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const scrollToSection = useCallback(
+    (id: string) => {
+      setIsOpen(false)
+      setIsScrollingToTop(id === sectionIds.home && window.scrollY > 0)
 
-    prefersReducedMotionRef.current = media.matches
-    media.addEventListener('change', (event) => (prefersReducedMotionRef.current = event.matches), {
-      signal: controller.signal
-    })
-
-    return () => controller.abort()
-  }, [])
-
-  const scrollToSection = useCallback((id: string) => {
-    setIsOpen(false)
-    setIsScrollingToTop(id === sectionIds.home && window.scrollY > 0)
-
-    const element = document.getElementById(id)
-    if (element) {
-      window.scrollTo({
-        top: element.getBoundingClientRect().top + window.scrollY - (id === sectionIds.contact ? 56 : 80),
-        behavior: prefersReducedMotionRef.current ? 'auto' : 'smooth'
-      })
-    }
-  }, [])
+      const element = document.getElementById(id)
+      if (element) {
+        window.scrollTo({
+          top: element.getBoundingClientRect().top + window.scrollY - (id === sectionIds.contact ? 56 : 80),
+          behavior: prefersReducedMotion ? 'auto' : 'smooth'
+        })
+      }
+    },
+    [prefersReducedMotion]
+  )
 
   const navContainerClass =
     !isScrolled && !isOpen
@@ -100,8 +91,8 @@ const NavbarSection = memo(() => {
                       className="w-6 h-6 object-contain"
                       decoding="async"
                       fetchPriority="high"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
+                      onError={(event) => {
+                        event.currentTarget.style.display = 'none'
                       }}
                     />
                   </span>

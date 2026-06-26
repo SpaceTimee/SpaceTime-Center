@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 import { motion } from 'framer-motion'
 import {
   Brain,
@@ -43,143 +43,144 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
     spotlightBorder
   } = useCardAnimation<HTMLElement>()
 
-  const isLink = Boolean(info.link)
+  const isLink = !!info.link
   const Wrapper = isLink ? motion.a : motion.div
 
   const [tooltipText, setTooltipText] = useState('')
   const [tooltipVisible, setTooltipVisible] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const fetchIdRef = useRef(0)
-  const loadingRef = useRef<ReturnType<typeof setInterval>>(null)
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const clearLoading = () => {
-    if (loadingRef.current) {
-      clearInterval(loadingRef.current)
-      loadingRef.current = null
+  const clearIntervalRef = () => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
     }
   }
 
   useEffect(
     () => () => {
-      clearLoading()
+      clearIntervalRef()
       fetchIdRef.current++
     },
     []
   )
 
-  const handlePointerEnter = useCallback(async () => {
-    const fallback = `${info.name} 是 ${info.description}`
+  const handleTooltipPosition = useCallback((clientX: number, clientY: number) => {
+    const tooltip = tooltipRef.current
+    if (!tooltip) return
 
-    if (!info.link?.startsWith('https://github.com/')) {
-      setTooltipText(fallback)
-      setTooltipVisible(true)
-      if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
-      return
-    }
+    const flipX = clientX + 280 > window.innerWidth
+    const flipY = clientY + 100 > window.innerHeight
 
-    const cached = summaryCache.get(info.link)
-    if (cached) {
-      setTooltipText(cached)
-      setTooltipVisible(true)
-      if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
-      return
-    }
+    Object.assign(tooltip.style, {
+      bottom: flipY ? `${window.innerHeight - clientY + 12}px` : 'auto',
+      left: flipX ? 'auto' : `${clientX + 12}px`,
+      right: flipX ? `${window.innerWidth - clientX + 12}px` : 'auto',
+      top: flipY ? 'auto' : `${clientY + 12}px`,
+      clipPath: 'inset(-3px round 12px)'
+    })
+  }, [])
 
-    let dots = 0
-    setTooltipText('.')
-    setTooltipVisible(true)
-    if (tooltipRef.current) tooltipRef.current.style.clipPath = 'inset(-3px round 12px)'
-    loadingRef.current = setInterval(() => {
-      dots = (dots + 1) % 3
-      setTooltipText('.'.repeat(dots + 1))
-    }, 400)
+  const handlePointerEnter = useCallback(
+    async (event: PointerEvent<HTMLElement>) => {
+      handleTooltipPosition(event.clientX, event.clientY)
 
-    const id = ++fetchIdRef.current
+      const fallback = `${info.name} 是 ${info.description}`
 
-    try {
-      let summary: string | null = null
-      const match = info.link.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
-      if (match) {
-        const readme = await Promise.any(
-          ['main', 'master'].map(async (branch) => {
-            const response = await fetch(
-              `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`
-            )
-            if (!response.ok) throw new Error()
-            return response.text()
-          })
-        ).catch(() => null)
-
-        if (readme) {
-          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              messages: [
-                { role: 'user', content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}` }
-              ]
-            })
-          })
-
-          if (aiResponse.ok) {
-            const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
-            if (!error && content) summary = content
-          }
-        }
+      if (!info.link?.startsWith('https://github.com/')) {
+        setTooltipText(fallback)
+        setTooltipVisible(true)
+        return
       }
 
-      if (fetchIdRef.current !== id) return
-      clearLoading()
+      const cached = summaryCache.get(info.link)
+      if (cached) {
+        setTooltipText(cached)
+        setTooltipVisible(true)
+        return
+      }
 
-      if (summary) {
-        summaryCache.set(info.link, summary)
+      let dots = 0
+      setTooltipText('.')
+      setTooltipVisible(true)
+      intervalRef.current = setInterval(() => {
+        dots = (dots + 1) % 3
+        setTooltipText('.'.repeat(dots + 1))
+      }, 400)
 
-        let charIndex = 0
-        const interval = setInterval(() => {
-          if (fetchIdRef.current !== id) {
-            clearInterval(interval)
-            return
+      const id = ++fetchIdRef.current
+
+      try {
+        let summary: string | null = null
+        const match = info.link.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
+        if (match) {
+          const readme = await Promise.any(
+            ['main', 'master'].map(async (branch) => {
+              const response = await fetch(
+                `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`
+              )
+              if (!response.ok) throw new Error()
+              return response.text()
+            })
+          ).catch(() => null)
+
+          if (readme) {
+            const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                messages: [
+                  {
+                    role: 'user',
+                    content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}`
+                  }
+                ]
+              })
+            })
+
+            if (aiResponse.ok) {
+              const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
+              if (!error && content) summary = content
+            }
           }
-          charIndex++
-          setTooltipText(summary.slice(0, charIndex))
-          if (charIndex >= summary.length) clearInterval(interval)
-        }, 30)
-      } else {
+        }
+
+        if (fetchIdRef.current !== id) return
+        clearIntervalRef()
+
+        if (summary) {
+          summaryCache.set(info.link, summary)
+
+          let charIndex = 0
+          intervalRef.current = setInterval(() => {
+            if (fetchIdRef.current !== id) {
+              clearIntervalRef()
+              return
+            }
+            charIndex++
+            setTooltipText(summary.slice(0, charIndex))
+            if (charIndex >= summary.length) clearIntervalRef()
+          }, 30)
+        } else {
+          setTooltipText(fallback)
+        }
+      } catch {
+        if (fetchIdRef.current !== id) return
+        clearIntervalRef()
         setTooltipText(fallback)
       }
-    } catch {
-      if (fetchIdRef.current !== id) return
-      clearLoading()
-      setTooltipText(fallback)
-    }
-  }, [info])
+    },
+    [info, handleTooltipPosition]
+  )
 
   const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLElement>) => {
-      cardPointerMove(e)
-
-      const tooltip = tooltipRef.current
-      if (tooltip) {
-        const flipX = e.clientX + 280 > window.innerWidth
-        const flipY = e.clientY + 100 > window.innerHeight
-        if (flipX) {
-          tooltip.style.left = 'auto'
-          tooltip.style.right = `${window.innerWidth - e.clientX + 12}px`
-        } else {
-          tooltip.style.right = 'auto'
-          tooltip.style.left = `${e.clientX + 12}px`
-        }
-        if (flipY) {
-          tooltip.style.top = 'auto'
-          tooltip.style.bottom = `${window.innerHeight - e.clientY + 12}px`
-        } else {
-          tooltip.style.bottom = 'auto'
-          tooltip.style.top = `${e.clientY + 12}px`
-        }
-        tooltip.style.clipPath = 'inset(-3px round 12px)'
-      }
+    (event: PointerEvent<HTMLElement>) => {
+      cardPointerMove(event)
+      handleTooltipPosition(event.clientX, event.clientY)
     },
-    [cardPointerMove]
+    [cardPointerMove, handleTooltipPosition]
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -194,7 +195,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
       tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round 12px)`
     }
     fetchIdRef.current++
-    clearLoading()
+    clearIntervalRef()
   }, [cardPointerLeave])
 
   return (

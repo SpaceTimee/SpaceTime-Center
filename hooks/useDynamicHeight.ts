@@ -8,7 +8,7 @@ export function useDynamicHeight(activeIndex: number, tabRefs: RefObject<(HTMLEl
     if (!activeElement) return
 
     const observer = new ResizeObserver(([entry]) => {
-      setHeight(entry.contentRect.height || 'auto')
+      setHeight(entry.contentRect.height ?? 'auto')
     })
 
     observer.observe(activeElement)

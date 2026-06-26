@@ -95,24 +95,10 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
       }
 
       const currentEntries: DataEntry[] = [
-        ...(portals as DataEntry[]).map(({ name, description, link, tags }) => ({
-          name,
-          description,
-          link,
-          tags
-        })),
-        ...(projects as DataEntry[]).map(({ name, description, link, tags }) => ({
-          name,
-          description,
-          link,
-          tags
-        })),
-        ...(contacts as DataEntry[]).map(({ name, description, link }) => ({
-          name,
-          description,
-          link
-        }))
-      ]
+        ...(portals as DataEntry[]),
+        ...(projects as DataEntry[]),
+        ...(contacts as DataEntry[])
+      ].map(({ name, description, link, tags }) => ({ name, description, link, tags }))
 
       const currentNames = new Set(currentEntries.map((entry) => entry.name))
       const hasDeletedEntries = existingEntries

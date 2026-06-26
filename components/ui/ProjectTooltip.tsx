@@ -1,8 +1,8 @@
-import type { Ref } from 'react'
+import type { RefObject } from 'react'
 import { createPortal } from 'react-dom'
 
 interface ProjectTooltipProps {
-  readonly ref: Ref<HTMLDivElement>
+  readonly ref: RefObject<HTMLDivElement | null>
   readonly text: string
   readonly visible: boolean
 }

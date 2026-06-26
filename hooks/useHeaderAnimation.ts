@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
+import { useReducedMotion } from './useReducedMotion'
 
 interface UseHeaderAnimationProps {
   borderRef: RefObject<HTMLDivElement | null>
@@ -34,35 +35,21 @@ export function useHeaderAnimation({
   meniscusRef,
   waveRef
 }: UseHeaderAnimationProps) {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
+  const prefersReducedMotion = useReducedMotion()
   const pullDistanceRef = useRef(-ANIMATION_CONFIG.MAX_PULL)
   const isDraggingRef = useRef(false)
   const startYRef = useRef(0)
-  const animationFrameIdRef = useRef<number>(null)
-  const resetTimerRef = useRef<number>(null)
+  const animationFrameIdRef = useRef<number | null>(null)
+  const resetTimerRef = useRef<number | null>(null)
 
   const targetParallaxOffsetRef = useRef({ x: 0, y: 0 })
   const currentParallaxOffsetRef = useRef({ x: 0, y: 0 })
-  const parallaxAnimationFrameIdRef = useRef<number>(null)
+  const parallaxAnimationFrameIdRef = useRef<number | null>(null)
 
   const touchStartPosRef = useRef({ x: 0, y: 0 })
   const isWaveActiveRef = useRef(false)
 
   const dimensionsRef = useRef({ width: 0, height: 0, left: 0, top: 0 })
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-    const controller = new AbortController()
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
-
-    media.addEventListener('change', (event) => setPrefersReducedMotion(event.matches), {
-      signal: controller.signal
-    })
-
-    return () => controller.abort()
-  }, [])
 
   const updateParallaxState = useCallback(() => {
     if (!imageRef.current) return
@@ -180,12 +167,12 @@ export function useHeaderAnimation({
   }, [animateDecay])
 
   const handleDeviceOrientation = useCallback(
-    (e: DeviceOrientationEvent) => {
-      if (isDraggingRef.current || e.gamma === null || e.beta === null || prefersReducedMotion) return
+    (event: DeviceOrientationEvent) => {
+      if (isDraggingRef.current || event.gamma === null || event.beta === null || prefersReducedMotion) return
 
-      const gamma = Math.min(Math.max(e.gamma, -ANIMATION_CONFIG.MAX_TILT), ANIMATION_CONFIG.MAX_TILT)
+      const gamma = Math.min(Math.max(event.gamma, -ANIMATION_CONFIG.MAX_TILT), ANIMATION_CONFIG.MAX_TILT)
       const beta = Math.min(
-        Math.max(e.beta - ANIMATION_CONFIG.TILT_OFFSET, -ANIMATION_CONFIG.MAX_TILT),
+        Math.max(event.beta - ANIMATION_CONFIG.TILT_OFFSET, -ANIMATION_CONFIG.MAX_TILT),
         ANIMATION_CONFIG.MAX_TILT
       )
 
@@ -213,7 +200,7 @@ export function useHeaderAnimation({
 
     updateDimensions()
     updateParallaxState()
-    let resizeTimer: number
+    let resizeTimer: number | null = null
     const handleResize = () => {
       if (resizeTimer) window.clearTimeout(resizeTimer)
       resizeTimer = window.setTimeout(updateDimensions, 150)
@@ -224,10 +211,10 @@ export function useHeaderAnimation({
 
     window.addEventListener('resize', handleResize, { signal })
 
-    const handleWheel = (e: WheelEvent) => {
-      if (window.scrollY === 0 && e.deltaY < 0) {
+    const handleWheel = (event: WheelEvent) => {
+      if (window.scrollY === 0 && event.deltaY < 0) {
         pullDistanceRef.current = Math.min(
-          pullDistanceRef.current - e.deltaY * ANIMATION_CONFIG.SCROLL_WHEEL_FACTOR,
+          pullDistanceRef.current - event.deltaY * ANIMATION_CONFIG.SCROLL_WHEEL_FACTOR,
           ANIMATION_CONFIG.PULL_LIMIT
         )
 
@@ -246,16 +233,16 @@ export function useHeaderAnimation({
       }
     }
 
-    const handleTouchStart = (e: TouchEvent) => {
+    const handleTouchStart = (event: TouchEvent) => {
       isDraggingRef.current = true
-      touchStartPosRef.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
+      touchStartPosRef.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
 
       if (window.scrollY === 0) {
         isWaveActiveRef.current = true
         const currentVal = Math.max(0, pullDistanceRef.current + ANIMATION_CONFIG.MAX_PULL)
         const currentDelta =
           (currentVal / ANIMATION_CONFIG.PULL_DRAG_DIVISOR) ** (1 / ANIMATION_CONFIG.PULL_DRAG_POW)
-        startYRef.current = e.touches[0].clientY - currentDelta
+        startYRef.current = event.touches[0].clientY - currentDelta
 
         if (animationFrameIdRef.current) {
           cancelAnimationFrame(animationFrameIdRef.current)
@@ -274,10 +261,10 @@ export function useHeaderAnimation({
       }
     }
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (event: TouchEvent) => {
       if (isDraggingRef.current) {
-        const clientX = e.touches[0].clientX
-        const clientY = e.touches[0].clientY
+        const clientX = event.touches[0].clientX
+        const clientY = event.touches[0].clientY
 
         if (!animationFrameIdRef.current) {
           animationFrameIdRef.current = requestAnimationFrame(() => {
