@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useMotionValueEvent, useScroll, useSpring } from 'framer-motion'
+import { memo, useEffect, useRef, useState } from 'react'
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
 
-export const ScrollProgress = () => {
+const ScrollProgress = memo(() => {
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -31,11 +31,13 @@ export const ScrollProgress = () => {
 
   return (
     <motion.div
-      className="fixed bottom-0 left-0 right-0 h-[1px] bg-primary/30 origin-left z-50 pointer-events-none shadow-[0_0_8px_rgba(255,90,0,0.15)]"
+      className="bg-primary/30 pointer-events-none fixed right-0 bottom-0 left-0 z-50 h-[1px] origin-left shadow-[0_0_8px_rgba(255,90,0,0.15)]"
       style={{ scaleX }}
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
       transition={{ opacity: { duration: 0.3 } }}
     />
   )
-}
+})
+
+export default ScrollProgress

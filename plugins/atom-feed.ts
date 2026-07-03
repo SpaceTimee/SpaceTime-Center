@@ -75,13 +75,12 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
           for (const entry of parser.parse(xml)?.feed?.entry ?? []) {
             const entryTitle = extractText(entry.title)
             const summary = extractText(entry.summary)
-            const links: unknown[] = entry.link ?? []
             const link =
-              (links as Record<string, string>[]).find(
+              ((entry.link ?? []) as Record<string, string>[]).find(
                 (linkEl) => !linkEl['@_rel'] || linkEl['@_rel'] === 'alternate'
               )?.['@_href'] || ''
             const categories = (entry.category ?? []).map(
-              (cat: Record<string, string>) => cat['@_term'] || ''
+              (category: Record<string, string>) => category['@_term'] || ''
             )
             const updated = typeof entry.updated === 'string' ? entry.updated : String(entry.updated ?? '')
 

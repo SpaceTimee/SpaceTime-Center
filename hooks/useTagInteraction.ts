@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useReducedMotion } from './useReducedMotion'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 const TAG_FALL_DELAY_MS = 600
 const TAG_FALL_TRIGGER = 10
@@ -12,15 +12,15 @@ export function useTagInteraction() {
   const [fallingTags, setFallingTags] = useState<Set<number>>(new Set())
   const [collapsingTags, setCollapsingTags] = useState<Set<number>>(new Set())
   const [removedTags, setRemovedTags] = useState<Set<number>>(new Set())
-  const tagClicksRef = useRef<Record<number, number>>({})
+  const tagClicksRef = useRef<Map<number, number>>(new Map())
   const timeoutIdsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
   const prefersReducedMotion = useReducedMotion()
 
   useEffect(() => {
-    const timeoutIds = timeoutIdsRef
+    const trackedTimeouts = timeoutIdsRef.current
     return () => {
-      for (const timeoutId of timeoutIds.current) clearTimeout(timeoutId)
-      timeoutIds.current.clear()
+      for (const timeoutId of trackedTimeouts) clearTimeout(timeoutId)
+      trackedTimeouts.clear()
     }
   }, [])
 
@@ -37,8 +37,8 @@ export function useTagInteraction() {
     (index: number) => {
       if (shakingTagIndex !== null || fallingTags.has(index)) return
 
-      tagClicksRef.current[index] ??= 0
-      const currentClicks = ++tagClicksRef.current[index]
+      const currentClicks = (tagClicksRef.current.get(index) ?? 0) + 1
+      tagClicksRef.current.set(index, currentClicks)
 
       if (currentClicks >= TAG_FALL_TRIGGER) {
         setFallingTags((tags) => new Set(tags).add(index))

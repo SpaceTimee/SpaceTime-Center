@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+*:focus-visible {
+  outline-color: var(--color-primary);
+}
+
 @theme {
   --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
   --font-display: 'Tektur', 'Inter', 'Noto Sans SC', sans-serif;
@@ -24,52 +28,60 @@
 
 ::-webkit-scrollbar {
   width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-.dark ::-webkit-scrollbar-track {
-  background: #1f2937;
-}
-::-webkit-scrollbar-thumb {
-  background: #ff5a00;
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #e04f00;
+
+  &-track {
+    background: #f1f1f1;
+
+    .dark & {
+      background: var(--color-gray-900);
+    }
+  }
+  &-thumb {
+    background: var(--color-primary);
+    border-radius: 4px;
+
+    &:hover {
+      background: var(--color-primary-hover);
+    }
+  }
 }
 
-.waves {
-  width: 100%;
-  height: 100%;
+:root {
+  scrollbar-color: var(--color-primary) #f1f1f1;
+  scrollbar-width: thin;
+
+  &.dark {
+    scrollbar-color: var(--color-primary) var(--color-gray-900);
+  }
 }
+
 .parallax > use {
   animation: move-forever 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
-}
-.parallax > use:nth-child(1) {
-  animation-delay: -2s;
-  animation-duration: 7s;
-}
-.parallax > use:nth-child(2) {
-  animation-delay: -3s;
-  animation-duration: 10s;
-}
-.parallax > use:nth-child(3) {
-  animation-delay: -4s;
-  animation-duration: 13s;
-}
-.parallax > use:nth-child(4) {
-  animation-delay: -5s;
-  animation-duration: 20s;
-}
 
-.paused-animations .parallax > use {
-  animation-play-state: paused;
+  &:nth-child(1) {
+    animation-delay: -2s;
+    animation-duration: 7s;
+  }
+  &:nth-child(2) {
+    animation-delay: -3s;
+    animation-duration: 10s;
+  }
+  &:nth-child(3) {
+    animation-delay: -4s;
+    animation-duration: 13s;
+  }
+  &:nth-child(4) {
+    animation-delay: -5s;
+    animation-duration: 20s;
+  }
+
+  .paused-animations & {
+    animation-play-state: paused;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html,
-  html.scroll-smooth {
+  html {
     scroll-behavior: auto;
   }
 
@@ -117,12 +129,10 @@
   0% {
     transform: translateY(0) rotate(0);
     opacity: 1;
-    pointer-events: none;
   }
   100% {
     transform: translateY(200px) rotate(45deg);
     opacity: 0;
-    pointer-events: none;
   }
 }
 

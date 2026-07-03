@@ -1,5 +1,6 @@
 import { useRef, type PointerEvent } from 'react'
-import { useMotionValue, useSpring, useTransform, type SpringOptions } from 'framer-motion'
+import { useMotionValue, useSpring, useTransform, type SpringOptions } from 'motion/react'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 const tiltSpringOptions: SpringOptions = {
   damping: 30,
@@ -15,17 +16,18 @@ const spotlightSpringOptions: SpringOptions = {
 
 export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const ref = useRef<T | null>(null)
+  const prefersReducedMotion = useReducedMotion()
 
-  const x = useMotionValue(0)
-  const y = useMotionValue(0)
+  const tiltX = useMotionValue(0)
+  const tiltY = useMotionValue(0)
 
-  const mouseX = useMotionValue(0)
-  const mouseY = useMotionValue(0)
+  const spotlightX = useMotionValue(0)
+  const spotlightY = useMotionValue(0)
 
-  const springX = useSpring(x, tiltSpringOptions)
-  const springY = useSpring(y, tiltSpringOptions)
-  const springMouseX = useSpring(mouseX, spotlightSpringOptions)
-  const springMouseY = useSpring(mouseY, spotlightSpringOptions)
+  const springX = useSpring(tiltX, tiltSpringOptions)
+  const springY = useSpring(tiltY, tiltSpringOptions)
+  const springMouseX = useSpring(spotlightX, spotlightSpringOptions)
+  const springMouseY = useSpring(spotlightY, spotlightSpringOptions)
 
   const rotateX = useTransform(springY, [-0.5, 0.5], ['10deg', '-10deg'])
   const rotateY = useTransform(springX, [-0.5, 0.5], ['-10deg', '10deg'])
@@ -43,32 +45,32 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   )
 
   const handlePointerMove = (event: PointerEvent<T>) => {
-    if (!ref.current || event.pointerType === 'touch') return
+    if (prefersReducedMotion || !ref.current || event.pointerType === 'touch') return
 
     const rect = ref.current.getBoundingClientRect()
 
     const clientX = event.clientX - rect.left
     const clientY = event.clientY - rect.top
 
-    mouseX.set(clientX)
-    mouseY.set(clientY)
+    spotlightX.set(clientX)
+    spotlightY.set(clientY)
 
     const xPct = clientX / rect.width - 0.5
     const yPct = clientY / rect.height - 0.5
 
-    x.set(xPct)
-    y.set(yPct)
+    tiltX.set(xPct)
+    tiltY.set(yPct)
   }
 
   const handlePointerLeave = () => {
-    x.set(0)
-    y.set(0)
+    tiltX.set(0)
+    tiltY.set(0)
   }
 
   return {
+    ref,
     handlePointerLeave,
     handlePointerMove,
-    ref,
     rotateX,
     rotateY,
     spotlightBackground,

@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import {
   Brain,
   ChevronRight,
@@ -10,33 +10,33 @@ import {
   Pin,
   Sparkles
 } from 'lucide-react'
-import GithubIcon from '../icons/GithubIcon'
-import { ProjectTooltip } from '../ui/ProjectTooltip'
-import { useCardAnimation } from '../../hooks/useCardAnimation'
-import { externalLinkProps, tagPillProps } from '../../consts'
-import { ProjectStatus, type ProjectInfo, type ProjectType } from '../../types'
+import GithubIcon from '@/components/icons/GithubIcon'
+import ProjectTooltip from '@/components/ui/ProjectTooltip'
+import { useCardAnimation } from '@/hooks/useCardAnimation'
+import { externalLinkProps, tagPillProps } from '@/consts'
+import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/types'
 
 const PROJECT_STATUS_ICON_MAP = {
-  [ProjectStatus.InProgress]: <FolderCog className="w-6 h-6" />,
-  [ProjectStatus.Completed]: <FolderCheck className="w-6 h-6" />,
-  [ProjectStatus.Planned]: <FolderClock className="w-6 h-6" />
+  [ProjectStatus.InProgress]: <FolderCog className="size-6" />,
+  [ProjectStatus.Completed]: <FolderCheck className="size-6" />,
+  [ProjectStatus.Planned]: <FolderClock className="size-6" />
 } as const satisfies Record<ProjectStatus, ReactNode>
 
 const PROJECT_TYPE_ICON_MAP = {
-  Github: <GithubIcon className="w-5 h-5" />,
-  HuggingFace: <Brain className="w-5 h-5" />,
-  Gemini: <Sparkles className="w-5 h-5" />,
-  External: <ExternalLink className="w-5 h-5" />,
-  Default: <GithubIcon className="w-5 h-5" />
+  Github: <GithubIcon className="size-5" />,
+  HuggingFace: <Brain className="size-5" />,
+  Gemini: <Sparkles className="size-5" />,
+  External: <ExternalLink className="size-5" />,
+  Default: <GithubIcon className="size-5" />
 } as const satisfies Record<ProjectType | 'Default', ReactNode>
 
 const summaryCache = new Map<string, string>()
 
 const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   const {
+    ref,
     handlePointerLeave: cardPointerLeave,
     handlePointerMove: cardPointerMove,
-    ref,
     rotateX,
     rotateY,
     spotlightBackground,
@@ -50,6 +50,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   const [tooltipVisible, setTooltipVisible] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const fetchIdRef = useRef(0)
+  const abortControllerRef = useRef<AbortController | null>(null)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const clearIntervalRef = () => {
@@ -59,10 +60,16 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
     }
   }
 
+  const cancelFetch = () => {
+    fetchIdRef.current++
+    abortControllerRef.current?.abort()
+    abortControllerRef.current = null
+  }
+
   useEffect(
     () => () => {
       clearIntervalRef()
-      fetchIdRef.current++
+      cancelFetch()
     },
     []
   )
@@ -89,7 +96,8 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
 
       const fallback = `${info.name} 是 ${info.description}`
 
-      if (!info.link?.startsWith('https://github.com/')) {
+      const match = info.link?.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
+      if (!info.link || !match) {
         setTooltipText(fallback)
         setTooltipVisible(true)
         return
@@ -110,44 +118,47 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         setTooltipText('.'.repeat(dots + 1))
       }, 400)
 
-      const id = ++fetchIdRef.current
+      const requestId = ++fetchIdRef.current
+
+      const abortController = new AbortController()
+      abortControllerRef.current = abortController
+      const signal = AbortSignal.any([abortController.signal, AbortSignal.timeout(8000)])
 
       try {
         let summary: string | null = null
-        const match = info.link.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
-        if (match) {
-          const readme = await Promise.any(
-            ['main', 'master'].map(async (branch) => {
-              const response = await fetch(
-                `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`
-              )
-              if (!response.ok) throw new Error()
-              return response.text()
-            })
-          ).catch(() => null)
+        const readme = await Promise.any(
+          ['main', 'master'].map(async (branch) => {
+            const response = await fetch(
+              `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`,
+              { signal }
+            )
+            if (!response.ok) throw new Error()
+            return response.text()
+          })
+        ).catch(() => null)
 
-          if (readme) {
-            const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                messages: [
-                  {
-                    role: 'user',
-                    content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}`
-                  }
-                ]
-              })
-            })
+        if (readme) {
+          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: [
+                {
+                  role: 'user',
+                  content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}`
+                }
+              ]
+            }),
+            signal
+          })
 
-            if (aiResponse.ok) {
-              const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
-              if (!error && content) summary = content
-            }
+          if (aiResponse.ok) {
+            const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
+            if (!error && content) summary = content
           }
         }
 
-        if (fetchIdRef.current !== id) return
+        if (fetchIdRef.current !== requestId) return
         clearIntervalRef()
 
         if (summary) {
@@ -155,7 +166,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
 
           let charIndex = 0
           intervalRef.current = setInterval(() => {
-            if (fetchIdRef.current !== id) {
+            if (fetchIdRef.current !== requestId) {
               clearIntervalRef()
               return
             }
@@ -167,7 +178,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
           setTooltipText(fallback)
         }
       } catch {
-        if (fetchIdRef.current !== id) return
+        if (fetchIdRef.current !== requestId) return
         clearIntervalRef()
         setTooltipText(fallback)
       }
@@ -194,12 +205,12 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
       const [right, left] = flipX ? ['-3px', '100%'] : ['100%', '-3px']
       tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round 12px)`
     }
-    fetchIdRef.current++
+    cancelFetch()
     clearIntervalRef()
   }, [cardPointerLeave])
 
   return (
-    <div style={{ perspective: 1200 }} className="h-full">
+    <div className="h-full [perspective:1200px]">
       <Wrapper
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
@@ -213,58 +224,53 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         }}
         {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
         whileHover={{ y: -4 }}
-        className={`group relative flex flex-col bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm transition-shadow duration-300 transform-gpu will-change-transform h-full ${
-          isLink ? 'cursor-pointer' : 'cursor-default'
-        }`}
+        className="group relative flex h-full transform-gpu flex-col rounded-xl bg-white p-[1px] shadow-sm transition-[box-shadow,background-color] will-change-transform dark:bg-gray-800"
       >
-        <div
-          className="absolute inset-0 z-[-1] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ transform: 'translateZ(-15px)' }}
-        />
+        <div className="pointer-events-none absolute inset-0 z-[-1] [transform:translateZ(-15px)] rounded-xl opacity-0 shadow-lg transition-opacity duration-500 group-hover:opacity-100" />
 
         <motion.div
-          className="absolute inset-0 z-0 rounded-xl opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
+          className="absolute inset-0 z-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3]"
           style={{ background: spotlightBorder }}
         />
 
-        <div className="absolute inset-0 z-0 rounded-xl border border-gray-100 dark:border-gray-700 group-hover:border-primary/30 dark:group-hover:border-primary/30 transition-colors duration-300 pointer-events-none" />
+        <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 z-0 rounded-xl border border-gray-100 transition-colors dark:border-gray-700" />
 
-        <div className="relative z-10 flex flex-col h-full bg-white dark:bg-gray-800 rounded-[11px] p-6 overflow-hidden">
+        <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[11px] bg-white p-6 transition-colors dark:bg-gray-800">
           <motion.div
-            className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05] transition-opacity duration-300 pointer-events-none mix-blend-screen"
+            className="pointer-events-none absolute inset-0 z-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05]"
             style={{ background: spotlightBackground }}
           />
 
-          <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 dark:bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500 ease-out pointer-events-none will-change-transform transform-gpu" />
+          <div className="bg-primary/5 pointer-events-none absolute -top-12 -right-12 size-32 transform-gpu rounded-full blur-2xl transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform group-hover:scale-150" />
 
-          <div className="relative z-20 flex flex-col h-full" style={{ transform: 'translateZ(15px)' }}>
-            <div className="flex justify-between items-center mb-4">
-              <div className="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+          <div className="relative z-20 flex h-full [transform:translateZ(15px)] flex-col space-y-2">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary rounded-lg p-2 transition-colors group-hover:text-white">
                 {PROJECT_STATUS_ICON_MAP[info.status]}
               </div>
               {info.pinned ? (
-                <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transform rotate-[-15deg] transition-colors duration-300">
-                  <Pin className="w-5 h-5" />
+                <div className="group-hover:text-primary rotate-[-15deg] text-gray-300 transition-colors dark:text-gray-600">
+                  <Pin className="size-5" />
                 </div>
               ) : (
                 isLink && (
-                  <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transition-colors duration-300">
+                  <div className="group-hover:text-primary text-gray-300 transition-colors dark:text-gray-600">
                     {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
                   </div>
                 )
               )}
             </div>
 
-            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2 group-hover:text-primary transition-colors">
+            <h3 className="group-hover:text-primary text-xl font-bold text-gray-800 transition-colors dark:text-gray-100">
               {info.name}
             </h3>
 
-            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 flex-grow leading-relaxed">
+            <p className="mb-4 text-sm leading-relaxed text-gray-600 transition-colors dark:text-gray-400">
               {info.description}
             </p>
 
-            <div className="mt-auto flex items-center justify-between gap-4">
-              <div className="flex flex-wrap gap-2" style={{ transform: 'translateZ(10px)' }}>
+            <div className="mt-auto flex items-end justify-between gap-4">
+              <div className="flex [transform:translateZ(10px)] flex-wrap gap-2">
                 {info.tags.map((tag) => (
                   <span key={`${info.name}-${tag}`} {...tagPillProps.md}>
                     {tag}
@@ -273,11 +279,8 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
               </div>
 
               {isLink && (
-                <div
-                  className="flex items-center text-xs font-bold text-primary/80 group-hover:text-primary transition-all duration-300 whitespace-nowrap relative z-20 group-hover:translate-x-1"
-                  style={{ transform: 'translateZ(10px)' }}
-                >
-                  View Project <ChevronRight className="w-3.5 h-3.5 ml-1" />
+                <div className="text-primary/80 group-hover:text-primary relative z-20 mb-1 flex [transform:translateZ(10px)] items-center text-xs font-bold whitespace-nowrap transition-all group-hover:translate-x-1">
+                  View Project <ChevronRight className="ml-1 size-3.5" />
                 </div>
               )}
             </div>
@@ -285,7 +288,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         </div>
       </Wrapper>
 
-      <ProjectTooltip ref={tooltipRef} text={tooltipText} visible={tooltipVisible} />
+      <ProjectTooltip ref={tooltipRef} text={tooltipText} isVisible={tooltipVisible} />
     </div>
   )
 })

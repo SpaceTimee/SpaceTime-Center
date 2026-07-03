@@ -1,16 +1,16 @@
 import { memo, type ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { ChevronRight, Mail, MessageCircle, Tv } from 'lucide-react'
-import GithubIcon from '../icons/GithubIcon'
-import { useCardAnimation } from '../../hooks/useCardAnimation'
-import { externalLinkProps } from '../../consts'
-import type { ContactInfo, ContactType } from '../../types'
+import GithubIcon from '@/components/icons/GithubIcon'
+import { useCardAnimation } from '@/hooks/useCardAnimation'
+import { externalLinkProps } from '@/consts'
+import type { ContactInfo, ContactType } from '@/types'
 
 const CONTACT_TYPE_ICON_MAP = {
-  Mail: <Mail className="w-5 h-5" />,
-  Github: <GithubIcon className="w-5 h-5" />,
-  Bilibili: <Tv className="w-5 h-5" />,
-  Default: <MessageCircle className="w-5 h-5" />
+  Mail: <Mail className="size-5" />,
+  Github: <GithubIcon className="size-5" />,
+  Bilibili: <Tv className="size-5" />,
+  Default: <MessageCircle className="size-5" />
 } as const satisfies Record<ContactType | 'Default', ReactNode>
 
 const ContactCard = memo(({ info }: { info: ContactInfo }) => {
@@ -25,7 +25,7 @@ const ContactCard = memo(({ info }: { info: ContactInfo }) => {
   } = useCardAnimation<HTMLAnchorElement>()
 
   return (
-    <div style={{ perspective: 1200 }} className="h-full">
+    <div className="h-full [perspective:1200px]">
       <motion.a
         ref={ref}
         onPointerMove={handlePointerMove}
@@ -38,41 +38,38 @@ const ContactCard = memo(({ info }: { info: ContactInfo }) => {
         href={info.link}
         {...externalLinkProps}
         whileHover={{ y: -4 }}
-        className="block group relative bg-white dark:bg-gray-800 rounded-xl p-[1px] shadow-sm transition-shadow duration-300 transform-gpu will-change-transform cursor-pointer h-full"
+        className="group relative block h-full transform-gpu rounded-xl bg-white p-[1px] shadow-sm transition-[box-shadow,background-color] will-change-transform dark:bg-gray-800"
       >
-        <div
-          className="absolute inset-0 z-[-1] rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-          style={{ transform: 'translateZ(-15px)' }}
-        />
+        <div className="pointer-events-none absolute inset-0 z-[-1] [transform:translateZ(-15px)] rounded-xl opacity-0 shadow-lg transition-opacity duration-500 group-hover:opacity-100" />
 
         <motion.div
-          className="absolute inset-0 z-0 rounded-xl opacity-0 group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3] transition-opacity duration-300"
+          className="absolute inset-0 z-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3]"
           style={{ background: spotlightBorder }}
         />
 
-        <div className="absolute inset-0 z-0 rounded-xl border border-gray-100 dark:border-gray-700 group-hover:border-primary/30 dark:group-hover:border-primary/30 transition-colors duration-300 pointer-events-none" />
+        <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 z-0 rounded-xl border border-gray-100 transition-colors dark:border-gray-700" />
 
-        <div className="relative z-10 flex flex-col h-full bg-white dark:bg-gray-800 rounded-[11px] p-5 overflow-hidden">
+        <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[11px] bg-white p-5 transition-colors dark:bg-gray-800">
           <motion.div
-            className="absolute inset-0 z-0 opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05] transition-opacity duration-300 pointer-events-none mix-blend-screen"
+            className="pointer-events-none absolute inset-0 z-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05]"
             style={{ background: spotlightBackground }}
           />
 
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 dark:bg-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500 ease-out pointer-events-none will-change-transform transform-gpu" />
+          <div className="bg-primary/5 pointer-events-none absolute -top-10 -right-10 size-32 transform-gpu rounded-full blur-2xl transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform group-hover:scale-150" />
 
-          <div className="relative z-20 flex items-center gap-4" style={{ transform: 'translateZ(15px)' }}>
-            <div className="w-12 h-12 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300 flex-shrink-0">
+          <div className="relative z-20 flex [transform:translateZ(15px)] items-center gap-4">
+            <div className="bg-primary-light dark:bg-primary/20 text-primary group-hover:bg-primary flex size-12 shrink-0 items-center justify-center rounded-full transition-colors group-hover:text-white">
               {CONTACT_TYPE_ICON_MAP[info.type ?? 'Default']}
             </div>
-            <div className="flex-1 min-w-0 text-left">
-              <h3 className="font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors truncate">
+            <div className="min-w-0 flex-1 space-y-1">
+              <h3 className="group-hover:text-primary truncate font-bold text-gray-900 transition-colors dark:text-gray-100">
                 {info.name}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate">{info.description}</p>
+              <p className="truncate text-sm text-gray-500 transition-colors dark:text-gray-400">
+                {info.description}
+              </p>
             </div>
-            <div className="text-gray-300 dark:text-gray-600 group-hover:text-primary dark:group-hover:text-primary transform group-hover:translate-x-1 transition-all duration-300 flex-shrink-0">
-              <ChevronRight className="w-5 h-5" />
-            </div>
+            <ChevronRight className="group-hover:text-primary size-5 shrink-0 text-gray-300 transition-all group-hover:translate-x-1 dark:text-gray-600" />
           </div>
         </div>
       </motion.a>

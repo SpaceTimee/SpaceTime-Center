@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, type RefObject } from 'react'
-import { useReducedMotion } from './useReducedMotion'
+import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 interface UseHeaderAnimationProps {
-  borderRef: RefObject<HTMLDivElement | null>
-  headerRef: RefObject<HTMLElement | null>
-  imageRef: RefObject<HTMLImageElement | null>
-  meniscusRef: RefObject<SVGGElement | null>
-  waveRef: RefObject<HTMLDivElement | null>
+  readonly borderRef: RefObject<HTMLDivElement | null>
+  readonly headerRef: RefObject<HTMLElement | null>
+  readonly imageRef: RefObject<HTMLImageElement | null>
+  readonly meniscusRef: RefObject<SVGGElement | null>
+  readonly waveRef: RefObject<HTMLDivElement | null>
 }
 
 export const ANIMATION_CONFIG = {
@@ -28,6 +28,8 @@ export const ANIMATION_CONFIG = {
 
 const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor
 
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max)
+
 export function useHeaderAnimation({
   borderRef,
   headerRef,
@@ -38,16 +40,16 @@ export function useHeaderAnimation({
   const prefersReducedMotion = useReducedMotion()
   const pullDistanceRef = useRef(-ANIMATION_CONFIG.MAX_PULL)
   const isDraggingRef = useRef(false)
-  const startYRef = useRef(0)
+  const pullStartYRef = useRef(0)
   const animationFrameIdRef = useRef<number | null>(null)
-  const resetTimerRef = useRef<number | null>(null)
+  const pullResetTimerRef = useRef<number | null>(null)
 
   const targetParallaxOffsetRef = useRef({ x: 0, y: 0 })
   const currentParallaxOffsetRef = useRef({ x: 0, y: 0 })
   const parallaxAnimationFrameIdRef = useRef<number | null>(null)
 
   const touchStartPosRef = useRef({ x: 0, y: 0 })
-  const isWaveActiveRef = useRef(false)
+  const waveActiveRef = useRef(false)
 
   const dimensionsRef = useRef({ width: 0, height: 0, left: 0, top: 0 })
 
@@ -147,9 +149,9 @@ export function useHeaderAnimation({
       if (pullDistanceRef.current < 0.5) pullDistanceRef.current = 0
       needsFrame = true
     } else if (pullDistanceRef.current > -MAX_PULL) {
-      const gap = MAX_PULL + pullDistanceRef.current
-      pullDistanceRef.current = -MAX_PULL + gap * DECAY_RATE
-      if (gap * DECAY_RATE < 0.5) pullDistanceRef.current = -MAX_PULL
+      const pullGap = MAX_PULL + pullDistanceRef.current
+      pullDistanceRef.current = -MAX_PULL + pullGap * DECAY_RATE
+      if (pullGap * DECAY_RATE < 0.5) pullDistanceRef.current = -MAX_PULL
       needsFrame = pullDistanceRef.current > -MAX_PULL
     }
 
@@ -170,9 +172,10 @@ export function useHeaderAnimation({
     (event: DeviceOrientationEvent) => {
       if (isDraggingRef.current || event.gamma === null || event.beta === null || prefersReducedMotion) return
 
-      const gamma = Math.min(Math.max(event.gamma, -ANIMATION_CONFIG.MAX_TILT), ANIMATION_CONFIG.MAX_TILT)
-      const beta = Math.min(
-        Math.max(event.beta - ANIMATION_CONFIG.TILT_OFFSET, -ANIMATION_CONFIG.MAX_TILT),
+      const gamma = clamp(event.gamma, -ANIMATION_CONFIG.MAX_TILT, ANIMATION_CONFIG.MAX_TILT)
+      const beta = clamp(
+        event.beta - ANIMATION_CONFIG.TILT_OFFSET,
+        -ANIMATION_CONFIG.MAX_TILT,
         ANIMATION_CONFIG.MAX_TILT
       )
 
@@ -200,6 +203,7 @@ export function useHeaderAnimation({
 
     updateDimensions()
     updateParallaxState()
+
     let resizeTimer: number | null = null
     const handleResize = () => {
       if (resizeTimer) window.clearTimeout(resizeTimer)
@@ -225,8 +229,8 @@ export function useHeaderAnimation({
           })
         }
 
-        if (resetTimerRef.current) clearTimeout(resetTimerRef.current)
-        resetTimerRef.current = window.setTimeout(() => {
+        if (pullResetTimerRef.current) clearTimeout(pullResetTimerRef.current)
+        pullResetTimerRef.current = window.setTimeout(() => {
           if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current)
           animateDecay()
         }, 20)
@@ -238,11 +242,11 @@ export function useHeaderAnimation({
       touchStartPosRef.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }
 
       if (window.scrollY === 0) {
-        isWaveActiveRef.current = true
-        const currentVal = Math.max(0, pullDistanceRef.current + ANIMATION_CONFIG.MAX_PULL)
+        waveActiveRef.current = true
+        const currentPullDistance = Math.max(0, pullDistanceRef.current + ANIMATION_CONFIG.MAX_PULL)
         const currentDelta =
-          (currentVal / ANIMATION_CONFIG.PULL_DRAG_DIVISOR) ** (1 / ANIMATION_CONFIG.PULL_DRAG_POW)
-        startYRef.current = event.touches[0].clientY - currentDelta
+          (currentPullDistance / ANIMATION_CONFIG.PULL_DRAG_DIVISOR) ** (1 / ANIMATION_CONFIG.PULL_DRAG_POW)
+        pullStartYRef.current = event.touches[0].clientY - currentDelta
 
         if (animationFrameIdRef.current) {
           cancelAnimationFrame(animationFrameIdRef.current)
@@ -252,12 +256,12 @@ export function useHeaderAnimation({
           cancelAnimationFrame(parallaxAnimationFrameIdRef.current)
           parallaxAnimationFrameIdRef.current = null
         }
-        if (resetTimerRef.current) {
-          clearTimeout(resetTimerRef.current)
-          resetTimerRef.current = null
+        if (pullResetTimerRef.current) {
+          clearTimeout(pullResetTimerRef.current)
+          pullResetTimerRef.current = null
         }
       } else {
-        isWaveActiveRef.current = false
+        waveActiveRef.current = false
       }
     }
 
@@ -271,9 +275,9 @@ export function useHeaderAnimation({
             const deltaX = clientX - touchStartPosRef.current.x
             const deltaY = clientY - touchStartPosRef.current.y
 
-            const { width: offsetWidth, height: offsetHeight } = dimensionsRef.current
-            const limitX = offsetWidth * 0.05
-            const limitY = offsetHeight * 0.05
+            const { width, height } = dimensionsRef.current
+            const limitX = width * 0.05
+            const limitY = height * 0.05
             const resistance = 30
 
             if (limitX > 0 && limitY > 0) {
@@ -284,8 +288,8 @@ export function useHeaderAnimation({
               startParallaxAnimation()
             }
 
-            if (isWaveActiveRef.current && window.scrollY <= 0) {
-              const deltaWave = clientY - startYRef.current
+            if (waveActiveRef.current && window.scrollY <= 0) {
+              const deltaWave = clientY - pullStartYRef.current
               if (deltaWave > 0) {
                 const totalPull =
                   deltaWave ** ANIMATION_CONFIG.PULL_DRAG_POW * ANIMATION_CONFIG.PULL_DRAG_DIVISOR
@@ -307,7 +311,7 @@ export function useHeaderAnimation({
 
     const handleTouchEnd = () => {
       isDraggingRef.current = false
-      isWaveActiveRef.current = false
+      waveActiveRef.current = false
       targetParallaxOffsetRef.current = { x: 0, y: 0 }
       startParallaxAnimation()
       animateDecay()
@@ -340,7 +344,7 @@ export function useHeaderAnimation({
       if (resizeTimer) window.clearTimeout(resizeTimer)
       if (animationFrameIdRef.current) cancelAnimationFrame(animationFrameIdRef.current)
       if (parallaxAnimationFrameIdRef.current) cancelAnimationFrame(parallaxAnimationFrameIdRef.current)
-      if (resetTimerRef.current) clearTimeout(resetTimerRef.current)
+      if (pullResetTimerRef.current) clearTimeout(pullResetTimerRef.current)
     }
   }, [
     animateDecay,

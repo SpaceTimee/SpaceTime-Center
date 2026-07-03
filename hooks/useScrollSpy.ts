@@ -14,7 +14,7 @@ export function useScrollSpy(
   sections: readonly Section[],
   { contactId = 'contact', titleSuffix = 'SpaceTime Center' }: ScrollSpyOptions = {}
 ) {
-  const currentTitleRef = useRef<string>(titleSuffix)
+  const lastSectionTitleRef = useRef<string>(titleSuffix)
   const isContactActiveRef = useRef(false)
 
   useEffect(() => {
@@ -22,14 +22,8 @@ export function useScrollSpy(
     const sectionTitleById = new Map(sections.map((section) => [section.id, buildTitle(section.title)]))
     const contactTitle = sectionTitleById.get(contactId) ?? buildTitle('Contact')
     const initialTitle = sectionTitleById.get(sections[0]?.id ?? '') ?? titleSuffix
-    currentTitleRef.current = initialTitle
-
-    const setTitle = (title: string) => {
-      if (document.title !== title) {
-        document.title = title
-      }
-    }
-    setTitle(initialTitle)
+    lastSectionTitleRef.current = initialTitle
+    document.title = initialTitle
 
     const sectionObserver = new IntersectionObserver(
       (entries) => {
@@ -39,9 +33,9 @@ export function useScrollSpy(
           const nextTitle = sectionTitleById.get(entry.target.id)
           if (!nextTitle || entry.target.id === contactId) continue
 
-          currentTitleRef.current = nextTitle
+          lastSectionTitleRef.current = nextTitle
           if (!isContactActiveRef.current) {
-            setTitle(nextTitle)
+            document.title = nextTitle
           }
         }
       },
@@ -49,15 +43,15 @@ export function useScrollSpy(
     )
 
     for (const section of sections) {
-      const el = document.getElementById(section.id)
-      if (el) sectionObserver.observe(el)
+      const element = document.getElementById(section.id)
+      if (element) sectionObserver.observe(element)
     }
 
     const bottomObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           isContactActiveRef.current = entry.isIntersecting
-          setTitle(entry.isIntersecting ? contactTitle : currentTitleRef.current)
+          document.title = entry.isIntersecting ? contactTitle : lastSectionTitleRef.current
         }
       },
       { rootMargin: '0px', threshold: 0 }

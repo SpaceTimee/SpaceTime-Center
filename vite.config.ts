@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import Sitemap from 'vite-plugin-sitemap'
+import { webfontDl } from 'vite-plugin-webfont-dl'
 import { AtomFeed } from './plugins/atom-feed'
 
 export default defineConfig({
@@ -13,6 +14,7 @@ export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    webfontDl(),
     basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
@@ -47,20 +49,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': import.meta.dirname
-    }
-  },
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom')) {
-            return 'react-vendor'
-          }
-          if (id.includes('node_modules/lucide-react')) {
-            return 'lucide-vendor'
-          }
-        }
-      }
     }
   }
 })

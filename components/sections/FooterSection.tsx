@@ -1,8 +1,8 @@
 import { memo } from 'react'
-import { motion } from 'framer-motion'
-import ContactCard from '../cards/ContactCard'
-import { cardGridClass, sectionIds, sections, springTransition } from '../../consts'
-import { contacts } from '../../data'
+import { motion } from 'motion/react'
+import ContactCard from '@/components/cards/ContactCard'
+import { cardGridClass, sectionIds, sections, springTransition } from '@/consts'
+import { contacts } from '@/data'
 
 const contactSection = sections.find((section) => section.id === sectionIds.contact)
 
@@ -11,17 +11,17 @@ const FooterSection = memo(() => {
     <>
       <motion.footer
         id={sectionIds.contact}
-        className="bg-white dark:bg-gray-800 mt-12 pt-16 border-t border-gray-100 dark:border-gray-700 scroll-mt-16 transition-colors duration-300"
+        className="scroll-mt-16 border-t border-gray-100 bg-white pt-16 transition-colors dark:border-gray-700 dark:bg-gray-800"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={springTransition}
       >
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex items-center justify-center gap-2 mb-10">
-            {contactSection?.icon ? <contactSection.icon className="w-6 h-6 text-primary" /> : null}
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 tracking-tight">
-              {contactSection?.title ?? 'Contact'}
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="mb-8 flex items-center justify-center gap-2">
+            {contactSection?.icon ? <contactSection.icon className="text-primary size-6" /> : null}
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900 transition-colors dark:text-gray-100">
+              {contactSection?.title}
             </h2>
           </div>
 
@@ -54,17 +54,17 @@ const FooterSection = memo(() => {
             ))}
           </motion.div>
 
-          <div className="mt-20 border-t border-gray-100 dark:border-gray-700 py-8 text-center">
+          <div className="mt-16 border-t border-gray-100 py-8 text-center transition-colors dark:border-gray-700">
             <div className="flex flex-col items-center gap-1">
-              <p className="text-gray-400 dark:text-gray-500 text-sm font-medium">
-                Developer <span className="text-red-500 mx-0.5">❤️</span> Space Time
-              </p>
-              <p className="text-gray-400 dark:text-gray-500 text-sm">Ver. 1.1.10</p>
+              <small className="text-sm font-medium text-gray-400 transition-colors dark:text-gray-500">
+                Developer <span className="mx-0.5 text-red-500">❤️</span> Space Time
+              </small>
+              <small className="text-sm text-gray-400 transition-colors dark:text-gray-500">Ver. 1.2.0</small>
             </div>
           </div>
         </div>
       </motion.footer>
-      <div id="bottom-sentinel" className="h-px w-full opacity-0 pointer-events-none" />
+      <div id="bottom-sentinel" className="pointer-events-none h-px w-full opacity-0" />
     </>
   )
 })

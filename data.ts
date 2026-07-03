@@ -1,4 +1,4 @@
-import { ProjectStatus, type ContactInfo, type PortalInfo, type ProfileInfo, type ProjectInfo } from './types'
+import { ProjectStatus, type ContactInfo, type PortalInfo, type ProfileInfo, type ProjectInfo } from '@/types'
 
 export const profile = {
   name: 'Space Time',

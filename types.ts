@@ -1,8 +1,10 @@
-export enum ProjectStatus {
-  InProgress = 'InProgress',
-  Completed = 'Completed',
-  Planned = 'Planned'
-}
+export const ProjectStatus = {
+  InProgress: 'InProgress',
+  Completed: 'Completed',
+  Planned: 'Planned'
+} as const
+
+export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
 
 export type PortalType = 'Account' | 'Blog' | 'Center' | 'Docs' | 'Server' | 'Status'
 export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini' | 'External'

@@ -4,14 +4,14 @@ export function useDynamicHeight(activeIndex: number, tabRefs: RefObject<(HTMLEl
   const [height, setHeight] = useState<number | 'auto'>('auto')
 
   useEffect(() => {
-    const activeElement = tabRefs.current?.[activeIndex]
-    if (!activeElement) return
+    const activePanel = tabRefs.current?.[activeIndex]
+    if (!activePanel) return
 
     const observer = new ResizeObserver(([entry]) => {
       setHeight(entry.contentRect.height ?? 'auto')
     })
 
-    observer.observe(activeElement)
+    observer.observe(activePanel)
 
     return () => observer.disconnect()
   }, [activeIndex, tabRefs])

@@ -1,5 +1,5 @@
 import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-react'
-import { ProjectStatus } from './types'
+import { ProjectStatus } from '@/types'
 
 export const springTransition = {
   damping: 20,
@@ -13,7 +13,7 @@ export const externalLinkProps = {
 } as const
 
 const tagPillClass =
-  'inline-block text-xs font-semibold rounded-md bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary dark:group-hover:text-primary transition-all'
+  'inline-block text-xs font-semibold rounded-md bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary dark:group-hover:text-primary transition-colors'
 
 export const tagPillProps = {
   md: { className: `${tagPillClass} px-2.5 py-1` },

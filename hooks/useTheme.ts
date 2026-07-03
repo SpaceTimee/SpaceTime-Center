@@ -28,10 +28,16 @@ export function useTheme() {
   }, [])
 
   const toggleTheme = useCallback(() => {
-    const newMode = !isDark
-    localStorage.setItem('theme', newMode ? 'dark' : 'light')
-    setIsDark(newMode)
-  }, [isDark])
+    setIsDark((prev) => {
+      const newMode = !prev
+      try {
+        localStorage.setItem('theme', newMode ? 'dark' : 'light')
+      } catch {
+        // Ignore storage failures
+      }
+      return newMode
+    })
+  }, [])
 
   return { isDark, toggleTheme }
 }

@@ -1,11 +1,11 @@
 import { memo, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
-import PortalCard from '../cards/PortalCard'
-import ProjectCard from '../cards/ProjectCard'
-import { useDynamicHeight } from '../../hooks/useDynamicHeight'
-import { cardGridClass, projectTabs, sectionIds, sections, springTransition } from '../../consts'
-import { portals, projects } from '../../data'
-import { ProjectStatus, type ProjectInfo } from '../../types'
+import { motion } from 'motion/react'
+import PortalCard from '@/components/cards/PortalCard'
+import ProjectCard from '@/components/cards/ProjectCard'
+import { useDynamicHeight } from '@/hooks/useDynamicHeight'
+import { cardGridClass, projectTabs, sectionIds, sections, springTransition } from '@/consts'
+import { portals, projects } from '@/data'
+import { ProjectStatus, type ProjectInfo } from '@/types'
 
 const projectsByStatus = Object.groupBy<ProjectStatus, ProjectInfo>(projects, ({ status }) => status)
 
@@ -28,19 +28,23 @@ const MainSection = memo(() => {
   const containerHeight = useDynamicHeight(activeTabIndex, tabRefs)
 
   return (
-    <main className="max-w-5xl mx-auto px-6 mt-12 relative z-20 space-y-16">
+    <main className="relative z-20 mx-auto max-w-5xl space-y-16 px-6 py-16">
       <motion.section
         id={sectionIds.portals}
+        aria-labelledby={`${sectionIds.portals}-title`}
         className="scroll-mt-24"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={springTransition}
       >
-        <div className="flex items-center justify-center sm:justify-start gap-2 mb-6">
-          {portalsSection?.icon ? <portalsSection.icon className="w-6 h-6 text-primary" /> : null}
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            {portalsSection?.title ?? 'Portals'}
+        <div className="mb-8 flex items-center justify-center gap-2 sm:justify-start">
+          {portalsSection?.icon ? <portalsSection.icon className="text-primary size-6" /> : null}
+          <h2
+            id={`${sectionIds.portals}-title`}
+            className="text-2xl font-bold text-gray-900 transition-colors dark:text-gray-100"
+          >
+            {portalsSection?.title}
           </h2>
         </div>
         <motion.div
@@ -75,28 +79,32 @@ const MainSection = memo(() => {
 
       <motion.section
         id={sectionIds.projects}
+        aria-labelledby={`${sectionIds.projects}-title`}
         className="scroll-mt-24"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true, margin: '-50px' }}
         transition={springTransition}
       >
-        <div className="flex flex-col items-center sm:flex-row sm:items-center justify-between mb-8 gap-4">
+        <div className="mb-8 flex flex-col items-center justify-between gap-6 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            {projectsSection?.icon ? <projectsSection.icon className="w-6 h-6 text-primary" /> : null}
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-              {projectsSection?.title ?? 'Projects'}
+            {projectsSection?.icon ? <projectsSection.icon className="text-primary size-6" /> : null}
+            <h2
+              id={`${sectionIds.projects}-title`}
+              className="text-2xl font-bold text-gray-900 transition-colors dark:text-gray-100"
+            >
+              {projectsSection?.title}
             </h2>
           </div>
 
           <div
-            className="relative grid p-1 bg-gray-100 dark:bg-gray-800 rounded-xl self-center sm:self-auto transition-colors duration-300"
+            className="relative grid self-center rounded-xl bg-gray-100 p-1 transition-colors sm:self-auto dark:bg-gray-800"
             style={{
               gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))`
             }}
           >
             <div
-              className="absolute top-1 bottom-1 left-1 bg-white dark:bg-gray-700 rounded-lg shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.25,0.1,0.25,1.0)]"
+              className="absolute top-1 bottom-1 left-1 rounded-lg bg-white shadow-sm transition-[transform,background-color] duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] dark:bg-gray-700"
               style={{
                 width: `calc((100% - 0.5rem) / ${tabs.length})`,
                 transform: `translateX(${activeTabIndex * 100}%)`
@@ -108,19 +116,19 @@ const MainSection = memo(() => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative z-10 flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 gap-2 ${
+                className={`relative z-10 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
                   activeTab === tab.id
                     ? 'text-primary'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                 }`}
               >
-                <tab.icon className="w-4 h-4 shrink-0" />
-                <span className="max-[442px]:hidden">{tab.title}</span>
+                <tab.icon className="size-4 shrink-0" />
+                <span className="max-[431px]:hidden">{tab.title}</span>
                 <span
-                  className={`text-xs py-0.5 px-1.5 rounded-full transition-colors duration-200 ${
+                  className={`rounded-full px-1.5 py-0.5 text-xs transition-colors ${
                     activeTab === tab.id
                       ? 'bg-primary/10 text-primary'
-                      : 'bg-gray-200 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400'
+                      : 'bg-gray-200 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400'
                   }`}
                 >
                   {tab.projects.length}
@@ -131,7 +139,7 @@ const MainSection = memo(() => {
         </div>
 
         <div
-          className="overflow-hidden -mx-1 px-1 py-6 -my-6 transition-[height] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+          className="-my-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8px,black_calc(100%_-_8px),transparent)] py-6 transition-[height] duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
           style={{ height: containerHeight === 'auto' ? 'auto' : `${containerHeight + 48}px` }}
         >
           <div
@@ -141,14 +149,14 @@ const MainSection = memo(() => {
             {tabs.map((tab, index) => (
               <div
                 key={tab.id}
-                className="w-full flex-shrink-0 px-2"
-                ref={(el) => {
-                  tabRefs.current[index] = el
+                className="w-full shrink-0 px-2"
+                ref={(element) => {
+                  tabRefs.current[index] = element
                 }}
-                inert={tab.id !== activeTab || undefined}
+                inert={tab.id !== activeTab}
               >
                 <motion.div
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true, margin: '50px' }}
@@ -174,8 +182,10 @@ const MainSection = memo(() => {
                 </motion.div>
 
                 {tab.projects.length === 0 && (
-                  <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/30 rounded-2xl border border-dashed border-gray-200 dark:border-gray-700">
-                    <p className="text-gray-400 dark:text-gray-500">Nothing to see here yet.</p>
+                  <div className="rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-20 text-center transition-colors dark:border-gray-700 dark:bg-gray-800/30">
+                    <p className="text-gray-400 transition-colors dark:text-gray-500">
+                      Nothing to see here yet
+                    </p>
                   </div>
                 )}
               </div>
