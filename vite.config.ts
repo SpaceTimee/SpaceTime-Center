@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import Sitemap from 'vite-plugin-sitemap'
 import { webfontDl } from 'vite-plugin-webfont-dl'
+import { description, name, themeColor, url } from './consts/site'
 import { AtomFeed } from './plugins/atom-feed'
 
 export default defineConfig({
@@ -19,10 +20,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'SpaceTime Center',
-        short_name: 'SpaceTime Center',
-        description: 'Welcome To My Home Page ~',
-        theme_color: '#ff5a00',
+        name,
+        short_name: name,
+        description,
+        theme_color: themeColor,
         icons: [
           {
             src: 'pwa-192x192.png',
@@ -38,12 +39,12 @@ export default defineConfig({
       }
     }),
     Sitemap({
-      hostname: 'https://www.spacetimee.xyz'
+      hostname: url
     }),
     AtomFeed({
-      title: 'SpaceTime Center',
-      description: 'Welcome To My Home Page ~',
-      siteUrl: 'https://www.spacetimee.xyz'
+      title: name,
+      description,
+      url
     })
   ],
   resolve: {

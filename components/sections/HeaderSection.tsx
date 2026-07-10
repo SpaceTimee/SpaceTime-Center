@@ -3,15 +3,39 @@ import { AnimatePresence, motion } from 'motion/react'
 import { Code2, Sparkles } from 'lucide-react'
 import { useCardAnimation } from '@/hooks/useCardAnimation'
 import { useElementHeight } from '@/hooks/useDynamicHeight'
-import { ANIMATION_CONFIG, useHeaderAnimation } from '@/hooks/useHeaderAnimation'
+import { useHeaderAnimation } from '@/hooks/useHeaderAnimation'
 import { useTagInteraction } from '@/hooks/useTagInteraction'
-import { externalLinkProps, sectionIds, springTransition } from '@/consts'
-import { profile } from '@/data'
+import { assets, profile, social } from '@/consts/profile'
+import {
+  avatarMotion,
+  fadeUpMotion,
+  header,
+  reducedMotion,
+  tagFallExit,
+  tagFallTransition
+} from '@/consts/motion'
+import { externalLink, sectionIds } from '@/consts/navigation'
+import {
+  bgTransition,
+  borderTransition,
+  cardSpotlightBorder,
+  cardSpotlightFill,
+  colorTransition,
+  contentWidth,
+  opacityTransition,
+  paintTransition,
+  scrollMargin,
+  tw
+} from '@/consts/styles'
 
-const { MENISCUS_SPREAD: meniscusSpread, WAVE_HEIGHT_FACTOR: waveHeightFactor } = ANIMATION_CONFIG
+const { meniscusSpread, waveHeight } = header
+
+const scaleHover = tw`transition-[scale] ui-transition will-change-[scale] hover:scale-105`
+const scalePeerHover = tw`transition-[scale,box-shadow] ui-transition will-change-[scale] peer-hover:scale-105`
+const bgScaleHover = tw`transition-[background-color,scale] ui-transition will-change-[scale] hover:scale-105`
 
 const waveLayerClass =
-  'motion-reduce:animate-none paused-animations:[animation-play-state:paused] transition-[fill]'
+  'motion-reduce:animate-none paused-animations:[animation-play-state:paused] transition-[fill] ui-transition'
 
 const HeaderSection = memo(() => {
   const borderRef = useRef<HTMLDivElement>(null)
@@ -30,14 +54,13 @@ const HeaderSection = memo(() => {
     spotlightBorder: hfSpotlightBorder
   } = useCardAnimation<HTMLAnchorElement>()
 
-  const { dimensionsRef, prefersReducedMotion, startParallaxAnimation, targetParallaxOffsetRef } =
-    useHeaderAnimation({
-      borderRef,
-      headerRef,
-      imageRef,
-      meniscusRef,
-      waveRef
-    })
+  const { dimensionsRef, prefersReducedMotion, setParallaxTarget } = useHeaderAnimation({
+    borderRef,
+    headerRef,
+    imageRef,
+    meniscusRef,
+    waveRef
+  })
 
   const { fallenTags, handleTagClick, shakingTagIndex } = useTagInteraction()
   const tagsListRef = useRef<HTMLUListElement>(null)
@@ -55,23 +78,19 @@ const HeaderSection = memo(() => {
 
     mouseMoveTickingRef.current = true
     rafIdRef.current = requestAnimationFrame(() => {
-      targetParallaxOffsetRef.current = {
-        x:
-          (event.clientX - (dimensionsRef.current.left - window.scrollX) - dimensionsRef.current.width / 2) /
-          ANIMATION_CONFIG.PARALLAX_FACTOR,
-        y:
-          (event.clientY - (dimensionsRef.current.top - window.scrollY) - dimensionsRef.current.height / 2) /
-          ANIMATION_CONFIG.PARALLAX_FACTOR
-      }
-      startParallaxAnimation()
+      setParallaxTarget(
+        (event.clientX - (dimensionsRef.current.left - window.scrollX) - dimensionsRef.current.width / 2) /
+          header.parallaxFactor,
+        (event.clientY - (dimensionsRef.current.top - window.scrollY) - dimensionsRef.current.height / 2) /
+          header.parallaxFactor
+      )
 
       mouseMoveTickingRef.current = false
     })
   }
 
   const handleMouseLeave = () => {
-    targetParallaxOffsetRef.current = { x: 0, y: 0 }
-    startParallaxAnimation()
+    setParallaxTarget(0, 0)
   }
 
   return (
@@ -81,12 +100,12 @@ const HeaderSection = memo(() => {
       aria-labelledby={`${sectionIds.home}-title`}
       onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
       onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
-      className="relative scroll-mt-24 overflow-hidden px-6 pt-28 pb-16 lg:pt-48 lg:pb-32"
+      className={`relative overflow-hidden px-6 pt-28 pb-16 lg:pt-48 lg:pb-32 ${scrollMargin}`}
     >
       <div className="absolute inset-0 overflow-hidden">
         <img
           ref={imageRef}
-          src="/banner.webp"
+          src={assets.banner}
           alt=""
           onError={(event) => {
             event.currentTarget.hidden = true
@@ -95,43 +114,42 @@ const HeaderSection = memo(() => {
           decoding="async"
           fetchPriority="high"
         />
-        <div className="pointer-events-none absolute inset-0 transition-[background-color] dark:bg-gray-900/90" />
+        <div className={`pointer-events-none absolute inset-0 ${bgTransition} dark:bg-gray-900/90`} />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-5xl">
+      <div className={`relative z-10 mx-auto ${contentWidth}`}>
         <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center">
-          <motion.div
-            className="relative size-28 lg:size-40"
-            initial={{ scale: 0.5, opacity: 0, rotate: -15 }}
-            animate={{ scale: 1, opacity: 1, rotate: 0 }}
-            transition={{ ...springTransition, delay: 0.1 }}
-          >
-            <div className="pointer-events-none absolute inset-0 rounded-full shadow-[0_10px_40px_-10px_color-mix(in_srgb,var(--color-primary)_10%,transparent)] transition-[scale,box-shadow] will-change-[scale] peer-hover:scale-105 peer-hover:shadow-[0_20px_40px_-10px_color-mix(in_srgb,var(--color-primary)_20%,transparent)]" />
+          <motion.div className="relative size-28 lg:size-40" {...avatarMotion}>
+            <div
+              className={`pointer-events-none absolute inset-0 rounded-full shadow-[0_10px_40px_-10px_color-mix(in_srgb,var(--color-primary)_10%,transparent)] ${scalePeerHover} peer-hover:shadow-[0_20px_40px_-10px_color-mix(in_srgb,var(--color-primary)_20%,transparent)]`}
+            />
             <a
-              href="https://github.com/SpaceTimee"
-              {...externalLinkProps}
+              href={social.github}
+              {...externalLink}
               aria-label="Github Profile"
-              className="peer relative block size-full rounded-full transition-[scale] will-change-[scale] hover:scale-105"
+              className={`peer relative block size-full rounded-full ${scaleHover}`}
             >
-              <div className="from-primary size-full rounded-full bg-gradient-to-br to-orange-300 p-[3px]">
-                <div className="relative size-full overflow-hidden rounded-full bg-gray-100 transition-[background-color] dark:bg-gray-800">
+              <div className="size-full rounded-full bg-gradient-to-br from-primary to-orange-300 p-[3px]">
+                <div
+                  className={`relative size-full overflow-hidden rounded-full bg-gray-100 ${bgTransition} dark:bg-gray-800`}
+                >
                   <img
-                    src="/avatar.png"
+                    src={assets.avatar}
                     alt=""
                     onError={(event) => {
                       event.currentTarget.hidden = true
                     }}
-                    className="absolute inset-0 object-cover transition-opacity [image-rendering:pixelated] dark:opacity-0"
+                    className={`absolute inset-0 object-cover ${opacityTransition} [image-rendering:pixelated] dark:opacity-0`}
                     decoding="async"
                     fetchPriority="high"
                   />
                   <img
-                    src="/avatar-dark.png"
+                    src={assets.avatarDark}
                     alt=""
                     onError={(event) => {
                       event.currentTarget.hidden = true
                     }}
-                    className="absolute inset-0 object-cover opacity-0 transition-opacity [image-rendering:pixelated] dark:opacity-100"
+                    className={`absolute inset-0 object-cover opacity-0 ${opacityTransition} [image-rendering:pixelated] dark:opacity-100`}
                     decoding="async"
                     loading="lazy"
                   />
@@ -141,51 +159,47 @@ const HeaderSection = memo(() => {
 
             <motion.a
               ref={hfRef}
-              href="https://huggingface.co/SpaceTimee"
-              {...externalLinkProps}
+              href={social.huggingFace}
+              {...externalLink}
               aria-label="HuggingFace Profile"
               onPointerMove={handleHfPointerMove}
               onPointerLeave={handleHfPointerLeave}
-              className="group absolute -right-1 -bottom-1 z-20 flex size-9 overflow-hidden rounded-full bg-white p-px shadow-md transition-[scale,background-color] will-change-[scale] hover:scale-110 dark:bg-gray-700"
+              className={`group absolute -right-1 -bottom-1 z-20 flex size-9 overflow-hidden rounded-full bg-white p-px shadow-md ${bgScaleHover} dark:bg-gray-700`}
             >
-              <motion.div
-                className="pointer-events-none absolute inset-0 opacity-0 transition-opacity group-hover:opacity-15 dark:group-hover:opacity-30"
-                style={{ backgroundImage: hfSpotlightBorder }}
+              <motion.div className={cardSpotlightBorder} style={{ backgroundImage: hfSpotlightBorder }} />
+
+              <div
+                className={`pointer-events-none absolute inset-0 rounded-full border border-gray-100 ${borderTransition} group-hover:border-primary/30 dark:border-gray-600`}
               />
 
-              <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 rounded-full border border-gray-100 transition-[border-color] dark:border-gray-600" />
-
-              <div className="relative z-10 flex size-full items-center justify-center overflow-hidden rounded-full bg-white transition-[background-color] dark:bg-gray-700">
+              <div
+                className={`relative z-10 flex size-full items-center justify-center overflow-hidden rounded-full bg-white ${bgTransition} dark:bg-gray-700`}
+              >
                 <motion.div
-                  className="pointer-events-none absolute inset-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-5"
+                  className={cardSpotlightFill}
                   style={{ backgroundImage: hfSpotlightBackground }}
                 />
-                <Sparkles aria-hidden className="text-primary relative z-10 size-5" />
+                <Sparkles aria-hidden className="relative z-10 size-5 text-primary" />
               </div>
             </motion.a>
           </motion.div>
 
-          <motion.div
-            className="flex min-w-0 flex-1 flex-col gap-4"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...springTransition, delay: 0.1 }}
-          >
+          <motion.div className="flex min-w-0 flex-1 flex-col gap-4" {...fadeUpMotion}>
             <h1
               id={`${sectionIds.home}-title`}
-              className="font-display text-4xl font-bold tracking-tight drop-shadow-[0_0_6px_white] transition-[filter] lg:text-6xl dark:drop-shadow-none"
+              className="font-display text-4xl font-bold tracking-tight drop-shadow-[0_0_6px_white] transition-[filter] ui-transition lg:text-6xl dark:drop-shadow-none"
             >
-              <span className="from-primary bg-gradient-to-r via-purple-600 to-indigo-600 bg-clip-text text-transparent dark:via-purple-300 dark:to-indigo-300">
+              <span className="bg-gradient-to-r from-primary via-purple-600 to-indigo-600 bg-clip-text text-transparent dark:via-purple-300 dark:to-indigo-300">
                 {profile.name}
               </span>
-              <span className="text-indigo-600 transition-[color] dark:text-indigo-300">.</span>
+              <span className={`text-indigo-600 ${colorTransition} dark:text-indigo-300`}>.</span>
             </h1>
-            <p className="mb-2 text-lg font-medium text-white drop-shadow-[0_1px_3px_rgb(0_0_0_/_0.8)] transition-[color,filter] lg:text-2xl dark:text-gray-400 dark:drop-shadow-none">
+            <p className="mb-2 text-lg font-medium text-white drop-shadow-[0_1px_3px_rgb(0_0_0_/_0.8)] transition-[color,filter] ui-transition lg:text-2xl dark:text-gray-400 dark:drop-shadow-none">
               {profile.description}
             </p>
 
             <div
-              className={`ease-emphasized -m-1.5 overflow-hidden transition-[height,opacity] duration-500 motion-reduce:transition-none ${
+              className={`-m-1.5 overflow-hidden transition-[height,opacity] ui-transition motion-reduce:transition-none ${
                 fallenTags.size === profile.tags.length ? 'opacity-0' : ''
               }`}
               style={tagsListHeight === 'auto' ? undefined : { height: tagsListHeight }}
@@ -197,23 +211,15 @@ const HeaderSection = memo(() => {
                       <motion.li
                         key={`${tag}-${index}`}
                         layout={!prefersReducedMotion}
-                        exit={{ y: 200, rotate: 45, opacity: 0 }}
-                        transition={
-                          prefersReducedMotion
-                            ? { duration: 0 }
-                            : {
-                                duration: 0.5,
-                                ease: 'easeIn',
-                                layout: { duration: 0.5, ease: [0.25, 1, 0.5, 1] }
-                              }
-                        }
+                        exit={tagFallExit}
+                        transition={prefersReducedMotion ? reducedMotion : tagFallTransition}
                       >
                         <button
                           type="button"
                           onClick={() => handleTagClick(index)}
-                          className={`m-1.5 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm font-medium whitespace-nowrap text-gray-600 shadow-sm transition-[color,background-color,border-color] hover:bg-gray-200 motion-reduce:animate-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:bg-gray-600/50 ${shakingTagIndex === index ? 'animate-shake' : ''}`}
+                          className={`m-1.5 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-100 px-3 py-1 text-sm font-medium whitespace-nowrap text-gray-600 shadow-sm ${paintTransition} hover:bg-gray-200 motion-reduce:animate-none dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-300 dark:hover:bg-gray-600/50 ${shakingTagIndex === index ? 'animate-shake' : ''}`}
                         >
-                          <Code2 aria-hidden className="text-primary size-3.5 shrink-0" />
+                          <Code2 aria-hidden className="size-3.5 shrink-0 text-primary" />
                           {tag}
                         </button>
                       </motion.li>
@@ -226,30 +232,30 @@ const HeaderSection = memo(() => {
         </div>
       </div>
 
-      <div className="bg-primary/5 pointer-events-none absolute -top-10 -right-10 size-64 rounded-full blur-3xl" />
+      <div className="pointer-events-none absolute -top-10 -right-10 size-64 rounded-full bg-primary/5 blur-3xl" />
 
       <svg
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 w-full text-white transition-[color] dark:text-gray-900"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 z-20 w-full text-white ${colorTransition} dark:text-gray-900`}
         fill="currentColor"
-        height={waveHeightFactor}
-        viewBox={`0 0 1000 ${waveHeightFactor}`}
+        height={waveHeight}
+        viewBox={`0 0 1000 ${waveHeight}`}
         preserveAspectRatio="none"
         shapeRendering="geometricPrecision"
       >
         <g ref={meniscusRef}>
           <path
-            d={`M 0,0 C 0,${waveHeightFactor * 0.95} ${meniscusSpread * 0.08},${waveHeightFactor} ${meniscusSpread},${waveHeightFactor} L 0,${waveHeightFactor} Z`}
+            d={`M 0,0 C 0,${waveHeight * 0.95} ${meniscusSpread * 0.08},${waveHeight} ${meniscusSpread},${waveHeight} L 0,${waveHeight} Z`}
           />
           <path
-            d={`M 1000,0 C 1000,${waveHeightFactor * 0.95} ${1000 - meniscusSpread * 0.08},${waveHeightFactor} ${1000 - meniscusSpread},${waveHeightFactor} L 1000,${waveHeightFactor} Z`}
+            d={`M 1000,0 C 1000,${waveHeight * 0.95} ${1000 - meniscusSpread * 0.08},${waveHeight} ${1000 - meniscusSpread},${waveHeight} L 1000,${waveHeight} Z`}
           />
         </g>
       </svg>
 
       <div
         ref={borderRef}
-        className="absolute inset-x-0 bottom-0 h-px bg-gray-200 transition-[background-color] dark:bg-gray-800"
+        className={`absolute inset-x-0 bottom-0 h-px bg-gray-200 ${bgTransition} dark:bg-gray-800`}
       />
 
       <div

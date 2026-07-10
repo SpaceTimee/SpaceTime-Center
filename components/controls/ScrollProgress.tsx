@@ -1,16 +1,13 @@
 import { memo, useEffect, useRef, useState } from 'react'
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
+import { followSpring, opacityToggle, progressHideMs } from '@/consts/motion'
 
 const ScrollProgress = memo(() => {
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, {
-    damping: 30,
-    restDelta: 0.001,
-    stiffness: 100
-  })
+  const scaleX = useSpring(scrollYProgress, followSpring)
 
   useMotionValueEvent(scaleX, 'change', () => {
     setIsVisible(true)
@@ -19,7 +16,7 @@ const ScrollProgress = memo(() => {
 
     timeoutRef.current = setTimeout(() => {
       setIsVisible(false)
-    }, 200)
+    }, progressHideMs)
   })
 
   useEffect(
@@ -32,10 +29,11 @@ const ScrollProgress = memo(() => {
   return (
     <motion.div
       aria-hidden
-      className="bg-primary/30 pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px origin-left shadow-[0_0_8px_color-mix(in_srgb,var(--color-primary)_15%,transparent)]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px origin-left bg-primary/30 shadow-[0_0_8px_color-mix(in_srgb,var(--color-primary)_15%,transparent)]"
       style={{ scaleX }}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: isVisible ? 1 : 0 }}
+      initial={opacityToggle.initial}
+      animate={isVisible ? opacityToggle.visible : opacityToggle.hidden}
+      transition={opacityToggle.transition}
     />
   )
 })

@@ -1,9 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { tagFallAt, tagVibrateMs, durationMs } from '@/consts/motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-
-const TAG_FALL_TRIGGER = 10
-const TAG_SHAKE_DURATION_MS = 500
-const TAG_VIBRATE_MS = 50
 
 export function useTagInteraction() {
   const [shakingTagIndex, setShakingTagIndex] = useState<number | null>(null)
@@ -26,19 +23,19 @@ export function useTagInteraction() {
       const currentClicks = (tagClicksRef.current[index] ?? 0) + 1
       tagClicksRef.current[index] = currentClicks
 
-      if (currentClicks >= TAG_FALL_TRIGGER) {
+      if (currentClicks >= tagFallAt) {
         setFallenTags((tags) => new Set(tags).add(index))
         return
       }
 
       setShakingTagIndex(index)
-      if (!prefersReducedMotion) navigator.vibrate?.(TAG_VIBRATE_MS)
+      if (!prefersReducedMotion) navigator.vibrate?.(tagVibrateMs)
 
       if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
       shakeTimeoutRef.current = setTimeout(() => {
         shakeTimeoutRef.current = null
         setShakingTagIndex(null)
-      }, TAG_SHAKE_DURATION_MS)
+      }, durationMs)
     },
     [fallenTags, prefersReducedMotion, shakingTagIndex]
   )

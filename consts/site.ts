@@ -1,0 +1,7 @@
+export const name = 'SpaceTime Center'
+export const namePlain = 'SpaceTime'
+export const nameAccent = 'Center'
+export const url = 'https://www.spacetimee.xyz'
+export const description = 'Welcome To My Home Page ~'
+export const themeColor = '#ff5a00'
+export const version = '1.2.2'

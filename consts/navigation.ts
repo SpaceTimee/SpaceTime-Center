@@ -1,16 +1,5 @@
 import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-react'
-import { ProjectStatus } from '@/types'
-
-export const springTransition = {
-  damping: 20,
-  stiffness: 260,
-  type: 'spring'
-} as const
-
-export const externalLinkProps = {
-  rel: 'noreferrer',
-  target: '_blank'
-} as const
+import { ProjectStatus } from './types'
 
 export const sectionIds = {
   home: 'home',
@@ -59,3 +48,8 @@ export const projectTabs = [
     icon: ListTodo
   }
 ] as const
+
+export const externalLink = {
+  rel: 'noreferrer',
+  target: '_blank'
+} as const

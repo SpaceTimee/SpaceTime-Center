@@ -1,55 +1,4 @@
-import { ProjectStatus, type ContactInfo, type PortalInfo, type ProfileInfo, type ProjectInfo } from '@/types'
-
-export const profile = {
-  name: 'Space Time',
-  description: '个人势 VCoder，独立死灵法师，项目皆为设定，请勿带入现实',
-  tags: ['Web 全栈', '.Net 全端', '营养全面']
-} as const satisfies ProfileInfo
-
-export const portals = [
-  {
-    name: 'SpaceTime Center',
-    description: '个人主页',
-    link: 'https://www.spacetimee.xyz',
-    tags: ['React', 'Tailwind'],
-    type: 'Center'
-  },
-  {
-    name: 'SpaceTime Blog',
-    description: '个人博客',
-    link: 'https://blog.spacetimee.xyz',
-    tags: ['Hexo'],
-    type: 'Blog'
-  },
-  {
-    name: 'SpaceTime Server',
-    description: '多功能服务器',
-    link: 'https://server.spacetimee.xyz',
-    tags: ['ASP.NET Core', 'Vue'],
-    type: 'Server'
-  },
-  {
-    name: 'SpaceTime Docs',
-    description: '文档中心',
-    link: 'https://docs.spacetimee.xyz',
-    tags: ['VitePress'],
-    type: 'Docs'
-  },
-  {
-    name: 'SpaceTime Account',
-    description: '账号中心',
-    link: 'https://accounts.spacetimee.xyz',
-    tags: ['Clerk'],
-    type: 'Account'
-  },
-  {
-    name: 'SpaceTime Status',
-    description: '服务监测',
-    link: 'https://status.spacetimee.xyz',
-    tags: ['BetterStack'],
-    type: 'Status'
-  }
-] as const satisfies readonly PortalInfo[]
+import { ProjectStatus, type ProjectInfo } from './types'
 
 export const projects = [
   {
@@ -291,30 +240,3 @@ export const projects = [
     status: ProjectStatus.Completed
   }
 ] as const satisfies readonly ProjectInfo[]
-
-export const contacts = [
-  {
-    name: 'Email',
-    description: 'Zeus6_6@163.com',
-    link: 'mailto:Zeus6_6@163.com',
-    type: 'Mail'
-  },
-  {
-    name: 'Gmail',
-    description: '4097507@gmail.com',
-    link: 'mailto:4097507@gmail.com',
-    type: 'Mail'
-  },
-  {
-    name: 'Github',
-    description: 'SpaceTimee',
-    link: 'https://github.com/SpaceTimee',
-    type: 'Github'
-  },
-  {
-    name: 'Bilibili',
-    description: 'UID: 171416312',
-    link: 'https://space.bilibili.com/171416312',
-    type: 'Bilibili'
-  }
-] as const satisfies readonly ContactInfo[]

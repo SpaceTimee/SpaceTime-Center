@@ -2,7 +2,17 @@ import { memo, useEffect, useState, type MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'motion/react'
 import { ChevronUp, Menu, Moon, Sun, X } from 'lucide-react'
 import { useTheme } from '@/hooks/useTheme'
-import { sectionIds, sections, springTransition } from '@/consts'
+import { colorBgTransition, colorTransition, surfaceTransition, tw } from '@/consts/styles'
+import { fadeDownMotion, expandCollapse } from '@/consts/motion'
+import { sectionIds, sections } from '@/consts/navigation'
+import { nameAccent, namePlain } from '@/consts/site'
+
+const scaleGroupHover = tw`transition-[scale] ui-transition will-change-[scale] group-hover:scale-105`
+const iconSwap = tw`absolute inset-0 flex items-center justify-center transition-[translate,opacity] ui-transition`
+const navLinkBase = tw`text-gray-600 ${colorBgTransition} hover:bg-primary/5 hover:text-primary dark:text-gray-300 dark:hover:bg-primary/10`
+const navLink = tw`${navLinkBase} flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap`
+const navLinkMobile = tw`${navLinkBase} flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium active:bg-primary/10`
+const navIcon = tw`shrink-0 rounded-full p-2 ${colorBgTransition} hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-800`
 
 const NavbarSection = memo(() => {
   const [isOpen, setIsOpen] = useState(false)
@@ -36,10 +46,10 @@ const NavbarSection = memo(() => {
 
   const onNavClick = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    setIsOpen(false)
     const id = event.currentTarget.hash.slice(1)
     setIsScrollingToTop(id === sectionIds.home && window.scrollY > 0)
-    document.getElementById(id)?.scrollIntoView()
+    setIsOpen(false)
+    setTimeout(() => document.getElementById(id)?.scrollIntoView())
   }
 
   const navContainerClass = `transition-[background-color,backdrop-filter,box-shadow,border-radius,padding] shrink-0 ${
@@ -55,9 +65,7 @@ const NavbarSection = memo(() => {
           ? 'border-b border-gray-100 bg-white/90 shadow-sm backdrop-blur-md dark:border-gray-800 dark:bg-gray-900/90'
           : ''
       }`}
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ ...springTransition, delay: 0.1 }}
+      {...fadeDownMotion}
     >
       <div className="mx-auto max-w-7xl px-6">
         <div className="flex h-16 items-center justify-between gap-6 max-[372px]:justify-center">
@@ -68,9 +76,11 @@ const NavbarSection = memo(() => {
               className="group m-0.5 flex items-center gap-2 rounded-full"
             >
               <div className="size-8 shrink-0 overflow-hidden rounded-full">
-                <div className="bg-primary shadow-primary/30 ease-emphasized relative size-full rounded-full text-white shadow-lg transition-[scale] duration-300 will-change-[scale] group-hover:scale-105">
+                <div
+                  className={`relative size-full rounded-full bg-primary text-white shadow-lg shadow-primary/30 ${scaleGroupHover}`}
+                >
                   <span
-                    className={`absolute inset-0 flex items-center justify-center transition-[translate,opacity] ${
+                    className={`${iconSwap} ${
                       isScrollingToTop
                         ? '-translate-y-full opacity-0'
                         : 'hoverable:group-hover:-translate-y-full hoverable:group-hover:opacity-0'
@@ -87,18 +97,20 @@ const NavbarSection = memo(() => {
                     />
                   </span>
                   <span
-                    className={`absolute inset-0 flex items-center justify-center transition-[translate,opacity] ${
+                    className={`${iconSwap} ${
                       isScrollingToTop
                         ? ''
-                        : 'hoverable:group-hover:translate-y-0 hoverable:group-hover:opacity-100 translate-y-full opacity-0'
+                        : 'translate-y-full opacity-0 hoverable:group-hover:translate-y-0 hoverable:group-hover:opacity-100'
                     }`}
                   >
                     <ChevronUp aria-hidden className="size-5" strokeWidth={3} />
                   </span>
                 </div>
               </div>
-              <span className="mx-1 text-xl font-bold tracking-tight whitespace-nowrap text-gray-900 transition-[color] dark:text-gray-100">
-                SpaceTime <span className="text-primary">Center</span>
+              <span
+                className={`mx-1 text-xl font-bold tracking-tight whitespace-nowrap text-gray-900 ${colorTransition} dark:text-gray-100`}
+              >
+                {namePlain} <span className="text-primary">{nameAccent}</span>
               </span>
             </a>
           </div>
@@ -107,11 +119,7 @@ const NavbarSection = memo(() => {
             <ul className="hidden items-center gap-1 min-[827px]:flex">
               {sections.map((item) => (
                 <li key={item.id}>
-                  <a
-                    href={`#${item.id}`}
-                    onClick={onNavClick}
-                    className="hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap text-gray-600 transition-[color,background-color] dark:text-gray-300"
-                  >
+                  <a href={`#${item.id}`} onClick={onNavClick} className={navLink}>
                     <item.icon aria-hidden className="size-4" />
                     {item.title}
                   </a>
@@ -124,7 +132,7 @@ const NavbarSection = memo(() => {
               aria-label="Toggle Theme"
               aria-pressed={isDark}
               onClick={toggleTheme}
-              className="hover:text-primary shrink-0 rounded-full p-2 text-gray-500 transition-[color,background-color] hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+              className={`${navIcon} text-gray-500 dark:text-gray-400`}
             >
               {isDark ? <Sun aria-hidden className="size-5" /> : <Moon aria-hidden className="size-5" />}
             </button>
@@ -135,7 +143,7 @@ const NavbarSection = memo(() => {
               aria-expanded={isOpen}
               aria-controls="mobile-nav"
               onClick={() => setIsOpen((prev) => !prev)}
-              className="hover:text-primary shrink-0 rounded-full p-2 text-gray-600 transition-[color,background-color] hover:bg-gray-100 max-[432px]:hidden min-[827px]:hidden dark:text-gray-300 dark:hover:bg-gray-800"
+              className={`${navIcon} text-gray-600 max-[432px]:hidden min-[827px]:hidden dark:text-gray-300`}
             >
               {isOpen ? <X aria-hidden className="size-5" /> : <Menu aria-hidden className="size-5" />}
             </button>
@@ -147,20 +155,13 @@ const NavbarSection = memo(() => {
         {isOpen && (
           <motion.div
             id="mobile-nav"
-            className="absolute inset-x-0 top-16 overflow-hidden border-b border-gray-100 bg-white shadow-lg transition-[background-color,border-color] min-[827px]:hidden dark:border-gray-800 dark:bg-gray-900"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ ease: 'easeInOut' }}
+            className={`absolute inset-x-0 top-16 overflow-hidden border-b border-gray-100 bg-white shadow-lg ${surfaceTransition} min-[827px]:hidden dark:border-gray-800 dark:bg-gray-900`}
+            {...expandCollapse}
           >
             <ul className="flex flex-col gap-2 p-4">
               {sections.map((item) => (
                 <li key={item.id}>
-                  <a
-                    href={`#${item.id}`}
-                    onClick={onNavClick}
-                    className="hover:text-primary hover:bg-primary/5 dark:hover:bg-primary/10 active:bg-primary/10 flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium text-gray-600 transition-[color,background-color] dark:text-gray-300"
-                  >
+                  <a href={`#${item.id}`} onClick={onNavClick} className={navLinkMobile}>
                     <item.icon aria-hidden className="size-4" />
                     {item.title}
                   </a>

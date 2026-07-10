@@ -28,6 +28,7 @@
   --ease-emphasized: cubic-bezier(0.25, 1, 0.5, 1);
   --ease-shake: cubic-bezier(0.36, 0.07, 0.19, 0.97);
   --ease-wave: cubic-bezier(0.55, 0.5, 0.45, 0.5);
+  --duration-ui: 500ms;
 
   --animate-shake: shake 0.2s var(--ease-shake) both;
   --animate-wave-1: move-forever 7s var(--ease-wave) -2s infinite;
@@ -40,6 +41,11 @@
 @custom-variant hoverable (@media (hover: hover));
 @custom-variant paused-animations (.paused-animations &);
 
+@utility ui-transition {
+  transition-duration: var(--duration-ui);
+  transition-timing-function: var(--ease-emphasized);
+}
+
 ::-webkit-scrollbar {
   @apply w-2;
 
@@ -47,7 +53,7 @@
     @apply bg-gray-100 dark:bg-gray-900;
   }
   &-thumb {
-    @apply bg-primary rounded;
+    @apply rounded bg-primary;
 
     &:hover {
       @apply bg-primary-hover;

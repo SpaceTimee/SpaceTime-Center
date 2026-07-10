@@ -5,7 +5,6 @@ export const ProjectStatus = {
 } as const
 
 export type ProjectStatus = (typeof ProjectStatus)[keyof typeof ProjectStatus]
-
 export type PortalType = 'Account' | 'Blog' | 'Center' | 'Docs' | 'Server' | 'Status'
 export type ProjectType = 'Github' | 'HuggingFace' | 'Gemini' | 'External'
 export type ContactType = 'Mail' | 'Github' | 'Bilibili'
@@ -31,9 +30,7 @@ interface TypedInfo<TType> {
 }
 
 export type ProfileInfo = NamedInfo & BaseInfo & TaggedInfo
-
 export type PortalInfo = NamedInfo & BaseInfo & LinkedInfo & TaggedInfo & TypedInfo<PortalType>
-
 export type ProjectInfo = NamedInfo &
   BaseInfo &
   TaggedInfo &
@@ -42,5 +39,4 @@ export type ProjectInfo = NamedInfo &
     readonly status: ProjectStatus
     readonly pinned?: boolean
   }
-
 export type ContactInfo = NamedInfo & BaseInfo & LinkedInfo & TypedInfo<ContactType>

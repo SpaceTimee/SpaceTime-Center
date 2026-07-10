@@ -1,17 +1,7 @@
 import { useRef, type PointerEvent } from 'react'
-import { useMotionTemplate, useMotionValue, useSpring, useTransform, type SpringOptions } from 'motion/react'
+import { useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react'
+import { spotlightInner, spotlightOuter, tiltDeg, followSpring } from '@/consts/motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-
-const tiltSpringOptions: SpringOptions = {
-  damping: 30,
-  stiffness: 300
-}
-
-const spotlightSpringOptions: SpringOptions = {
-  damping: 40,
-  mass: 0.5,
-  stiffness: 400
-}
 
 export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const ref = useRef<T | null>(null)
@@ -23,16 +13,16 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const spotlightX = useMotionValue(0)
   const spotlightY = useMotionValue(0)
 
-  const springX = useSpring(tiltX, tiltSpringOptions)
-  const springY = useSpring(tiltY, tiltSpringOptions)
-  const springMouseX = useSpring(spotlightX, spotlightSpringOptions)
-  const springMouseY = useSpring(spotlightY, spotlightSpringOptions)
+  const springX = useSpring(tiltX, followSpring)
+  const springY = useSpring(tiltY, followSpring)
+  const springMouseX = useSpring(spotlightX, followSpring)
+  const springMouseY = useSpring(spotlightY, followSpring)
 
-  const rotateX = useTransform(springY, [-0.5, 0.5], ['10deg', '-10deg'])
-  const rotateY = useTransform(springX, [-0.5, 0.5], ['-10deg', '10deg'])
+  const rotateX = useTransform(springY, [-0.5, 0.5], [`${tiltDeg}deg`, `-${tiltDeg}deg`])
+  const rotateY = useTransform(springX, [-0.5, 0.5], [`-${tiltDeg}deg`, `${tiltDeg}deg`])
 
-  const spotlightBackground = useMotionTemplate`radial-gradient(400px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary-hover), transparent 40%)`
-  const spotlightBorder = useMotionTemplate`radial-gradient(600px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary), transparent 40%)`
+  const spotlightBackground = useMotionTemplate`radial-gradient(${spotlightInner}px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary-hover), transparent 40%)`
+  const spotlightBorder = useMotionTemplate`radial-gradient(${spotlightOuter}px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary), transparent 40%)`
 
   const handlePointerMove = (event: PointerEvent<T>) => {
     if (prefersReducedMotion || !ref.current || event.pointerType === 'touch') return

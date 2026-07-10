@@ -10,7 +10,7 @@ import type { Plugin, ResolvedConfig } from 'vite'
 interface AtomFeedOptions {
   readonly title: string
   readonly description: string
-  readonly siteUrl: string
+  readonly url: string
 }
 
 interface ExistingEntry {
@@ -39,7 +39,7 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
     },
 
     async generateBundle() {
-      const { title, description, siteUrl } = options
+      const { title, description, url } = options
       const now = new Date()
 
       const extractText = (value: unknown) =>
@@ -51,7 +51,17 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
 
       const tmpFile = join(tmpdir(), `atom-feed-data-${Date.now()}.mjs`)
       await build({
-        entryPoints: [join(config.root, 'data.ts')],
+        stdin: {
+          contents: [
+            "export { profile } from './consts/profile.ts'",
+            "export { portals } from './consts/portals.ts'",
+            "export { projects } from './consts/projects.ts'",
+            "export { contacts } from './consts/contacts.ts'"
+          ].join('\n'),
+          resolveDir: config.root,
+          sourcefile: 'atom-feed-data.ts',
+          loader: 'ts'
+        },
         bundle: true,
         outfile: tmpFile,
         format: 'esm',
@@ -62,7 +72,7 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
 
       const existingEntries = new Map<string, ExistingEntry>()
       try {
-        const response = await fetch(`${siteUrl}/atom.xml`)
+        const response = await fetch(`${url}/atom.xml`)
         if (response.ok) {
           const xml = await response.text()
           const parser = new XMLParser({
@@ -126,9 +136,9 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
 
         return {
           title: entry.name,
-          id: `${siteUrl}/#${entry.name.toLowerCase().replaceAll(' ', '-')}`,
+          id: `${url}/#${entry.name.toLowerCase().replaceAll(' ', '-')}`,
           description: entry.description,
-          link: entry.link || siteUrl,
+          link: entry.link || url,
           date: updatedDate,
           category: (entry.tags ?? []).map((tag) => ({ term: tag }))
         }
@@ -141,10 +151,10 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
       const feed = new Feed({
         title,
         description,
-        id: `${siteUrl}/`,
-        link: siteUrl,
+        id: `${url}/`,
+        link: url,
         feedLinks: {
-          atom: `${siteUrl}/atom.xml`
+          atom: `${url}/atom.xml`
         },
         author: {
           name: profile.name

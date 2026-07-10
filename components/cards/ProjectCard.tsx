@@ -11,10 +11,21 @@ import {
   Sparkles
 } from 'lucide-react'
 import GithubIcon from '@/components/icons/GithubIcon'
-import ProjectTooltip from '@/components/ui/ProjectTooltip'
+import ProjectTooltip from '@/components/controls/ProjectTooltip'
+import { CardChrome } from '@/components/controls/CardChrome'
+import { cardShell, cardStage, cardTag, colorBgTransition, colorTransition, tw } from '@/consts/styles'
 import { useCardAnimation } from '@/hooks/useCardAnimation'
-import { externalLinkProps } from '@/consts'
-import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/types'
+import { cardHover } from '@/consts/motion'
+import { externalLink } from '@/consts/navigation'
+import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/consts/types'
+
+const cardStack = tw`relative flex h-full translate-z-[15px] flex-col gap-2`
+const cardTags = tw`flex translate-z-[10px] flex-wrap gap-2`
+const cardTitleLarge = tw`text-xl font-bold text-gray-800 ${colorTransition} group-hover:text-primary dark:text-gray-100`
+const cardDescBody = tw`mb-2 text-sm leading-relaxed text-gray-600 ${colorTransition} dark:text-gray-400`
+const cardIconSquare = tw`rounded-lg bg-primary/10 p-2 text-primary ${colorBgTransition} group-hover:bg-primary group-hover:text-white dark:bg-primary/20`
+const cardMetaIcon = tw`text-gray-300 ${colorTransition} group-hover:text-primary dark:text-gray-600`
+const cardCta = tw`mb-1 flex translate-z-[10px] items-center gap-1 text-xs font-bold whitespace-nowrap text-primary/80 transition-[color,translate] ui-transition group-hover:translate-x-1 group-hover:text-primary`
 
 const PROJECT_STATUS_ICON_MAP = {
   [ProjectStatus.InProgress]: <FolderCog className="size-6" />,
@@ -210,93 +221,62 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
   }, [cardPointerLeave])
 
   return (
-    <div className="h-full perspective-distant">
+    <div className={cardStage}>
       <Wrapper
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
-        {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
+        {...(isLink ? { href: info.link, ...externalLink } : undefined)}
         onPointerEnter={handlePointerEnter}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-        className="group relative block h-full rounded-xl bg-white p-px shadow-sm transition-[background-color] will-change-transform transform-3d dark:bg-gray-800"
-        style={{
-          rotateX,
-          rotateY
-        }}
-        whileHover={{ y: -4 }}
+        className={cardShell}
+        style={{ rotateX, rotateY }}
+        {...cardHover}
       >
-        <div className="pointer-events-none absolute inset-0 -z-1 -translate-z-[15px] rounded-xl opacity-0 shadow-lg transition-opacity duration-500 group-hover:opacity-100" />
-
-        <motion.div
-          className="absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-15 dark:group-hover:opacity-30"
-          style={{ backgroundImage: spotlightBorder }}
-        />
-
-        <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 rounded-xl border border-gray-100 transition-[border-color] dark:border-gray-700" />
-
-        <div className="relative h-full overflow-hidden rounded-[calc(var(--radius-xl)-1px)] bg-white p-6 transition-[background-color] dark:bg-gray-800">
-          <motion.div
-            className="pointer-events-none absolute inset-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-5"
-            style={{ backgroundImage: spotlightBackground }}
-          />
-
-          <div className="bg-primary/5 ease-emphasized pointer-events-none absolute -top-12 -right-12 size-32 transform-gpu rounded-full blur-2xl transition-[scale] duration-500 group-hover:scale-150" />
-
-          <div className="relative flex h-full translate-z-[15px] flex-col gap-2">
+        <CardChrome
+          paddingClass="p-6"
+          spotlightBackground={spotlightBackground}
+          spotlightBorder={spotlightBorder}
+        >
+          <div className={cardStack}>
             <div className="mb-4 flex items-center justify-between">
-              <div
-                aria-hidden
-                className="bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary rounded-lg p-2 transition-[color,background-color] group-hover:text-white"
-              >
+              <div aria-hidden className={cardIconSquare}>
                 {PROJECT_STATUS_ICON_MAP[info.status]}
               </div>
               {info.pinned ? (
-                <div
-                  aria-hidden
-                  className="group-hover:text-primary -rotate-[15deg] text-gray-300 transition-[color] dark:text-gray-600"
-                >
+                <div aria-hidden className={`${cardMetaIcon} -rotate-[15deg]`}>
                   <Pin className="size-5" />
                 </div>
               ) : (
                 isLink && (
-                  <div
-                    aria-hidden
-                    className="group-hover:text-primary text-gray-300 transition-[color] dark:text-gray-600"
-                  >
+                  <div aria-hidden className={cardMetaIcon}>
                     {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
                   </div>
                 )
               )}
             </div>
 
-            <h3 className="group-hover:text-primary text-xl font-bold text-gray-800 transition-[color] dark:text-gray-100">
-              {info.name}
-            </h3>
+            <h3 className={cardTitleLarge}>{info.name}</h3>
 
-            <p className="mb-2 text-sm leading-relaxed text-gray-600 transition-[color] dark:text-gray-400">
-              {info.description}
-            </p>
+            <p className={cardDescBody}>{info.description}</p>
 
             <div className="mt-auto flex items-end justify-between gap-4">
-              <ul className="flex translate-z-[10px] flex-wrap gap-2">
+              <ul className={cardTags}>
                 {info.tags.map((tag) => (
-                  <li
-                    key={`${info.name}-${tag}`}
-                    className="group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-500 transition-[color,background-color,border-color] dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-400"
-                  >
+                  <li key={`${info.name}-${tag}`} className={`${cardTag} px-2.5 py-1`}>
                     {tag}
                   </li>
                 ))}
               </ul>
 
               {isLink && (
-                <span className="text-primary/80 group-hover:text-primary mb-1 flex translate-z-[10px] items-center gap-1 text-xs font-bold whitespace-nowrap transition-[color,translate] group-hover:translate-x-1">
+                <span className={cardCta}>
                   View Project <ChevronRight aria-hidden className="size-3.5" />
                 </span>
               )}
             </div>
           </div>
-        </div>
+        </CardChrome>
       </Wrapper>
 
       <ProjectTooltip ref={tooltipRef} text={tooltipText} isVisible={tooltipVisible} />
