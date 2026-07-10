@@ -56,7 +56,7 @@ export function useHeaderAnimation({
   const updateParallaxState = useCallback(() => {
     if (!imageRef.current) return
 
-    const { BASE_SCALE, MAX_PULL, MENISCUS_SPREAD, WAVE_HEIGHT_FACTOR } = ANIMATION_CONFIG
+    const { MAX_PULL, MENISCUS_SPREAD, WAVE_HEIGHT_FACTOR } = ANIMATION_CONFIG
     const pullDistance = pullDistanceRef.current
 
     if (pullDistance <= 0) {
@@ -81,10 +81,10 @@ export function useHeaderAnimation({
         }
       }
 
-      if (borderRef.current) borderRef.current.style.opacity = '1'
+      if (borderRef.current) borderRef.current.style.removeProperty('opacity')
       if (waveRef.current) {
-        waveRef.current.style.height = '0px'
-        waveRef.current.style.opacity = '0'
+        waveRef.current.style.removeProperty('height')
+        waveRef.current.style.removeProperty('opacity')
       }
     } else {
       if (meniscusRef.current) {
@@ -95,13 +95,16 @@ export function useHeaderAnimation({
       const ratio = Math.min(pullDistance / MAX_PULL, 1)
       if (borderRef.current) borderRef.current.style.opacity = `${1 - ratio}`
       if (waveRef.current) {
-        const height = ratio * WAVE_HEIGHT_FACTOR
-        waveRef.current.style.height = `${height}px`
+        waveRef.current.style.height = `${ratio * WAVE_HEIGHT_FACTOR}px`
         waveRef.current.style.opacity = `${ratio}`
       }
     }
 
-    imageRef.current.style.transform = `scale(${BASE_SCALE}) translate(${currentParallaxOffsetRef.current.x}px, ${currentParallaxOffsetRef.current.y}px)`
+    const { x, y } = currentParallaxOffsetRef.current
+    if (!imageRef.current.style.scale) {
+      imageRef.current.style.scale = String(ANIMATION_CONFIG.BASE_SCALE)
+    }
+    imageRef.current.style.translate = `${x}px ${y}px`
   }, [borderRef, imageRef, meniscusRef, waveRef])
 
   const animateParallaxRef = useRef<(() => void) | null>(null)

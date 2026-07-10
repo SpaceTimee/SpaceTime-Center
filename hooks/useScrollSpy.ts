@@ -60,6 +60,13 @@ export function useScrollSpy(
     const sentinel = document.getElementById('bottom-sentinel')
     if (sentinel) bottomObserver.observe(sentinel)
 
+    const id = location.hash.slice(1)
+    if (sectionTitleById.has(id)) {
+      void document.fonts.ready.then(() => {
+        document.getElementById(id)?.scrollIntoView()
+      })
+    }
+
     return () => {
       sectionObserver.disconnect()
       bottomObserver.disconnect()

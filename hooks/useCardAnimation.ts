@@ -1,10 +1,9 @@
 import { useRef, type PointerEvent } from 'react'
-import { useMotionValue, useSpring, useTransform, type SpringOptions } from 'motion/react'
+import { useMotionTemplate, useMotionValue, useSpring, useTransform, type SpringOptions } from 'motion/react'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 
 const tiltSpringOptions: SpringOptions = {
   damping: 30,
-  mass: 1,
   stiffness: 300
 }
 
@@ -32,17 +31,8 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const rotateX = useTransform(springY, [-0.5, 0.5], ['10deg', '-10deg'])
   const rotateY = useTransform(springX, [-0.5, 0.5], ['-10deg', '10deg'])
 
-  const spotlightBackground = useTransform(
-    [springMouseX, springMouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(400px circle at ${latestX}px ${latestY}px, var(--color-primary-hover), transparent 40%)`
-  )
-
-  const spotlightBorder = useTransform(
-    [springMouseX, springMouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(600px circle at ${latestX}px ${latestY}px, var(--color-primary), transparent 40%)`
-  )
+  const spotlightBackground = useMotionTemplate`radial-gradient(400px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary-hover), transparent 40%)`
+  const spotlightBorder = useMotionTemplate`radial-gradient(600px circle at ${springMouseX}px ${springMouseY}px, var(--color-primary), transparent 40%)`
 
   const handlePointerMove = (event: PointerEvent<T>) => {
     if (prefersReducedMotion || !ref.current || event.pointerType === 'touch') return

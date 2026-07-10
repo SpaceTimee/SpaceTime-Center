@@ -31,11 +31,11 @@ const ScrollProgress = memo(() => {
 
   return (
     <motion.div
-      className="bg-primary/30 pointer-events-none fixed right-0 bottom-0 left-0 z-50 h-[1px] origin-left shadow-[0_0_8px_rgba(255,90,0,0.15)]"
+      aria-hidden
+      className="bg-primary/30 pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px origin-left shadow-[0_0_8px_color-mix(in_srgb,var(--color-primary)_15%,transparent)]"
       style={{ scaleX }}
       initial={{ opacity: 0 }}
       animate={{ opacity: isVisible ? 1 : 0 }}
-      transition={{ opacity: { duration: 0.3 } }}
     />
   )
 })

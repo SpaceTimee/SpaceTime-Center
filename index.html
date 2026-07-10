@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="zh-CN" class="scroll-smooth">
+<html lang="zh-CN" class="scroll-smooth motion-reduce:scroll-auto">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ff5a00" />
     <meta name="description" content="SpaceTime Center - Welcome To My Home Page ~" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="alternate" type="application/atom+xml" title="SpaceTime Center" href="/atom.xml" />
     <link rel="preload" as="image" href="/banner.webp" fetchpriority="high" />
-    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin="anonymous" />
     <link
       href="https://fonts.bunny.net/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..700&family=Tektur:wght@700&display=swap"
       rel="stylesheet"
@@ -23,7 +24,9 @@
     </script>
   </head>
 
-  <body class="bg-white text-gray-900 transition-colors dark:bg-gray-900 dark:text-gray-200">
+  <body
+    class="min-w-min bg-white text-gray-900 transition-[color,background-color] dark:bg-gray-900 dark:text-gray-200"
+  >
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

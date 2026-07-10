@@ -13,7 +13,7 @@ import {
 import GithubIcon from '@/components/icons/GithubIcon'
 import ProjectTooltip from '@/components/ui/ProjectTooltip'
 import { useCardAnimation } from '@/hooks/useCardAnimation'
-import { externalLinkProps, tagPillProps } from '@/consts'
+import { externalLinkProps } from '@/consts'
 import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/types'
 
 const PROJECT_STATUS_ICON_MAP = {
@@ -86,7 +86,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
       left: flipX ? 'auto' : `${clientX + 12}px`,
       right: flipX ? `${window.innerWidth - clientX + 12}px` : 'auto',
       top: flipY ? 'auto' : `${clientY + 12}px`,
-      clipPath: 'inset(-3px round 12px)'
+      clipPath: 'inset(-3px round var(--radius-xl))'
     })
   }, [])
 
@@ -203,85 +203,96 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
       const flipY = tooltip.style.top === 'auto'
       const [top, bottom] = flipY ? ['100%', '-3px'] : ['-3px', '100%']
       const [right, left] = flipX ? ['-3px', '100%'] : ['100%', '-3px']
-      tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round 12px)`
+      tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round var(--radius-xl))`
     }
     cancelFetch()
     clearIntervalRef()
   }, [cardPointerLeave])
 
   return (
-    <div className="h-full [perspective:1200px]">
+    <div className="h-full perspective-distant">
       <Wrapper
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
+        {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
         onPointerEnter={handlePointerEnter}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        className="group relative block h-full rounded-xl bg-white p-px shadow-sm transition-[background-color] will-change-transform transform-3d dark:bg-gray-800"
         style={{
           rotateX,
-          rotateY,
-          transformStyle: 'preserve-3d'
+          rotateY
         }}
-        {...(isLink ? { href: info.link, ...externalLinkProps } : undefined)}
         whileHover={{ y: -4 }}
-        className="group relative flex h-full transform-gpu flex-col rounded-xl bg-white p-[1px] shadow-sm transition-[box-shadow,background-color] will-change-transform dark:bg-gray-800"
       >
-        <div className="pointer-events-none absolute inset-0 z-[-1] [transform:translateZ(-15px)] rounded-xl opacity-0 shadow-lg transition-opacity duration-500 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-0 -z-1 -translate-z-[15px] rounded-xl opacity-0 shadow-lg transition-opacity duration-500 group-hover:opacity-100" />
 
         <motion.div
-          className="absolute inset-0 z-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-[0.15] dark:group-hover:opacity-[0.3]"
-          style={{ background: spotlightBorder }}
+          className="absolute inset-0 rounded-xl opacity-0 transition-opacity group-hover:opacity-15 dark:group-hover:opacity-30"
+          style={{ backgroundImage: spotlightBorder }}
         />
 
-        <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 z-0 rounded-xl border border-gray-100 transition-colors dark:border-gray-700" />
+        <div className="group-hover:border-primary/30 pointer-events-none absolute inset-0 rounded-xl border border-gray-100 transition-[border-color] dark:border-gray-700" />
 
-        <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-[11px] bg-white p-6 transition-colors dark:bg-gray-800">
+        <div className="relative h-full overflow-hidden rounded-[calc(var(--radius-xl)-1px)] bg-white p-6 transition-[background-color] dark:bg-gray-800">
           <motion.div
-            className="pointer-events-none absolute inset-0 z-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-[0.05]"
-            style={{ background: spotlightBackground }}
+            className="pointer-events-none absolute inset-0 opacity-0 mix-blend-screen transition-opacity group-hover:opacity-[0.03] dark:group-hover:opacity-5"
+            style={{ backgroundImage: spotlightBackground }}
           />
 
-          <div className="bg-primary/5 pointer-events-none absolute -top-12 -right-12 size-32 transform-gpu rounded-full blur-2xl transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform group-hover:scale-150" />
+          <div className="bg-primary/5 ease-emphasized pointer-events-none absolute -top-12 -right-12 size-32 transform-gpu rounded-full blur-2xl transition-[scale] duration-500 group-hover:scale-150" />
 
-          <div className="relative z-20 flex h-full [transform:translateZ(15px)] flex-col space-y-2">
+          <div className="relative flex h-full translate-z-[15px] flex-col gap-2">
             <div className="mb-4 flex items-center justify-between">
-              <div className="bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary rounded-lg p-2 transition-colors group-hover:text-white">
+              <div
+                aria-hidden
+                className="bg-primary/10 dark:bg-primary/20 text-primary group-hover:bg-primary rounded-lg p-2 transition-[color,background-color] group-hover:text-white"
+              >
                 {PROJECT_STATUS_ICON_MAP[info.status]}
               </div>
               {info.pinned ? (
-                <div className="group-hover:text-primary rotate-[-15deg] text-gray-300 transition-colors dark:text-gray-600">
+                <div
+                  aria-hidden
+                  className="group-hover:text-primary -rotate-[15deg] text-gray-300 transition-[color] dark:text-gray-600"
+                >
                   <Pin className="size-5" />
                 </div>
               ) : (
                 isLink && (
-                  <div className="group-hover:text-primary text-gray-300 transition-colors dark:text-gray-600">
+                  <div
+                    aria-hidden
+                    className="group-hover:text-primary text-gray-300 transition-[color] dark:text-gray-600"
+                  >
                     {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
                   </div>
                 )
               )}
             </div>
 
-            <h3 className="group-hover:text-primary text-xl font-bold text-gray-800 transition-colors dark:text-gray-100">
+            <h3 className="group-hover:text-primary text-xl font-bold text-gray-800 transition-[color] dark:text-gray-100">
               {info.name}
             </h3>
 
-            <p className="mb-4 text-sm leading-relaxed text-gray-600 transition-colors dark:text-gray-400">
+            <p className="mb-2 text-sm leading-relaxed text-gray-600 transition-[color] dark:text-gray-400">
               {info.description}
             </p>
 
             <div className="mt-auto flex items-end justify-between gap-4">
-              <div className="flex [transform:translateZ(10px)] flex-wrap gap-2">
+              <ul className="flex translate-z-[10px] flex-wrap gap-2">
                 {info.tags.map((tag) => (
-                  <span key={`${info.name}-${tag}`} {...tagPillProps.md}>
+                  <li
+                    key={`${info.name}-${tag}`}
+                    className="group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-500 transition-[color,background-color,border-color] dark:border-gray-600 dark:bg-gray-700/50 dark:text-gray-400"
+                  >
                     {tag}
-                  </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               {isLink && (
-                <div className="text-primary/80 group-hover:text-primary relative z-20 mb-1 flex [transform:translateZ(10px)] items-center text-xs font-bold whitespace-nowrap transition-all group-hover:translate-x-1">
-                  View Project <ChevronRight className="ml-1 size-3.5" />
-                </div>
+                <span className="text-primary/80 group-hover:text-primary mb-1 flex translate-z-[10px] items-center gap-1 text-xs font-bold whitespace-nowrap transition-[color,translate] group-hover:translate-x-1">
+                  View Project <ChevronRight aria-hidden className="size-3.5" />
+                </span>
               )}
             </div>
           </div>

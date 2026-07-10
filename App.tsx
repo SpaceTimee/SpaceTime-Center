@@ -10,7 +10,7 @@ export default function App() {
   useScrollSpy(sections)
 
   return (
-    <div className="selection:bg-primary/20 selection:text-primary relative min-h-screen font-sans text-gray-700 transition-colors dark:text-gray-200">
+    <div className="selection:bg-primary/20 selection:text-primary min-h-screen text-gray-700 transition-[color] dark:text-gray-200">
       <NavbarSection />
       <HeaderSection />
       <MainSection />

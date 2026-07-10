@@ -8,19 +8,9 @@ export const springTransition = {
 } as const
 
 export const externalLinkProps = {
-  rel: 'noopener noreferrer',
+  rel: 'noreferrer',
   target: '_blank'
 } as const
-
-const tagPillClass =
-  'inline-block text-xs font-semibold rounded-md bg-gray-50 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-gray-600 group-hover:border-primary/30 group-hover:bg-primary/5 group-hover:text-primary dark:group-hover:text-primary transition-colors'
-
-export const tagPillProps = {
-  md: { className: `${tagPillClass} px-2.5 py-1` },
-  sm: { className: `${tagPillClass} px-2 py-0.5` }
-} as const
-
-export const cardGridClass = 'grid grid-cols-1 md:grid-cols-2 gap-4'
 
 export const sectionIds = {
   home: 'home',
