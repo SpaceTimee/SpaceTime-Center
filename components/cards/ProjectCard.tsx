@@ -19,13 +19,7 @@ import {
 import { motion } from 'motion/react'
 import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 
-const cardStack = tw`relative flex h-full translate-z-[15px] flex-col gap-2`
-const cardTags = tw`flex translate-z-[10px] flex-wrap gap-2`
-const cardTitleLarge = tw`text-xl font-bold text-gray-800 ${colorTransition} group-hover:text-primary dark:text-gray-100`
-const cardDescBody = tw`mb-2 text-sm leading-relaxed text-gray-600 ${colorTransition} dark:text-gray-400`
-const cardIconSquare = tw`rounded-lg bg-primary/10 p-2 text-primary ${colorBgTransition} group-hover:bg-primary group-hover:text-white dark:bg-primary/20`
 const cardMetaIcon = tw`text-gray-300 ${colorTransition} group-hover:text-primary dark:text-gray-600`
-const cardCta = tw`mb-1 flex translate-z-[10px] items-center gap-1 text-xs font-bold whitespace-nowrap text-primary/80 transition-[color,translate] ui-transition group-hover:translate-x-1 group-hover:text-primary`
 
 const PROJECT_STATUS_ICON_MAP = {
   [ProjectStatus.InProgress]: <FolderCog className="size-6" />,
@@ -54,8 +48,7 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
     spotlightBorder
   } = useCardAnimation()
 
-  const isLink = !!info.link
-  const Wrapper = isLink ? motion.a : motion.div
+  const Wrapper = info.link ? motion.a : motion.div
 
   const [tooltipText, setTooltipText] = useState('')
   const [tooltipVisible, setTooltipVisible] = useState(false)
@@ -225,7 +218,7 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
       <Wrapper
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
-        {...(isLink ? { href: info.link, ...externalLink } : undefined)}
+        {...(info.link ? { href: info.link, ...externalLink } : undefined)}
         onPointerEnter={(event) => void handlePointerEnter(event)}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
@@ -238,30 +231,36 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
           spotlightBackground={spotlightBackground}
           spotlightBorder={spotlightBorder}
         >
-          <div className={cardStack}>
+          <div className="relative flex h-full translate-z-3.75 flex-col gap-2">
             <div className="mb-4 flex items-center justify-between">
-              <div aria-hidden className={cardIconSquare}>
+              <div
+                aria-hidden
+                className={`rounded-lg bg-primary/10 p-2 text-primary ${colorBgTransition} group-hover:bg-primary group-hover:text-white dark:bg-primary/20`}
+              >
                 {PROJECT_STATUS_ICON_MAP[info.status]}
               </div>
               {info.pinned ? (
-                <div aria-hidden className={`${cardMetaIcon} -rotate-[15deg]`}>
+                <div aria-hidden className={`${cardMetaIcon} -rotate-15`}>
                   <Pin className="size-5" />
                 </div>
-              ) : (
-                isLink && (
-                  <div aria-hidden className={cardMetaIcon}>
-                    {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
-                  </div>
-                )
-              )}
+              ) : info.link ? (
+                <div aria-hidden className={cardMetaIcon}>
+                  {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
+                </div>
+              ) : null}
             </div>
 
-            <h3 className={cardTitleLarge}>{info.name}</h3>
-
-            <p className={cardDescBody}>{info.description}</p>
+            <h3
+              className={`text-xl font-bold text-gray-800 ${colorTransition} group-hover:text-primary dark:text-gray-100`}
+            >
+              {info.name}
+            </h3>
+            <p className={`mb-2 text-sm leading-relaxed text-gray-600 ${colorTransition} dark:text-gray-400`}>
+              {info.description}
+            </p>
 
             <div className="mt-auto flex items-end justify-between gap-4">
-              <ul className={cardTags}>
+              <ul className="flex translate-z-2.5 flex-wrap gap-2">
                 {info.tags.map((tag) => (
                   <li key={`${info.name}-${tag}`} className={`${cardTag} px-2.5 py-1`}>
                     {tag}
@@ -269,8 +268,8 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
                 ))}
               </ul>
 
-              {isLink && (
-                <span className={cardCta}>
+              {info.link && (
+                <span className="mb-1 flex translate-z-2.5 items-center gap-1 text-xs font-bold whitespace-nowrap text-primary/80 transition-[color,translate] motion-emphasized group-hover:translate-x-1 group-hover:text-primary">
                   View Project <ChevronRight aria-hidden className="size-3.5" />
                 </span>
               )}

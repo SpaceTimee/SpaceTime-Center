@@ -277,7 +277,7 @@ export function useHeaderAnimation({
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          headerRef.current?.classList.toggle('paused-animations', !entry.isIntersecting)
+          headerRef.current?.classList.toggle('paused', !entry.isIntersecting)
         }
       },
       { threshold: 0 }

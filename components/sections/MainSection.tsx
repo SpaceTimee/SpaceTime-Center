@@ -5,17 +5,17 @@ import { projectTabs, sectionIds, sections } from '@/consts/navigation'
 import { portals } from '@/consts/portals'
 import { projects } from '@/consts/projects'
 import {
+  bgBorderTransition,
   bgTransition,
   cardGrid,
   colorBgTransition,
   colorTransition,
-  contentWidth,
+  contentContainer,
   mutedText,
   scrollMargin,
   sectionIcon,
   sectionLabel,
   sectionTitle,
-  surfaceTransition,
   tw
 } from '@/consts/styles'
 import { ProjectStatus, type ProjectInfo } from '@/consts/types'
@@ -23,7 +23,9 @@ import { useDynamicHeight } from '@/hooks/useDynamicHeight'
 import { motion } from 'motion/react'
 import { memo, useRef, useState } from 'react'
 
-const sectionHeading = tw`text-2xl font-bold ${sectionTitle}`
+const sectionHeading = tw`text-2xl ${sectionTitle}`
+const tabIndicatorTranslate = ['', 'translate-x-full', 'translate-x-200'] as const
+const tabPanelTranslate = ['', '-translate-x-full', '-translate-x-200'] as const
 
 const projectsByStatus = Object.groupBy<ProjectStatus, ProjectInfo>(projects, ({ status }) => status)
 
@@ -46,7 +48,7 @@ const MainSection = memo(function MainSection() {
   const containerHeight = useDynamicHeight(activeTabIndex, tabRefs)
 
   return (
-    <main className={`relative z-20 mx-auto flex flex-col gap-16 px-6 py-16 ${contentWidth}`}>
+    <main className={`relative z-20 flex flex-col gap-16 py-16 ${contentContainer}`}>
       <section
         id={sectionIds.portals}
         aria-labelledby={`${sectionIds.portals}-title`}
@@ -58,6 +60,7 @@ const MainSection = memo(function MainSection() {
             {portalsSection?.title}
           </h2>
         </div>
+
         <motion.div className={cardGrid} {...staggerInView}>
           {portals.map((portal) => (
             <motion.div key={portal.link} variants={staggerItem}>
@@ -87,11 +90,8 @@ const MainSection = memo(function MainSection() {
           >
             <div
               aria-hidden
-              className={`absolute inset-y-1 left-1 w-[calc((100%-0.5rem)/3)] rounded-lg bg-white shadow-sm transition-[translate,background-color] ui-transition dark:bg-gray-700 ${
-                activeTabIndex === 0 ? '' : activeTabIndex === 1 ? 'translate-x-full' : 'translate-x-[200%]'
-              }`}
+              className={`absolute inset-y-1 left-1 w-tab-indicator rounded-lg bg-white shadow-sm transition-[translate,background-color] motion-emphasized dark:bg-gray-700 ${tabIndicatorTranslate[activeTabIndex]}`}
             />
-
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -101,20 +101,12 @@ const MainSection = memo(function MainSection() {
                 aria-selected={activeTab === tab.id}
                 aria-controls={`${sectionIds.projects}-panel-${tab.id}`}
                 onClick={() => setActiveTab(tab.id)}
-                className={`z-10 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${colorTransition} ${
-                  activeTab === tab.id
-                    ? 'text-primary'
-                    : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
-                }`}
+                className={`z-10 flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium ${colorTransition} ${activeTab === tab.id ? 'text-primary' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'}`}
               >
                 <tab.icon aria-hidden className="size-4 shrink-0" />
-                <span className="max-[454px]:sr-only">{tab.title}</span>
+                <span className="max-tab:sr-only">{tab.title}</span>
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-xs ${colorBgTransition} ${
-                    activeTab === tab.id
-                      ? 'bg-primary/10 text-primary'
-                      : 'bg-gray-200 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400'
-                  }`}
+                  className={`rounded-full px-1.5 py-0.5 text-xs ${colorBgTransition} ${activeTab === tab.id ? 'bg-primary/10 text-primary' : 'bg-gray-200 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400'}`}
                 >
                   {tab.projects.length}
                 </span>
@@ -124,13 +116,11 @@ const MainSection = memo(function MainSection() {
         </div>
 
         <div
-          className="-my-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8px,black_calc(100%_-_8px),transparent)] py-6 transition-[height] ui-transition contain-inline-size"
-          style={containerHeight === 'auto' ? undefined : { height: `${containerHeight + 48}px` }}
+          className="-my-6 overflow-hidden mask-fade-x py-6 transition-[height] motion-emphasized contain-inline-size"
+          style={containerHeight === 'auto' ? undefined : { height: containerHeight + 48 }}
         >
           <div
-            className={`flex items-start transition-[translate] ui-transition will-change-[translate] ${
-              activeTabIndex === 0 ? '' : activeTabIndex === 1 ? '-translate-x-full' : '-translate-x-[200%]'
-            }`}
+            className={`flex items-start transition-[translate] motion-emphasized will-change-transform ${tabPanelTranslate[activeTabIndex]}`}
           >
             {tabs.map((tab, index) => (
               <div
@@ -155,7 +145,7 @@ const MainSection = memo(function MainSection() {
 
                 {tab.projects.length === 0 && (
                   <div
-                    className={`rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-20 text-center ${surfaceTransition} dark:border-gray-700 dark:bg-gray-800/30`}
+                    className={`rounded-2xl border border-dashed border-gray-200 bg-gray-50 py-20 text-center ${bgBorderTransition} dark:border-gray-700 dark:bg-gray-800/30`}
                   >
                     <p className={mutedText}>Nothing to see here yet</p>
                   </div>

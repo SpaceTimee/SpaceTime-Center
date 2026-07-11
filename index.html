@@ -6,6 +6,7 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ff5a00" />
     <meta name="description" content="Welcome To My Home Page ~" />
+
     <link rel="canonical" href="https://www.spacetimee.xyz/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="alternate" type="application/atom+xml" title="SpaceTime Center" href="/atom.xml" />
@@ -16,7 +17,9 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/index.css" />
+
     <title>SpaceTime Center</title>
+
     <script>
       const savedTheme = localStorage.getItem('theme')
       const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
@@ -24,7 +27,7 @@
     </script>
   </head>
   <body
-    class="min-h-screen min-w-min bg-white text-gray-700 transition-[color,background-color] ui-transition selection:bg-primary/20 selection:text-primary dark:bg-gray-900 dark:text-gray-200"
+    class="min-h-screen min-w-min bg-white text-gray-700 transition-[color,background-color] motion-emphasized selection:bg-primary/20 selection:text-primary dark:bg-gray-900 dark:text-gray-200"
   >
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

@@ -5,27 +5,27 @@ import { sectionIds, sections } from '@/consts/navigation'
 import { profile } from '@/consts/profile'
 import { version } from '@/consts/site'
 import {
-  borderTransition,
+  bgBorderTransition,
   cardGrid,
-  contentWidth,
+  contentContainer,
   mutedText,
   sectionIcon,
   sectionLabel,
   sectionTitle,
-  surfaceTransition
+  tw
 } from '@/consts/styles'
 import { motion } from 'motion/react'
 import { memo } from 'react'
 
 const contactSection = sections.find((section) => section.id === sectionIds.contact)
+const footerDivider = tw`border-t border-gray-100 dark:border-gray-700`
+const footerCaption = tw`text-sm ${mutedText}`
 
 const FooterSection = memo(function FooterSection() {
   return (
     <>
-      <footer
-        className={`border-t border-gray-100 bg-white pt-16 ${surfaceTransition} dark:border-gray-700 dark:bg-gray-800`}
-      >
-        <div className={`mx-auto px-6 ${contentWidth}`}>
+      <footer className={`${footerDivider} bg-white pt-16 ${bgBorderTransition} dark:bg-gray-800`}>
+        <div className={contentContainer}>
           <section
             id={sectionIds.contact}
             aria-labelledby={`${sectionIds.contact}-title`}
@@ -33,10 +33,7 @@ const FooterSection = memo(function FooterSection() {
           >
             <div className={`mb-8 ${sectionLabel} justify-center`}>
               {contactSection?.icon ? <contactSection.icon aria-hidden className={sectionIcon} /> : null}
-              <h2
-                id={`${sectionIds.contact}-title`}
-                className={`text-3xl font-bold tracking-tight ${sectionTitle}`}
-              >
+              <h2 id={`${sectionIds.contact}-title`} className={`text-3xl tracking-tight ${sectionTitle}`}>
                 {contactSection?.title}
               </h2>
             </div>
@@ -50,20 +47,21 @@ const FooterSection = memo(function FooterSection() {
             </motion.div>
           </section>
 
-          <p
-            className={`mt-16 flex flex-col items-center gap-1 border-t border-gray-100 py-8 ${borderTransition} dark:border-gray-700`}
+          <div
+            className={`mt-16 flex flex-col items-center gap-1 ${footerDivider} py-8 transition-[border-color] motion-emphasized`}
           >
-            <small className={`text-sm font-medium ${mutedText}`}>
+            <small className={`${footerCaption} font-medium`}>
               Developer{' '}
               <span aria-hidden className="mx-0.5 text-red-500">
                 ❤️
               </span>{' '}
               {profile.name}
             </small>
-            <small className={`text-sm ${mutedText}`}>Ver. {version}</small>
-          </p>
+            <small className={footerCaption}>Ver. {version}</small>
+          </div>
         </div>
       </footer>
+
       <div id="bottom-sentinel" aria-hidden className="pointer-events-none h-px opacity-0" />
     </>
   )

@@ -4,12 +4,12 @@ import { cardHover } from '@/consts/motion'
 import { externalLink } from '@/consts/navigation'
 import {
   cardArrow,
-  cardDesc,
-  cardIconRound,
+  cardContent,
+  cardDescription,
+  cardIcon,
   cardRow,
   cardShell,
   cardStage,
-  cardTextCol,
   cardTitle
 } from '@/consts/styles'
 import type { ContactInfo, ContactType } from '@/consts/types'
@@ -50,12 +50,12 @@ const ContactCard = memo(function ContactCard({ info }: { info: ContactInfo }) {
       >
         <CardChrome spotlightBackground={spotlightBackground} spotlightBorder={spotlightBorder}>
           <div className={cardRow}>
-            <div aria-hidden className={cardIconRound}>
+            <div aria-hidden className={cardIcon}>
               {CONTACT_TYPE_ICON_MAP[info.type ?? 'Default']}
             </div>
-            <div className={cardTextCol}>
+            <div className={cardContent}>
               <h3 className={cardTitle}>{info.name}</h3>
-              <p className={cardDesc}>{info.description}</p>
+              <p className={cardDescription}>{info.description}</p>
             </div>
             <ChevronRight aria-hidden className={cardArrow} />
           </div>

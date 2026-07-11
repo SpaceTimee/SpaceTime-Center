@@ -22,7 +22,7 @@ const ScrollProgress = memo(function ScrollProgress() {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px origin-left bg-primary/30 shadow-[0_0_8px_color-mix(in_srgb,var(--color-primary)_15%,transparent)]"
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 h-px origin-left bg-primary/30 shadow-progress"
       style={{ scaleX }}
       initial={opacityToggle.initial}
       animate={isVisible ? opacityToggle.visible : opacityToggle.hidden}

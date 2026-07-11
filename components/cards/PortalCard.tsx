@@ -3,13 +3,13 @@ import { cardHover } from '@/consts/motion'
 import { externalLink } from '@/consts/navigation'
 import {
   cardArrow,
-  cardDesc,
-  cardIconRound,
+  cardContent,
+  cardDescription,
+  cardIcon,
   cardRow,
   cardShell,
   cardStage,
   cardTag,
-  cardTextCol,
   cardTitle
 } from '@/consts/styles'
 import type { PortalInfo, PortalType } from '@/consts/types'
@@ -53,12 +53,12 @@ const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
       >
         <CardChrome spotlightBackground={spotlightBackground} spotlightBorder={spotlightBorder}>
           <div className={cardRow}>
-            <div aria-hidden className={cardIconRound}>
+            <div aria-hidden className={cardIcon}>
               {PORTAL_TYPE_ICON_MAP[info.type ?? 'Default']}
             </div>
-            <div className={cardTextCol}>
+            <div className={cardContent}>
               <h3 className={cardTitle}>{info.name}</h3>
-              <p className={`mb-1 ${cardDesc}`}>{info.description}</p>
+              <p className={`mb-1 ${cardDescription}`}>{info.description}</p>
               <ul className="flex flex-wrap gap-2">
                 {info.tags.map((tag) => (
                   <li key={`${info.name}-${tag}`} className={`${cardTag} px-2 py-0.5`}>
