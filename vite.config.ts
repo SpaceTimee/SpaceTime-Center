@@ -9,9 +9,7 @@ import { description, name, themeColor, url } from './consts/site'
 import { AtomFeed } from './plugins/atom-feed'
 
 export default defineConfig({
-  server: {
-    host: '0.0.0.0'
-  },
+  server: { host: '0.0.0.0' },
   plugins: [
     react(),
     tailwindcss(),
@@ -38,18 +36,12 @@ export default defineConfig({
         ]
       }
     }),
-    Sitemap({
-      hostname: url
-    }),
+    Sitemap({ hostname: url }),
     AtomFeed({
       title: name,
       description,
       url
     })
   ],
-  resolve: {
-    alias: {
-      '@': import.meta.dirname
-    }
-  }
+  resolve: { alias: { '@': import.meta.dirname } }
 })

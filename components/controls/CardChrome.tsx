@@ -1,5 +1,3 @@
-import type { ReactNode } from 'react'
-import { motion, type MotionValue } from 'motion/react'
 import {
   cardBlob,
   cardBorder,
@@ -8,6 +6,8 @@ import {
   cardSpotlightBorder,
   cardSpotlightFill
 } from '@/consts/styles'
+import { motion, type MotionValue } from 'motion/react'
+import type { ReactNode } from 'react'
 
 interface CardChromeProps {
   readonly children: ReactNode
@@ -16,7 +16,7 @@ interface CardChromeProps {
   readonly spotlightBorder: MotionValue<string>
 }
 
-export function CardChrome({
+export default function CardChrome({
   children,
   paddingClass = 'p-5',
   spotlightBackground,

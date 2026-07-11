@@ -1,8 +1,8 @@
-import { memo, useEffect, useRef, useState } from 'react'
-import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
 import { followSpring, opacityToggle, progressHideMs } from '@/consts/motion'
+import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
+import { memo, useEffect, useRef, useState } from 'react'
 
-const ScrollProgress = memo(() => {
+const ScrollProgress = memo(function ScrollProgress() {
   const [isVisible, setIsVisible] = useState(false)
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -14,17 +14,10 @@ const ScrollProgress = memo(() => {
 
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
 
-    timeoutRef.current = setTimeout(() => {
-      setIsVisible(false)
-    }, progressHideMs)
+    timeoutRef.current = setTimeout(() => setIsVisible(false), progressHideMs)
   })
 
-  useEffect(
-    () => () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    },
-    []
-  )
+  useEffect(() => () => void (timeoutRef.current && clearTimeout(timeoutRef.current)), [])
 
   return (
     <motion.div

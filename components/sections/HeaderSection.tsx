@@ -1,11 +1,3 @@
-import { memo, useEffect, useRef, type MouseEvent } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import { Code2, Sparkles } from 'lucide-react'
-import { useCardAnimation } from '@/hooks/useCardAnimation'
-import { useElementHeight } from '@/hooks/useDynamicHeight'
-import { useHeaderAnimation } from '@/hooks/useHeaderAnimation'
-import { useTagInteraction } from '@/hooks/useTagInteraction'
-import { assets, profile, social } from '@/consts/profile'
 import {
   avatarMotion,
   fadeUpMotion,
@@ -15,6 +7,7 @@ import {
   tagFallTransition
 } from '@/consts/motion'
 import { externalLink, sectionIds } from '@/consts/navigation'
+import { assets, profile, social } from '@/consts/profile'
 import {
   bgTransition,
   borderTransition,
@@ -27,6 +20,13 @@ import {
   scrollMargin,
   tw
 } from '@/consts/styles'
+import { useCardAnimation } from '@/hooks/useCardAnimation'
+import { useElementHeight } from '@/hooks/useDynamicHeight'
+import { useHeaderAnimation } from '@/hooks/useHeaderAnimation'
+import { useTagInteraction } from '@/hooks/useTagInteraction'
+import { Code2, Sparkles } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { memo, useEffect, useRef, type MouseEvent } from 'react'
 
 const { meniscusSpread, waveHeight } = header
 
@@ -37,7 +37,7 @@ const bgScaleHover = tw`transition-[background-color,scale] ui-transition will-c
 const waveLayerClass =
   'motion-reduce:animate-none paused-animations:[animation-play-state:paused] transition-[fill] ui-transition'
 
-const HeaderSection = memo(() => {
+const HeaderSection = memo(function HeaderSection() {
   const borderRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLElement>(null)
   const imageRef = useRef<HTMLImageElement>(null)
@@ -66,12 +66,7 @@ const HeaderSection = memo(() => {
   const tagsListRef = useRef<HTMLUListElement>(null)
   const tagsListHeight = useElementHeight(tagsListRef)
 
-  useEffect(
-    () => () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
-    },
-    []
-  )
+  useEffect(() => () => void (rafIdRef.current && cancelAnimationFrame(rafIdRef.current)), [])
 
   const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
     if (!headerRef.current || mouseMoveTickingRef.current || prefersReducedMotion) return
@@ -89,9 +84,7 @@ const HeaderSection = memo(() => {
     })
   }
 
-  const handleMouseLeave = () => {
-    setParallaxTarget(0, 0)
-  }
+  const handleMouseLeave = () => setParallaxTarget(0, 0)
 
   return (
     <header
@@ -107,9 +100,7 @@ const HeaderSection = memo(() => {
           ref={imageRef}
           src={assets.banner}
           alt=""
-          onError={(event) => {
-            event.currentTarget.hidden = true
-          }}
+          onError={(event) => (event.currentTarget.hidden = true)}
           className="size-full object-cover will-change-[translate]"
           decoding="async"
           fetchPriority="high"
@@ -136,9 +127,7 @@ const HeaderSection = memo(() => {
                   <img
                     src={assets.avatar}
                     alt=""
-                    onError={(event) => {
-                      event.currentTarget.hidden = true
-                    }}
+                    onError={(event) => (event.currentTarget.hidden = true)}
                     className={`absolute inset-0 object-cover ${opacityTransition} [image-rendering:pixelated] dark:opacity-0`}
                     decoding="async"
                     fetchPriority="high"
@@ -146,9 +135,7 @@ const HeaderSection = memo(() => {
                   <img
                     src={assets.avatarDark}
                     alt=""
-                    onError={(event) => {
-                      event.currentTarget.hidden = true
-                    }}
+                    onError={(event) => (event.currentTarget.hidden = true)}
                     className={`absolute inset-0 object-cover opacity-0 ${opacityTransition} [image-rendering:pixelated] dark:opacity-100`}
                     decoding="async"
                     loading="lazy"

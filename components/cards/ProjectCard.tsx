@@ -1,5 +1,11 @@
-import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
-import { motion } from 'motion/react'
+import CardChrome from '@/components/controls/CardChrome'
+import ProjectTooltip from '@/components/controls/ProjectTooltip'
+import GithubIcon from '@/components/icons/GithubIcon'
+import { cardHover } from '@/consts/motion'
+import { externalLink } from '@/consts/navigation'
+import { cardShell, cardStage, cardTag, colorBgTransition, colorTransition, tw } from '@/consts/styles'
+import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/consts/types'
+import { useCardAnimation } from '@/hooks/useCardAnimation'
 import {
   Brain,
   ChevronRight,
@@ -10,14 +16,8 @@ import {
   Pin,
   Sparkles
 } from 'lucide-react'
-import GithubIcon from '@/components/icons/GithubIcon'
-import ProjectTooltip from '@/components/controls/ProjectTooltip'
-import { CardChrome } from '@/components/controls/CardChrome'
-import { cardShell, cardStage, cardTag, colorBgTransition, colorTransition, tw } from '@/consts/styles'
-import { useCardAnimation } from '@/hooks/useCardAnimation'
-import { cardHover } from '@/consts/motion'
-import { externalLink } from '@/consts/navigation'
-import { ProjectStatus, type ProjectInfo, type ProjectType } from '@/consts/types'
+import { motion } from 'motion/react'
+import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 
 const cardStack = tw`relative flex h-full translate-z-[15px] flex-col gap-2`
 const cardTags = tw`flex translate-z-[10px] flex-wrap gap-2`
@@ -43,7 +43,7 @@ const PROJECT_TYPE_ICON_MAP = {
 
 const summaryCache = new Map<string, string>()
 
-const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
+const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
   const {
     ref,
     handlePointerLeave: cardPointerLeave,
@@ -52,7 +52,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
     rotateY,
     spotlightBackground,
     spotlightBorder
-  } = useCardAnimation<HTMLElement>()
+  } = useCardAnimation()
 
   const isLink = !!info.link
   const Wrapper = isLink ? motion.a : motion.div
@@ -226,7 +226,7 @@ const ProjectCard = memo(({ info }: { info: ProjectInfo }) => {
         // @ts-expect-error - Wrapper is motion.a | motion.div; HTMLElement ref is compatible at runtime
         ref={ref}
         {...(isLink ? { href: info.link, ...externalLink } : undefined)}
-        onPointerEnter={handlePointerEnter}
+        onPointerEnter={(event) => void handlePointerEnter(event)}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
         className={cardShell}

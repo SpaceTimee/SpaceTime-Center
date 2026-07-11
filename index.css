@@ -1,11 +1,5 @@
 @import 'tailwindcss';
 
-@layer base {
-  *:focus-visible {
-    @apply outline-primary;
-  }
-}
-
 @theme {
   --font-sans: 'Inter', 'Noto Sans SC', sans-serif;
   --font-display: 'Tektur', 'Inter', 'Noto Sans SC', sans-serif;
@@ -46,28 +40,35 @@
   transition-timing-function: var(--ease-emphasized);
 }
 
-::-webkit-scrollbar {
-  @apply w-2;
-
-  &-track {
-    @apply bg-gray-100 dark:bg-gray-900;
+@layer base {
+  *:focus-visible {
+    @apply outline-primary;
   }
-  &-thumb {
-    @apply rounded bg-primary;
 
-    &:hover {
-      @apply bg-primary-hover;
+  :root {
+    scrollbar-color: var(--color-primary) light-dark(var(--color-gray-100), var(--color-gray-900));
+    scrollbar-width: thin;
+    color-scheme: light;
+
+    &.dark {
+      color-scheme: dark;
     }
   }
-}
 
-:root {
-  color-scheme: light;
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-primary) light-dark(var(--color-gray-100), var(--color-gray-900));
+  ::-webkit-scrollbar {
+    @apply w-2;
 
-  &.dark {
-    color-scheme: dark;
+    &-track {
+      @apply bg-gray-100 dark:bg-gray-900;
+    }
+
+    &-thumb {
+      @apply rounded bg-primary;
+
+      &:hover {
+        @apply bg-primary-hover;
+      }
+    }
   }
 }
 
@@ -75,6 +76,7 @@
   0% {
     translate: -90px;
   }
+
   100% {
     translate: 85px;
   }
@@ -85,6 +87,7 @@
   100% {
     translate: 0;
   }
+
   10%,
   30%,
   50%,
@@ -92,6 +95,7 @@
   90% {
     translate: -2px;
   }
+
   20%,
   40%,
   60%,

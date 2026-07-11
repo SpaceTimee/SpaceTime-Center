@@ -1,5 +1,3 @@
-import { memo } from 'react'
-import { motion } from 'motion/react'
 import ContactCard from '@/components/cards/ContactCard'
 import { contacts } from '@/consts/contacts'
 import { staggerInView, staggerItem } from '@/consts/motion'
@@ -16,10 +14,12 @@ import {
   sectionTitle,
   surfaceTransition
 } from '@/consts/styles'
+import { motion } from 'motion/react'
+import { memo } from 'react'
 
 const contactSection = sections.find((section) => section.id === sectionIds.contact)
 
-const FooterSection = memo(() => {
+const FooterSection = memo(function FooterSection() {
   return (
     <>
       <footer

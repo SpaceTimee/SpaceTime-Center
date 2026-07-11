@@ -7,8 +7,8 @@ interface ProjectTooltipProps {
   readonly isVisible: boolean
 }
 
-const ProjectTooltip = memo(({ ref, text, isVisible }: ProjectTooltipProps) =>
-  createPortal(
+const ProjectTooltip = memo(function ProjectTooltip({ ref, text, isVisible }: ProjectTooltipProps) {
+  return createPortal(
     <div
       ref={ref}
       aria-hidden
@@ -20,6 +20,6 @@ const ProjectTooltip = memo(({ ref, text, isVisible }: ProjectTooltipProps) =>
     </div>,
     document.body
   )
-)
+})
 
 export default ProjectTooltip

@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, type RefObject } from 'react'
-import { useMotionValue, useMotionValueEvent, useSpring } from 'motion/react'
 import { followSpring, header } from '@/consts/motion'
-import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useMotionValue, useMotionValueEvent, useSpring } from 'motion/react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
+import { useReducedMotion } from './useReducedMotion'
 
 interface UseHeaderAnimationProps {
   readonly borderRef: RefObject<HTMLDivElement | null>
@@ -136,9 +136,7 @@ export function useHeaderAnimation({
     }
   }, [updatePullVisuals])
 
-  useEffect(() => {
-    animateDecayRef.current = animateDecay
-  }, [animateDecay])
+  useEffect(() => void (animateDecayRef.current = animateDecay), [animateDecay])
 
   const handleDeviceOrientation = useCallback(
     (event: DeviceOrientationEvent) => {
@@ -187,12 +185,10 @@ export function useHeaderAnimation({
           header.pullLimit
         )
 
-        if (!animationFrameIdRef.current) {
-          animationFrameIdRef.current = requestAnimationFrame(() => {
-            updatePullVisuals()
-            animationFrameIdRef.current = null
-          })
-        }
+        animationFrameIdRef.current ??= requestAnimationFrame(() => {
+          updatePullVisuals()
+          animationFrameIdRef.current = null
+        })
 
         if (pullResetTimerRef.current) clearTimeout(pullResetTimerRef.current)
         pullResetTimerRef.current = window.setTimeout(() => {
@@ -226,42 +222,40 @@ export function useHeaderAnimation({
     }
 
     const handleTouchMove = (event: TouchEvent) => {
-      if (isDraggingRef.current) {
-        const clientX = event.touches[0].clientX
-        const clientY = event.touches[0].clientY
+      if (!isDraggingRef.current) return
 
-        if (!animationFrameIdRef.current) {
-          animationFrameIdRef.current = requestAnimationFrame(() => {
-            const deltaX = clientX - touchStartPosRef.current.x
-            const deltaY = clientY - touchStartPosRef.current.y
+      const clientX = event.touches[0].clientX
+      const clientY = event.touches[0].clientY
 
-            const { width, height } = dimensionsRef.current
-            const limitX = width * header.parallaxLimitRatio
-            const limitY = height * header.parallaxLimitRatio
-            const { parallaxResistance: resistance } = header
+      animationFrameIdRef.current ??= requestAnimationFrame(() => {
+        const deltaX = clientX - touchStartPosRef.current.x
+        const deltaY = clientY - touchStartPosRef.current.y
 
-            if (limitX > 0 && limitY > 0) {
-              setParallaxTarget(
-                limitX * Math.tanh(deltaX / (limitX * resistance)),
-                limitY * Math.tanh(deltaY / (limitY * resistance))
-              )
-            }
+        const { width, height } = dimensionsRef.current
+        const limitX = width * header.parallaxLimitRatio
+        const limitY = height * header.parallaxLimitRatio
+        const { parallaxResistance: resistance } = header
 
-            if (waveActiveRef.current && window.scrollY <= 0) {
-              const deltaWave = clientY - pullStartYRef.current
-              if (deltaWave > 0) {
-                const totalPull = deltaWave ** header.pullDragPow * header.pullDragDivisor
-                pullDistanceRef.current = Math.min(-header.maxPull + totalPull, header.pullLimit)
-              } else {
-                pullDistanceRef.current = -header.maxPull
-              }
-            }
-
-            updatePullVisuals()
-            animationFrameIdRef.current = null
-          })
+        if (limitX > 0 && limitY > 0) {
+          setParallaxTarget(
+            limitX * Math.tanh(deltaX / (limitX * resistance)),
+            limitY * Math.tanh(deltaY / (limitY * resistance))
+          )
         }
-      }
+
+        if (waveActiveRef.current && window.scrollY <= 0) {
+          const deltaWave = clientY - pullStartYRef.current
+          if (deltaWave > 0) {
+            const totalPull = deltaWave ** header.pullDragPow * header.pullDragDivisor
+            pullDistanceRef.current = Math.min(-header.maxPull + totalPull, header.pullLimit)
+          } else {
+            pullDistanceRef.current = -header.maxPull
+          }
+        }
+
+        updatePullVisuals()
+        animationFrameIdRef.current = null
+      })
     }
 
     const handleTouchEnd = () => {

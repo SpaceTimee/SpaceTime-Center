@@ -1,5 +1,5 @@
-import type { PortalInfo } from './types'
 import { url } from './site'
+import type { PortalInfo } from './types'
 
 export const portals = [
   {

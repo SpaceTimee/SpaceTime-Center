@@ -1,9 +1,9 @@
 import { useEffect, useState, type RefObject } from 'react'
 
 function observeElementHeight(element: HTMLElement, onHeight: (height: number) => void) {
-  const observer = new ResizeObserver(([entry]) => {
-    onHeight(entry.borderBoxSize[0]?.blockSize ?? element.offsetHeight)
-  })
+  const observer = new ResizeObserver(([entry]) =>
+    onHeight(entry?.borderBoxSize[0]?.blockSize ?? element.offsetHeight)
+  )
   observer.observe(element)
   return () => observer.disconnect()
 }

@@ -1,7 +1,7 @@
-import { useRef, type PointerEvent } from 'react'
+import { followSpring, spotlightInner, spotlightOuter, tiltDeg } from '@/consts/motion'
 import { useMotionTemplate, useMotionValue, useSpring, useTransform } from 'motion/react'
-import { spotlightInner, spotlightOuter, tiltDeg, followSpring } from '@/consts/motion'
-import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useRef, type PointerEvent } from 'react'
+import { useReducedMotion } from './useReducedMotion'
 
 export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const ref = useRef<T | null>(null)

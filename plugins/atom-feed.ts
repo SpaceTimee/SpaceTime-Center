@@ -1,10 +1,10 @@
+import { build } from 'esbuild'
+import { XMLParser } from 'fast-xml-parser'
+import { Feed } from 'feed'
 import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { build } from 'esbuild'
-import { XMLParser } from 'fast-xml-parser'
-import { Feed } from 'feed'
 import type { Plugin, ResolvedConfig } from 'vite'
 
 interface AtomFeedOptions {
@@ -42,12 +42,12 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
       const { title, description, url } = options
       const now = new Date()
 
-      const extractText = (value: unknown) =>
-        typeof value === 'string'
-          ? value
-          : value && typeof value === 'object' && '#text' in value
-            ? String(value['#text'])
-            : String(value ?? '')
+      const extractText = (value: unknown): string => {
+        if (typeof value === 'string') return value
+        if (typeof value === 'number' || typeof value === 'boolean') return String(value)
+        if (value && typeof value === 'object' && '#text' in value) return extractText(value['#text'])
+        return ''
+      }
 
       const tmpFile = join(tmpdir(), `atom-feed-data-${Date.now()}.mjs`)
       await build({
@@ -67,7 +67,12 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
         format: 'esm',
         platform: 'node'
       })
-      const { profile, portals, projects, contacts } = await import(pathToFileURL(tmpFile).href)
+      const { profile, portals, projects, contacts } = (await import(pathToFileURL(tmpFile).href)) as {
+        profile: { name: string }
+        portals: DataEntry[]
+        projects: DataEntry[]
+        contacts: DataEntry[]
+      }
       await rm(tmpFile, { force: true })
 
       const existingEntries = new Map<string, ExistingEntry>()
@@ -82,17 +87,17 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
               jpath === 'feed.entry' || jpath === 'feed.entry.category' || jpath === 'feed.entry.link'
           })
 
-          for (const entry of parser.parse(xml)?.feed?.entry ?? []) {
+          for (const entry of (parser.parse(xml) as { feed?: { entry?: Record<string, unknown>[] } }).feed
+            ?.entry ?? []) {
             const entryTitle = extractText(entry.title)
             const summary = extractText(entry.summary)
+            const links = (entry.link ?? []) as Record<string, string>[]
             const link =
-              ((entry.link ?? []) as Record<string, string>[]).find(
-                (linkEl) => !linkEl['@_rel'] || linkEl['@_rel'] === 'alternate'
-              )?.['@_href'] || ''
-            const categories = (entry.category ?? []).map(
-              (category: Record<string, string>) => category['@_term'] || ''
+              links.find((linkEl) => !linkEl['@_rel'] || linkEl['@_rel'] === 'alternate')?.['@_href'] ?? ''
+            const categories = ((entry.category ?? []) as Record<string, string>[]).map(
+              (category) => category['@_term'] ?? ''
             )
-            const updated = typeof entry.updated === 'string' ? entry.updated : String(entry.updated ?? '')
+            const updated = extractText(entry.updated)
 
             if (entryTitle) {
               existingEntries.set(entryTitle, { summary, link, categories, updated })
@@ -103,11 +108,9 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
         // Ignore fetch failures
       }
 
-      const currentEntries: DataEntry[] = [
-        ...(portals as DataEntry[]),
-        ...(projects as DataEntry[]),
-        ...(contacts as DataEntry[])
-      ].map(({ name, description, link, tags }) => ({ name, description, link, tags }))
+      const currentEntries: DataEntry[] = [...portals, ...projects, ...contacts].map(
+        ({ name, description, link, tags }) => ({ name, description, link, tags })
+      )
 
       const currentNames = new Set(currentEntries.map((entry) => entry.name))
       const hasDeletedEntries = existingEntries
@@ -118,18 +121,18 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
 
       const feedItems = currentEntries.map((entry) => {
         const existing = existingEntries.get(entry.name)
-        let updatedDate: Date
+        let updatedDate = now
 
-        if (
-          !existing ||
-          entry.description !== existing.summary ||
-          (entry.link ?? '') !== existing.link ||
-          JSON.stringify(entry.tags ?? []) !== JSON.stringify(existing.categories)
-        ) {
-          updatedDate = now
-        } else {
-          updatedDate = new Date(existing.updated)
-          if (Number.isNaN(updatedDate.getTime())) updatedDate = now
+        if (existing) {
+          const unchanged =
+            entry.description === existing.summary &&
+            (entry.link ?? '') === existing.link &&
+            JSON.stringify(entry.tags ?? []) === JSON.stringify(existing.categories)
+
+          if (unchanged) {
+            updatedDate = new Date(existing.updated)
+            if (Number.isNaN(updatedDate.getTime())) updatedDate = now
+          }
         }
 
         if (updatedDate > feedUpdated) feedUpdated = updatedDate
@@ -138,7 +141,7 @@ export function AtomFeed(options: AtomFeedOptions): Plugin {
           title: entry.name,
           id: `${url}/#${entry.name.toLowerCase().replaceAll(' ', '-')}`,
           description: entry.description,
-          link: entry.link || url,
+          link: entry.link ?? url,
           date: updatedDate,
           category: (entry.tags ?? []).map((tag) => ({ term: tag }))
         }

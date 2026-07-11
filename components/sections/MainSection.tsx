@@ -1,8 +1,9 @@
-import { memo, useRef, useState } from 'react'
-import { motion } from 'motion/react'
 import PortalCard from '@/components/cards/PortalCard'
 import ProjectCard from '@/components/cards/ProjectCard'
-import { useDynamicHeight } from '@/hooks/useDynamicHeight'
+import { staggerInView, staggerItem } from '@/consts/motion'
+import { projectTabs, sectionIds, sections } from '@/consts/navigation'
+import { portals } from '@/consts/portals'
+import { projects } from '@/consts/projects'
 import {
   bgTransition,
   cardGrid,
@@ -17,11 +18,10 @@ import {
   surfaceTransition,
   tw
 } from '@/consts/styles'
-import { portals } from '@/consts/portals'
-import { projects } from '@/consts/projects'
-import { staggerInView, staggerItem } from '@/consts/motion'
-import { projectTabs, sectionIds, sections } from '@/consts/navigation'
 import { ProjectStatus, type ProjectInfo } from '@/consts/types'
+import { useDynamicHeight } from '@/hooks/useDynamicHeight'
+import { motion } from 'motion/react'
+import { memo, useRef, useState } from 'react'
 
 const sectionHeading = tw`text-2xl font-bold ${sectionTitle}`
 
@@ -35,7 +35,7 @@ const tabs = projectTabs.map((tab) => ({
 const portalsSection = sections.find((section) => section.id === sectionIds.portals)
 const projectsSection = sections.find((section) => section.id === sectionIds.projects)
 
-const MainSection = memo(() => {
+const MainSection = memo(function MainSection() {
   const [activeTab, setActiveTab] = useState<ProjectStatus>(ProjectStatus.InProgress)
   const tabRefs = useRef<(HTMLDivElement | null)[]>([])
 
@@ -135,9 +135,7 @@ const MainSection = memo(() => {
             {tabs.map((tab, index) => (
               <div
                 key={tab.id}
-                ref={(element) => {
-                  tabRefs.current[index] = element
-                }}
+                ref={(element) => void (tabRefs.current[index] = element)}
                 id={`${sectionIds.projects}-panel-${tab.id}`}
                 role="tabpanel"
                 aria-labelledby={`${sectionIds.projects}-tab-${tab.id}`}

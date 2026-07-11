@@ -1,7 +1,6 @@
-import { memo, type ReactNode } from 'react'
-import { motion } from 'motion/react'
-import { BookOpenText, ChevronRight, CircleUser, FileText, Globe, Server, SquareActivity } from 'lucide-react'
-import { CardChrome } from '@/components/controls/CardChrome'
+import CardChrome from '@/components/controls/CardChrome'
+import { cardHover } from '@/consts/motion'
+import { externalLink } from '@/consts/navigation'
 import {
   cardArrow,
   cardDesc,
@@ -13,10 +12,11 @@ import {
   cardTextCol,
   cardTitle
 } from '@/consts/styles'
-import { useCardAnimation } from '@/hooks/useCardAnimation'
-import { cardHover } from '@/consts/motion'
-import { externalLink } from '@/consts/navigation'
 import type { PortalInfo, PortalType } from '@/consts/types'
+import { useCardAnimation } from '@/hooks/useCardAnimation'
+import { BookOpenText, ChevronRight, CircleUser, FileText, Globe, Server, SquareActivity } from 'lucide-react'
+import { motion } from 'motion/react'
+import { memo, type ReactNode } from 'react'
 
 const PORTAL_TYPE_ICON_MAP = {
   Center: <Globe className="size-5" />,
@@ -28,7 +28,7 @@ const PORTAL_TYPE_ICON_MAP = {
   Default: <Globe className="size-5" />
 } as const satisfies Record<PortalType | 'Default', ReactNode>
 
-const PortalCard = memo(({ info }: { info: PortalInfo }) => {
+const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
   const {
     handlePointerLeave,
     handlePointerMove,

@@ -5,7 +5,12 @@
   "singleQuote": true,
   "printWidth": 110,
   "trailingComma": "none",
-  "plugins": ["prettier-plugin-tailwindcss"],
+  "plugins": [
+    "prettier-plugin-css-order",
+    "prettier-plugin-organize-attributes",
+    "prettier-plugin-organize-imports",
+    "prettier-plugin-tailwindcss"
+  ],
   "tailwindFunctions": ["tw"],
   "tailwindStylesheet": "./index.css"
 }

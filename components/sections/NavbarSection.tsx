@@ -1,11 +1,11 @@
-import { memo, useEffect, useState, type MouseEvent } from 'react'
-import { AnimatePresence, motion } from 'motion/react'
-import { ChevronUp, Menu, Moon, Sun, X } from 'lucide-react'
-import { useTheme } from '@/hooks/useTheme'
-import { colorBgTransition, colorTransition, surfaceTransition, tw } from '@/consts/styles'
-import { fadeDownMotion, expandCollapse } from '@/consts/motion'
+import { expandCollapse, fadeDownMotion } from '@/consts/motion'
 import { sectionIds, sections } from '@/consts/navigation'
 import { nameAccent, namePlain } from '@/consts/site'
+import { colorBgTransition, colorTransition, surfaceTransition, tw } from '@/consts/styles'
+import { useTheme } from '@/hooks/useTheme'
+import { ChevronUp, Menu, Moon, Sun, X } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import { memo, useEffect, useState, type MouseEvent } from 'react'
 
 const scaleGroupHover = tw`transition-[scale] ui-transition will-change-[scale] group-hover:scale-105`
 const iconSwap = tw`absolute inset-0 flex items-center justify-center transition-[translate,opacity] ui-transition`
@@ -14,7 +14,7 @@ const navLink = tw`${navLinkBase} flex items-center gap-2 rounded-full px-4 py-2
 const navLinkMobile = tw`${navLinkBase} flex w-full items-center gap-3 rounded-xl px-4 py-3 font-medium active:bg-primary/10`
 const navIcon = tw`shrink-0 rounded-full p-2 ${colorBgTransition} hover:bg-gray-100 hover:text-primary dark:hover:bg-gray-800`
 
-const NavbarSection = memo(() => {
+const NavbarSection = memo(function NavbarSection() {
   const [isOpen, setIsOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isScrollingToTop, setIsScrollingToTop] = useState(false)
@@ -89,9 +89,7 @@ const NavbarSection = memo(() => {
                     <img
                       src="/favicon.png"
                       alt=""
-                      onError={(event) => {
-                        event.currentTarget.hidden = true
-                      }}
+                      onError={(event) => (event.currentTarget.hidden = true)}
                       className="size-6 object-contain"
                       decoding="async"
                     />

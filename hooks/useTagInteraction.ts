@@ -1,6 +1,6 @@
+import { durationMs, tagFallAt, tagVibrateMs } from '@/consts/motion'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { tagFallAt, tagVibrateMs, durationMs } from '@/consts/motion'
-import { useReducedMotion } from '@/hooks/useReducedMotion'
+import { useReducedMotion } from './useReducedMotion'
 
 export function useTagInteraction() {
   const [shakingTagIndex, setShakingTagIndex] = useState<number | null>(null)
@@ -9,12 +9,7 @@ export function useTagInteraction() {
   const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prefersReducedMotion = useReducedMotion()
 
-  useEffect(
-    () => () => {
-      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-    },
-    []
-  )
+  useEffect(() => () => void (shakeTimeoutRef.current && clearTimeout(shakeTimeoutRef.current)), [])
 
   const handleTagClick = useCallback(
     (index: number) => {

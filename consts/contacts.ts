@@ -1,5 +1,5 @@
-import type { ContactInfo } from './types'
 import { social } from './profile'
+import type { ContactInfo } from './types'
 
 export const contacts = [
   {

@@ -1,14 +1,15 @@
 <!doctype html>
-<html lang="zh-CN" class="scroll-smooth motion-reduce:scroll-auto">
+<html class="scroll-smooth motion-reduce:scroll-auto" lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ff5a00" />
-    <meta name="description" content="SpaceTime Center - Welcome To My Home Page ~" />
+    <meta name="description" content="Welcome To My Home Page ~" />
+    <link rel="canonical" href="https://www.spacetimee.xyz/" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="alternate" type="application/atom+xml" title="SpaceTime Center" href="/atom.xml" />
-    <link rel="preload" as="image" href="/banner.webp" fetchpriority="high" />
+    <link rel="preload" as="image" type="image/webp" href="/banner.webp" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
     <link
       href="https://fonts.bunny.net/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..700&family=Tektur:wght@700&display=swap"
@@ -16,16 +17,14 @@
     />
     <link rel="stylesheet" href="/index.css" />
     <title>SpaceTime Center</title>
-
     <script>
       const savedTheme = localStorage.getItem('theme')
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+      const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
       document.documentElement.classList.toggle('dark', savedTheme === 'dark' || (!savedTheme && prefersDark))
     </script>
   </head>
-
   <body
-    class="min-w-min bg-white text-gray-900 transition-[color,background-color] ui-transition dark:bg-gray-900 dark:text-gray-200"
+    class="min-h-screen min-w-min bg-white text-gray-700 transition-[color,background-color] ui-transition selection:bg-primary/20 selection:text-primary dark:bg-gray-900 dark:text-gray-200"
   >
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

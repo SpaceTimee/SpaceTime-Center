@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react'
 import { sectionIds } from '@/consts/navigation'
 import { name } from '@/consts/site'
+import { useEffect, useRef } from 'react'
 
 interface Section {
   readonly id: string
@@ -66,9 +66,7 @@ export function useScrollSpy(
 
     const id = location.hash.slice(1)
     if (sectionTitleById.has(id)) {
-      void document.fonts.ready.then(() => {
-        document.getElementById(id)?.scrollIntoView()
-      })
+      void document.fonts.ready.then(() => document.getElementById(id)?.scrollIntoView())
     }
 
     return () => {
