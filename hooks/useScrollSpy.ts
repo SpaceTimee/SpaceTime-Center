@@ -16,62 +16,70 @@ export function useScrollSpy(
   sections: readonly Section[],
   { contactId = sectionIds.contact, titleSuffix = name }: ScrollSpyOptions = {}
 ) {
-  const lastSectionTitleRef = useRef(titleSuffix)
+  const lastTitleRef = useRef(titleSuffix)
   const isContactActiveRef = useRef(false)
 
   useEffect(() => {
     const buildTitle = (title: string) => `${title} ❤️ ${titleSuffix}`
-    const sectionTitleById = new Map(sections.map((section) => [section.id, buildTitle(section.title)]))
-    const contactTitle = sectionTitleById.get(contactId) ?? buildTitle('Contact')
-    const initialTitle = sectionTitleById.get(sections[0]?.id ?? '') ?? titleSuffix
-    lastSectionTitleRef.current = initialTitle
+    const titleById = new Map(sections.map((section) => [section.id, buildTitle(section.title)]))
+    const firstTitle = sections[0]?.title
+    const initialTitle = firstTitle ? buildTitle(firstTitle) : titleSuffix
+    lastTitleRef.current = initialTitle
     document.title = initialTitle
 
-    const targets = sections.flatMap(({ id }) => {
-      if (id === contactId) return []
-      const element = document.getElementById(id)
-      return element ? [element] : []
-    })
-
-    let sectionObserver: IntersectionObserver | undefined
-
+    let sectionObserver: IntersectionObserver | null = null
     const observeSections = () => {
       sectionObserver?.disconnect()
       sectionObserver = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
             if (!entry.isIntersecting) continue
-            const nextTitle = sectionTitleById.get(entry.target.id)
+            const nextTitle = titleById.get(entry.target.id)
             if (!nextTitle) continue
-            lastSectionTitleRef.current = nextTitle
+            lastTitleRef.current = nextTitle
             if (!isContactActiveRef.current) document.title = nextTitle
           }
         },
-        { rootMargin: `-64px 0px ${64 + 32 - window.innerHeight}px 0px` }
+        { rootMargin: `-64px 0px ${64 + 32 - innerHeight}px 0px` }
       )
-      for (const target of targets) sectionObserver.observe(target)
+
+      for (const { id } of sections) {
+        if (id === contactId) continue
+        const element = document.getElementById(id)
+        if (element) sectionObserver.observe(element)
+      }
     }
 
     observeSections()
     const controller = new AbortController()
-    window.addEventListener('resize', observeSections, { passive: true, signal: controller.signal })
+    addEventListener('resize', observeSections, { passive: true, signal: controller.signal })
 
-    const bottomObserver = new IntersectionObserver(([entry]) => {
+    const contactObserver = new IntersectionObserver(([entry]) => {
       if (!entry) return
-      isContactActiveRef.current = entry.isIntersecting
-      document.title = entry.isIntersecting ? contactTitle : lastSectionTitleRef.current
-    })
-    const sentinel = document.getElementById('bottom-sentinel')
-    if (sentinel) bottomObserver.observe(sentinel)
 
-    const id = location.hash.slice(1)
-    if (sectionTitleById.has(id)) {
-      void document.fonts.ready.then(() => document.getElementById(id)?.scrollIntoView())
+      isContactActiveRef.current = entry.isIntersecting
+      document.title = entry.isIntersecting
+        ? (titleById.get(contactId) ?? lastTitleRef.current)
+        : lastTitleRef.current
+    })
+
+    const sentinel = document.getElementById('bottom-sentinel')
+    if (sentinel) contactObserver.observe(sentinel)
+
+    let isMounted = true
+    const sectionId = location.hash.slice(1)
+    if (titleById.has(sectionId)) {
+      void document.fonts.ready.finally(() => {
+        if (!isMounted) return
+
+        document.getElementById(sectionId)?.scrollIntoView()
+      })
     }
 
     return () => {
+      isMounted = false
       sectionObserver?.disconnect()
-      bottomObserver.disconnect()
+      contactObserver.disconnect()
       controller.abort()
     }
   }, [contactId, sections, titleSuffix])

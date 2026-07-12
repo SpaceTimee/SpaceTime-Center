@@ -1,23 +1,20 @@
 import { followSpring, opacityToggle, progressHideMs } from '@/consts/motion'
 import { motion, useMotionValueEvent, useScroll, useSpring } from 'motion/react'
-import { memo, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-const ScrollProgress = memo(function ScrollProgress() {
+export default function ScrollProgress() {
   const [isVisible, setIsVisible] = useState(false)
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { scrollYProgress } = useScroll()
-  const scaleX = useSpring(scrollYProgress, followSpring)
+  const scaleX = useSpring(useScroll().scrollYProgress, followSpring)
+
+  useEffect(() => () => clearTimeout(hideTimeoutRef.current ?? undefined), [])
 
   useMotionValueEvent(scaleX, 'change', () => {
     setIsVisible(true)
-
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-
-    timeoutRef.current = setTimeout(() => setIsVisible(false), progressHideMs)
+    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
+    hideTimeoutRef.current = setTimeout(() => setIsVisible(false), progressHideMs)
   })
-
-  useEffect(() => () => void (timeoutRef.current && clearTimeout(timeoutRef.current)), [])
 
   return (
     <motion.div
@@ -29,6 +26,4 @@ const ScrollProgress = memo(function ScrollProgress() {
       transition={opacityToggle.transition}
     />
   )
-})
-
-export default ScrollProgress
+}

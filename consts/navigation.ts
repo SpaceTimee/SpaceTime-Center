@@ -1,4 +1,4 @@
-import { Archive, Compass, Home, Layers, ListTodo, MessageCircle } from 'lucide-react'
+import { Archive, Compass, Home, Layers, ListTodo, MessageCircle, type LucideIcon } from 'lucide-react'
 import { ProjectStatus } from './types'
 
 export const sectionIds = {
@@ -8,28 +8,34 @@ export const sectionIds = {
   contact: 'contact'
 } as const
 
+type SectionId = (typeof sectionIds)[keyof typeof sectionIds]
+
+interface NavItem<TId extends string = string> {
+  readonly id: TId
+  readonly title: string
+  readonly icon: LucideIcon
+}
+
+interface SectionItem extends NavItem<SectionId> {
+  readonly href: `#${SectionId}`
+  readonly titleId: `${SectionId}-title`
+}
+
+const defineSection = <TId extends SectionId>(id: TId, title: string, icon: LucideIcon) =>
+  ({ id, title, icon, href: `#${id}`, titleId: `${id}-title` }) as const
+
 export const sections = [
-  {
-    id: sectionIds.home,
-    title: 'About',
-    icon: Home
-  },
-  {
-    id: sectionIds.portals,
-    title: 'Portals',
-    icon: Compass
-  },
-  {
-    id: sectionIds.projects,
-    title: 'Projects',
-    icon: Layers
-  },
-  {
-    id: sectionIds.contact,
-    title: 'Contact',
-    icon: MessageCircle
-  }
-] as const
+  defineSection(sectionIds.home, 'About', Home),
+  defineSection(sectionIds.portals, 'Portals', Compass),
+  defineSection(sectionIds.projects, 'Projects', Layers),
+  defineSection(sectionIds.contact, 'Contact', MessageCircle)
+] as const satisfies readonly SectionItem[]
+
+const sectionById = Object.fromEntries(sections.map((section) => [section.id, section])) as {
+  readonly [K in SectionId]: Extract<(typeof sections)[number], { readonly id: K }>
+}
+
+export const getSection = <TId extends SectionId>(id: TId) => sectionById[id]
 
 export const projectTabs = [
   {
@@ -47,9 +53,6 @@ export const projectTabs = [
     title: 'To-Do',
     icon: ListTodo
   }
-] as const
+] as const satisfies readonly NavItem<ProjectStatus>[]
 
-export const externalLink = {
-  rel: 'noreferrer',
-  target: '_blank'
-} as const
+export const externalLink = { rel: 'noreferrer', target: '_blank' } as const

@@ -1,16 +1,16 @@
 import { useSyncExternalStore } from 'react'
 
-const reducedMotionQuery = matchMedia('(prefers-reduced-motion: reduce)')
+const minNavQuery = matchMedia('(width >= 827px)')
 
 const subscribe = (callback: () => void) => {
   const controller = new AbortController()
-  reducedMotionQuery.addEventListener('change', callback, { signal: controller.signal })
+  minNavQuery.addEventListener('change', callback, { signal: controller.signal })
   return () => controller.abort()
 }
 
-const getSnapshot = () => reducedMotionQuery.matches
+const getSnapshot = () => minNavQuery.matches
 const getServerSnapshot = () => false
 
-export function useReducedMotion() {
+export function useMinNav() {
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 }

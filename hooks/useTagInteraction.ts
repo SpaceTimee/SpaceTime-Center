@@ -1,43 +1,30 @@
-import { durationMs, tagFallAt, tagVibrateMs } from '@/consts/motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { tagFallClicks, tagVibrateMs } from '@/consts/motion'
+import { useCallback, useRef, useState } from 'react'
 import { useReducedMotion } from './useReducedMotion'
 
 export function useTagInteraction() {
-  const [shakingTagIndex, setShakingTagIndex] = useState<number | null>(null)
-  const [fallenTags, setFallenTags] = useState(() => new Set<number>())
-  const tagClicksRef = useRef<number[]>([])
-  const shakeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prefersReducedMotion = useReducedMotion()
-
-  useEffect(() => () => void (shakeTimeoutRef.current && clearTimeout(shakeTimeoutRef.current)), [])
+  const [fallenTagIndices, setFallenTagIndices] = useState(() => new Set<number>())
+  const [shakingTagIndex, setShakingTagIndex] = useState<number | null>(null)
+  const tagClicksRef = useRef(new Map<number, number>())
 
   const handleTagClick = useCallback(
     (index: number) => {
-      if (shakingTagIndex !== null || fallenTags.has(index)) return
+      if (shakingTagIndex !== null || fallenTagIndices.has(index)) return
 
-      const currentClicks = (tagClicksRef.current[index] ?? 0) + 1
-      tagClicksRef.current[index] = currentClicks
+      const clickCount = (tagClicksRef.current.get(index) ?? 0) + 1
+      tagClicksRef.current.set(index, clickCount)
+      if (clickCount >= tagFallClicks) return void setFallenTagIndices((prev) => prev.union(new Set([index])))
 
-      if (currentClicks >= tagFallAt) {
-        setFallenTags((tags) => new Set(tags).add(index))
-        return
-      }
+      if (prefersReducedMotion) return
 
       setShakingTagIndex(index)
-      if (!prefersReducedMotion) navigator.vibrate?.(tagVibrateMs)
-
-      if (shakeTimeoutRef.current) clearTimeout(shakeTimeoutRef.current)
-      shakeTimeoutRef.current = setTimeout(() => {
-        shakeTimeoutRef.current = null
-        setShakingTagIndex(null)
-      }, durationMs)
+      navigator.vibrate?.(tagVibrateMs)
     },
-    [fallenTags, prefersReducedMotion, shakingTagIndex]
+    [fallenTagIndices, prefersReducedMotion, shakingTagIndex]
   )
 
-  return {
-    fallenTags,
-    handleTagClick,
-    shakingTagIndex
-  }
+  const handleTagShakeEnd = useCallback(() => setShakingTagIndex(null), [])
+
+  return { fallenTagIndices, handleTagClick, handleTagShakeEnd, shakingTagIndex }
 }

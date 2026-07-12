@@ -6,6 +6,7 @@ export const projects = [
     description: '桌面端 SNI 伪造工具',
     link: 'https://github.com/SpaceTimee/Sheas-Cealer',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.InProgress,
     pinned: true
   },
@@ -14,6 +15,7 @@ export const projects = [
     description: '移动端 SNI 伪造工具',
     link: 'https://github.com/SpaceTimee/Sheas-Cealer-Droid',
     tags: ['MAUI'],
+    type: 'Github',
     status: ProjectStatus.InProgress,
     pinned: true
   },
@@ -22,6 +24,7 @@ export const projects = [
     description: 'Pixiv 直连搜图工具',
     link: 'https://github.com/SpaceTimee/Ona-Pix',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -61,6 +64,7 @@ export const projects = [
     description: '在线视频插帧工具',
     link: 'https://github.com/SpaceTimee/Sheas-Frameg',
     tags: ['Next', 'Tailwind'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -68,6 +72,7 @@ export const projects = [
     description: '在线 DNS 解析工具',
     link: 'https://github.com/SpaceTimee/Ona-Dop',
     tags: ['Vue'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -75,6 +80,7 @@ export const projects = [
     description: '轻量级临时文本处理工具',
     link: 'https://github.com/SpaceTimee/Vight-Note',
     tags: ['Winform'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -82,6 +88,7 @@ export const projects = [
     description: '反?向代理',
     link: 'https://github.com/SpaceTimee/Ona-Prox',
     tags: ['Cloudflare Workers'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -89,6 +96,7 @@ export const projects = [
     description: '鉴权网关',
     link: 'https://github.com/SpaceTimee/SpaceTime-Gateway',
     tags: ['Cloudflare Workers'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -96,6 +104,7 @@ export const projects = [
     description: 'DNS 抗污染解析工具',
     link: 'https://github.com/SpaceTimee/Sheas-Dop',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -103,6 +112,7 @@ export const projects = [
     description: 'Pixiv Nginx 启动器',
     link: 'https://github.com/SpaceTimee/Sheas-Nginx',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -110,6 +120,7 @@ export const projects = [
     description: '提供 SNI 伪造相关服务的 Telegram Bot',
     link: 'https://github.com/SpaceTimee/Bot-CealingCat',
     tags: ['ASP.NET Core', 'Vue'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -117,6 +128,7 @@ export const projects = [
     description: 'Cealing Host 自动化检查工具',
     link: 'https://github.com/SpaceTimee/Console-HostChecker',
     tags: ['Pwsh', 'Github Workflows'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -124,6 +136,7 @@ export const projects = [
     description: 'Cealing Host 自动化生成工具',
     link: 'https://github.com/SpaceTimee/Console-HostGenerator',
     tags: ['Pwsh'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -131,6 +144,7 @@ export const projects = [
     description: 'JetBrains Mono + Maple Mono 合成字体',
     link: 'https://github.com/SpaceTimee/Fusion-JetBrainsMapleMono',
     tags: ['Github Workflows'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -138,6 +152,7 @@ export const projects = [
     description: '轻量级单位转换器',
     link: 'https://github.com/SpaceTimee/Vight-Univerter',
     tags: ['Xamarin'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -145,6 +160,7 @@ export const projects = [
     description: 'Pixiv Nginx 分支',
     link: 'https://github.com/SpaceTimee/Frok-PixivNginx',
     tags: ['Nginx'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -152,6 +168,7 @@ export const projects = [
     description: 'NextChat 分支',
     link: 'https://github.com/SpaceTimee/Frok-NextChat',
     tags: ['Next'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -159,6 +176,7 @@ export const projects = [
     description: '最新的内置伪造规则',
     link: 'https://github.com/SpaceTimee/Cealing-Host',
     tags: ['Json'],
+    type: 'Github',
     status: ProjectStatus.InProgress
   },
   {
@@ -210,6 +228,7 @@ export const projects = [
     description: 'Windows 外来文件解锁定工具',
     link: 'https://github.com/SpaceTimee/Sheas-Unlocker',
     tags: ['Winform'],
+    type: 'Github',
     status: ProjectStatus.Completed
   },
   {
@@ -217,6 +236,7 @@ export const projects = [
     description: 'ClashN 分支',
     link: 'https://github.com/SpaceTimee/Frok-ClashN',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.Completed
   },
   {
@@ -224,6 +244,7 @@ export const projects = [
     description: '无限宝第三方插件安装器',
     link: 'https://github.com/SpaceTimee/Vizpower-Plugin-Installer',
     tags: ['WPF'],
+    type: 'Github',
     status: ProjectStatus.Completed
   },
   {
@@ -231,6 +252,7 @@ export const projects = [
     description: '单机狼人杀',
     link: 'https://github.com/SpaceTimee/Console-Werewolf',
     tags: ['C++'],
+    type: 'Github',
     status: ProjectStatus.Completed
   },
   {

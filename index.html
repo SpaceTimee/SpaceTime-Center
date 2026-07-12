@@ -12,22 +12,28 @@
     <link rel="alternate" type="application/atom+xml" title="SpaceTime Center" href="/atom.xml" />
     <link rel="preload" as="image" type="image/webp" href="/banner.webp" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
+    <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Tektur:wght@700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.bunny.net/css2?family=Inter:wght@400..700&display=swap" />
     <link
-      href="https://fonts.bunny.net/css2?family=Noto+Sans+SC:wght@400..700&family=Inter:wght@400..700&family=Tektur:wght@700&display=swap"
       rel="stylesheet"
+      href="https://fonts.bunny.net/css2?family=Noto+Sans+SC:wght@400..700&display=swap"
     />
     <link rel="stylesheet" href="/index.css" />
 
     <title>SpaceTime Center</title>
 
     <script>
-      const savedTheme = localStorage.getItem('theme')
-      const prefersDark = matchMedia('(prefers-color-scheme: dark)').matches
-      document.documentElement.classList.toggle('dark', savedTheme === 'dark' || (!savedTheme && prefersDark))
+      let isDark = matchMedia('(prefers-color-scheme: dark)').matches
+      try {
+        const savedTheme = localStorage.getItem('theme')
+        if (savedTheme === 'dark') isDark = true
+        else if (savedTheme === 'light') isDark = false
+      } catch {}
+      document.documentElement.classList.toggle('dark', isDark)
     </script>
   </head>
   <body
-    class="min-h-screen min-w-min bg-white text-gray-700 transition-[color,background-color] motion-emphasized selection:bg-primary/20 selection:text-primary dark:bg-gray-900 dark:text-gray-200"
+    class="min-h-screen min-w-min bg-white text-grey-700 transition-[color,background-color] motion-emphasized selection:bg-primary/20 selection:text-primary dark:bg-grey-900 dark:text-grey-200"
   >
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>

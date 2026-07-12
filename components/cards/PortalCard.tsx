@@ -10,7 +10,8 @@ import {
   cardShell,
   cardStage,
   cardTag,
-  cardTitle
+  cardTitle,
+  tw
 } from '@/consts/styles'
 import type { PortalInfo, PortalType } from '@/consts/types'
 import { useCardAnimation } from '@/hooks/useCardAnimation'
@@ -18,21 +19,20 @@ import { BookOpenText, ChevronRight, CircleUser, FileText, Globe, Server, Square
 import { motion } from 'motion/react'
 import { memo, type ReactNode } from 'react'
 
-const PORTAL_TYPE_ICON_MAP = {
+const portalTypeIcons = {
   Center: <Globe className="size-5" />,
   Blog: <FileText className="size-5" />,
   Server: <Server className="size-5" />,
   Docs: <BookOpenText className="size-5" />,
   Account: <CircleUser className="size-5" />,
-  Status: <SquareActivity className="size-5" />,
-  Default: <Globe className="size-5" />
-} as const satisfies Record<PortalType | 'Default', ReactNode>
+  Status: <SquareActivity className="size-5" />
+} as const satisfies Record<PortalType, ReactNode>
 
-const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
+export default memo(function PortalCard({ info }: { readonly info: PortalInfo }) {
   const {
+    ref,
     handlePointerLeave,
     handlePointerMove,
-    ref,
     rotateX,
     rotateY,
     spotlightBackground,
@@ -47,6 +47,7 @@ const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
         {...externalLink}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onPointerCancel={handlePointerLeave}
         className={cardShell}
         style={{ rotateX, rotateY }}
         {...cardHover}
@@ -54,14 +55,14 @@ const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
         <CardChrome spotlightBackground={spotlightBackground} spotlightBorder={spotlightBorder}>
           <div className={cardRow}>
             <div aria-hidden className={cardIcon}>
-              {PORTAL_TYPE_ICON_MAP[info.type ?? 'Default']}
+              {portalTypeIcons[info.type]}
             </div>
             <div className={cardContent}>
               <h3 className={cardTitle}>{info.name}</h3>
-              <p className={`mb-1 ${cardDescription}`}>{info.description}</p>
+              <p className={tw`mb-1 ${cardDescription}`}>{info.description}</p>
               <ul className="flex flex-wrap gap-2">
                 {info.tags.map((tag) => (
-                  <li key={`${info.name}-${tag}`} className={`${cardTag} px-2 py-0.5`}>
+                  <li key={`${info.name}-${tag}`} className={tw`${cardTag} px-2 py-0.5`}>
                     {tag}
                   </li>
                 ))}
@@ -74,5 +75,3 @@ const PortalCard = memo(function PortalCard({ info }: { info: PortalInfo }) {
     </div>
   )
 })
-
-export default PortalCard

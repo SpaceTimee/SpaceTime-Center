@@ -19,199 +19,239 @@ import {
 import { motion } from 'motion/react'
 import { memo, useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react'
 
-const cardMetaIcon = tw`text-gray-300 ${colorTransition} group-hover:text-primary dark:text-gray-600`
+interface ChatResponse {
+  readonly content?: string
+  readonly error?: string
+}
 
-const PROJECT_STATUS_ICON_MAP = {
+const tooltipSummaryCache = new Map<string, string>()
+
+const cardMetaIcon = tw`text-grey-300 ${colorTransition} group-hover:text-primary dark:text-grey-600`
+
+const projectStatusIcons = {
   [ProjectStatus.InProgress]: <FolderCog className="size-6" />,
   [ProjectStatus.Completed]: <FolderCheck className="size-6" />,
   [ProjectStatus.Planned]: <FolderClock className="size-6" />
 } as const satisfies Record<ProjectStatus, ReactNode>
 
-const PROJECT_TYPE_ICON_MAP = {
+const projectTypeIcons = {
   Github: <GithubIcon className="size-5" />,
   HuggingFace: <Brain className="size-5" />,
   Gemini: <Sparkles className="size-5" />,
-  External: <ExternalLink className="size-5" />,
-  Default: <GithubIcon className="size-5" />
-} as const satisfies Record<ProjectType | 'Default', ReactNode>
+  External: <ExternalLink className="size-5" />
+} as const satisfies Record<ProjectType, ReactNode>
 
-const summaryCache = new Map<string, string>()
-
-const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
+export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo }) {
   const {
     ref,
-    handlePointerLeave: cardPointerLeave,
-    handlePointerMove: cardPointerMove,
+    handlePointerLeave: handleCardPointerLeave,
+    handlePointerMove: handleCardPointerMove,
     rotateX,
     rotateY,
     spotlightBackground,
     spotlightBorder
   } = useCardAnimation()
 
-  const Wrapper = info.link ? motion.a : motion.div
-
   const [tooltipText, setTooltipText] = useState('')
-  const [tooltipVisible, setTooltipVisible] = useState(false)
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
-  const fetchIdRef = useRef(0)
-  const abortControllerRef = useRef<AbortController | null>(null)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const tooltipPointerRef = useRef({ x: 0, y: 0, flipX: false, flipY: false, active: false })
+  const tooltipFlipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tooltipRequestRef = useRef(0)
+  const tooltipAbortRef = useRef<AbortController | null>(null)
+  const tooltipIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  const clearIntervalRef = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current)
-      intervalRef.current = null
+  const clearTooltipInterval = () => {
+    clearInterval(tooltipIntervalRef.current ?? undefined)
+    tooltipIntervalRef.current = null
+  }
+
+  const clearTooltipFlipTransition = () => {
+    clearTimeout(tooltipFlipTimeoutRef.current ?? undefined)
+    tooltipFlipTimeoutRef.current = null
+    tooltipRef.current?.style.removeProperty('transition-property')
+  }
+
+  const cancelTooltipFetch = () => {
+    tooltipRequestRef.current++
+    tooltipAbortRef.current?.abort()
+    tooltipAbortRef.current = null
+  }
+
+  const showTooltip = (text: string) => {
+    setTooltipText(text)
+    setIsTooltipVisible(true)
+  }
+
+  const updateTooltipPosition = useCallback((clientX: number, clientY: number) => {
+    const tooltip = tooltipRef.current
+    if (!tooltip) return
+
+    const offsetGap = 12
+    const { offsetWidth, offsetHeight } = tooltip
+    const flipX = clientX + 280 > innerWidth
+    const flipY = clientY + offsetGap + offsetHeight > innerHeight
+    const left = clientX + (flipX ? -offsetGap - offsetWidth : offsetGap)
+    const top = clientY + (flipY ? -offsetGap - offsetHeight : offsetGap)
+
+    const last = tooltipPointerRef.current
+    const flipChanged = last.active && (flipX !== last.flipX || flipY !== last.flipY)
+    tooltipPointerRef.current = { x: clientX, y: clientY, flipX, flipY, active: true }
+
+    if (flipChanged) {
+      tooltip.style.transitionProperty = 'left, top'
+      clearTimeout(tooltipFlipTimeoutRef.current ?? undefined)
+      tooltipFlipTimeoutRef.current = setTimeout(clearTooltipFlipTransition, 500)
     }
-  }
 
-  const cancelFetch = () => {
-    fetchIdRef.current++
-    abortControllerRef.current?.abort()
-    abortControllerRef.current = null
-  }
+    Object.assign(tooltip.style, {
+      left: `${left}px`,
+      top: `${top}px`,
+      clipPath: 'inset(-3px round var(--radius-xl))'
+    } satisfies Partial<CSSStyleDeclaration>)
+  }, [])
 
   useEffect(
     () => () => {
-      clearIntervalRef()
-      cancelFetch()
+      clearTooltipInterval()
+      clearTooltipFlipTransition()
+      cancelTooltipFetch()
     },
     []
   )
 
-  const handleTooltipPosition = useCallback((clientX: number, clientY: number) => {
-    const tooltip = tooltipRef.current
-    if (!tooltip) return
-
-    const flipX = clientX + 280 > window.innerWidth
-    const flipY = clientY + 100 > window.innerHeight
-
-    Object.assign(tooltip.style, {
-      bottom: flipY ? `${window.innerHeight - clientY + 12}px` : 'auto',
-      left: flipX ? 'auto' : `${clientX + 12}px`,
-      right: flipX ? `${window.innerWidth - clientX + 12}px` : 'auto',
-      top: flipY ? 'auto' : `${clientY + 12}px`,
-      clipPath: 'inset(-3px round var(--radius-xl))'
-    })
-  }, [])
+  useEffect(() => {
+    if (!isTooltipVisible) return
+    const { x, y } = tooltipPointerRef.current
+    updateTooltipPosition(x, y)
+  }, [tooltipText, isTooltipVisible, updateTooltipPosition])
 
   const handlePointerEnter = useCallback(
     async (event: PointerEvent<HTMLElement>) => {
-      handleTooltipPosition(event.clientX, event.clientY)
+      if (event.pointerType === 'touch') return
+
+      updateTooltipPosition(event.clientX, event.clientY)
+      clearTooltipInterval()
+      cancelTooltipFetch()
 
       const fallback = `${info.name} 是 ${info.description}`
+      if (info.type !== 'Github') return showTooltip(fallback)
 
-      const match = info.link?.match(/^https:\/\/github\.com\/([^/]+)\/([^/]+)/)
-      if (!info.link || !match) {
-        setTooltipText(fallback)
-        setTooltipVisible(true)
-        return
-      }
+      const { owner, repo } =
+        new URLPattern({
+          hostname: '{www.}?github.com',
+          pathname: '/:owner/:repo{/*}?'
+        }).exec(info.link)?.pathname.groups ?? {}
+      if (!owner || !repo) return showTooltip(fallback)
 
-      const cached = summaryCache.get(info.link)
-      if (cached) {
-        setTooltipText(cached)
-        setTooltipVisible(true)
-        return
-      }
+      const { link } = info
+      const cached = tooltipSummaryCache.get(link)
+      if (cached) return showTooltip(cached)
+
+      const serverUrl: unknown = import.meta.env.VITE_SERVER_URL
+      if (typeof serverUrl !== 'string' || !serverUrl) return showTooltip(fallback)
 
       let dots = 0
-      setTooltipText('.')
-      setTooltipVisible(true)
-      intervalRef.current = setInterval(() => {
+      showTooltip('.')
+      tooltipIntervalRef.current = setInterval(() => {
         dots = (dots + 1) % 3
         setTooltipText('.'.repeat(dots + 1))
       }, 400)
 
-      const requestId = ++fetchIdRef.current
-
+      const requestId = ++tooltipRequestRef.current
       const abortController = new AbortController()
-      abortControllerRef.current = abortController
-      const signal = AbortSignal.any([abortController.signal, AbortSignal.timeout(8000)])
+      tooltipAbortRef.current = abortController
+      const signal = AbortSignal.any([abortController.signal, AbortSignal.timeout(8_000)])
 
       try {
         let summary: string | null = null
         const readme = await Promise.any(
           ['main', 'master'].map(async (branch) => {
             const response = await fetch(
-              `https://raw.githubusercontent.com/${match[1]}/${match[2]}/refs/heads/${branch}/README.md`,
+              new URL(
+                `/${owner}/${repo}/refs/heads/${branch}/README.md`,
+                'https://raw.githubusercontent.com'
+              ),
               { signal }
             )
+
             if (!response.ok) throw new Error()
+
             return response.text()
           })
         ).catch(() => null)
 
-        if (readme) {
-          const aiResponse = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/gateway/chat`, {
+        const readmeText = readme?.trim()
+        if (readmeText) {
+          const aiResponse = await fetch(`${serverUrl}/api/gateway/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               messages: [
                 {
                   role: 'user',
-                  content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readme}`
+                  content: `请根据以下 README 内容，用一句中文简短介绍这个项目：\n\n${readmeText}`
                 }
               ]
             }),
             signal
           })
 
-          if (aiResponse.ok) {
-            const { content, error } = (await aiResponse.json()) as { content?: string; error?: string }
-            if (!error && content) summary = content
-          }
+          const chat = aiResponse.ok ? ((await aiResponse.json()) as ChatResponse) : undefined
+          const content = chat?.content?.trim()
+          if (content && !chat?.error) summary = content
         }
 
-        if (fetchIdRef.current !== requestId) return
-        clearIntervalRef()
+        if (tooltipRequestRef.current !== requestId) return
 
-        if (summary) {
-          summaryCache.set(info.link, summary)
+        clearTooltipInterval()
+        if (!summary) return void setTooltipText(fallback)
 
-          let charIndex = 0
-          intervalRef.current = setInterval(() => {
-            if (fetchIdRef.current !== requestId) {
-              clearIntervalRef()
-              return
-            }
-            charIndex++
-            setTooltipText(summary.slice(0, charIndex))
-            if (charIndex >= summary.length) clearIntervalRef()
-          }, 30)
-        } else {
-          setTooltipText(fallback)
-        }
+        tooltipSummaryCache.set(link, summary)
+        let charIndex = 0
+        tooltipIntervalRef.current = setInterval(() => {
+          if (tooltipRequestRef.current !== requestId) return clearTooltipInterval()
+
+          charIndex++
+          setTooltipText(summary.slice(0, charIndex))
+          if (charIndex >= summary.length) clearTooltipInterval()
+        }, 30)
       } catch {
-        if (fetchIdRef.current !== requestId) return
-        clearIntervalRef()
+        if (tooltipRequestRef.current !== requestId) return
+
+        clearTooltipInterval()
         setTooltipText(fallback)
       }
     },
-    [info, handleTooltipPosition]
+    [info, updateTooltipPosition]
   )
 
   const handlePointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
-      cardPointerMove(event)
-      handleTooltipPosition(event.clientX, event.clientY)
+      handleCardPointerMove(event)
+      updateTooltipPosition(event.clientX, event.clientY)
     },
-    [cardPointerMove, handleTooltipPosition]
+    [handleCardPointerMove, updateTooltipPosition]
   )
 
   const handlePointerLeave = useCallback(() => {
-    cardPointerLeave()
-    setTooltipVisible(false)
+    handleCardPointerLeave()
+    setIsTooltipVisible(false)
+    tooltipPointerRef.current.active = false
+    clearTooltipFlipTransition()
+
     const tooltip = tooltipRef.current
     if (tooltip) {
-      const flipX = tooltip.style.left === 'auto'
-      const flipY = tooltip.style.top === 'auto'
-      const [top, bottom] = flipY ? ['100%', '-3px'] : ['-3px', '100%']
-      const [right, left] = flipX ? ['-3px', '100%'] : ['100%', '-3px']
-      tooltip.style.clipPath = `inset(${top} ${right} ${bottom} ${left} round var(--radius-xl))`
+      const { flipX, flipY } = tooltipPointerRef.current
+      const edge = (collapse: boolean) => (collapse ? '100%' : '-3px')
+      tooltip.style.clipPath = `inset(${edge(flipY)} ${edge(!flipX)} ${edge(!flipY)} ${edge(flipX)} round var(--radius-xl))`
     }
-    cancelFetch()
-    clearIntervalRef()
-  }, [cardPointerLeave])
+
+    clearTooltipInterval()
+    cancelTooltipFetch()
+  }, [handleCardPointerLeave])
+
+  const Wrapper = info.link ? motion.a : motion.div
 
   return (
     <div className={cardStage}>
@@ -222,22 +262,19 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
         onPointerEnter={(event) => void handlePointerEnter(event)}
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onPointerCancel={handlePointerLeave}
         className={cardShell}
         style={{ rotateX, rotateY }}
         {...cardHover}
       >
-        <CardChrome
-          paddingClass="p-6"
-          spotlightBackground={spotlightBackground}
-          spotlightBorder={spotlightBorder}
-        >
+        <CardChrome isSpacious spotlightBackground={spotlightBackground} spotlightBorder={spotlightBorder}>
           <div className="relative flex h-full translate-z-3.75 flex-col gap-2">
             <div className="mb-4 flex items-center justify-between">
               <div
                 aria-hidden
-                className={`rounded-lg bg-primary/10 p-2 text-primary ${colorBgTransition} group-hover:bg-primary group-hover:text-white dark:bg-primary/20`}
+                className={tw`rounded-lg bg-primary/10 p-2 text-primary ${colorBgTransition} group-hover:bg-primary group-hover:text-white dark:bg-primary/20`}
               >
-                {PROJECT_STATUS_ICON_MAP[info.status]}
+                {projectStatusIcons[info.status]}
               </div>
               {info.pinned ? (
                 <div aria-hidden className={`${cardMetaIcon} -rotate-15`}>
@@ -245,24 +282,26 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
                 </div>
               ) : info.link ? (
                 <div aria-hidden className={cardMetaIcon}>
-                  {PROJECT_TYPE_ICON_MAP[info.type ?? 'Default']}
+                  {projectTypeIcons[info.type]}
                 </div>
               ) : null}
             </div>
 
             <h3
-              className={`text-xl font-bold text-gray-800 ${colorTransition} group-hover:text-primary dark:text-gray-100`}
+              className={tw`text-xl font-bold text-grey-800 ${colorTransition} group-hover:text-primary dark:text-grey-100`}
             >
               {info.name}
             </h3>
-            <p className={`mb-2 text-sm leading-relaxed text-gray-600 ${colorTransition} dark:text-gray-400`}>
+            <p
+              className={tw`mb-2 text-sm leading-relaxed text-grey-600 ${colorTransition} dark:text-grey-400`}
+            >
               {info.description}
             </p>
 
             <div className="mt-auto flex items-end justify-between gap-4">
               <ul className="flex translate-z-2.5 flex-wrap gap-2">
                 {info.tags.map((tag) => (
-                  <li key={`${info.name}-${tag}`} className={`${cardTag} px-2.5 py-1`}>
+                  <li key={`${info.name}-${tag}`} className={tw`${cardTag} px-2.5 py-1`}>
                     {tag}
                   </li>
                 ))}
@@ -278,9 +317,7 @@ const ProjectCard = memo(function ProjectCard({ info }: { info: ProjectInfo }) {
         </CardChrome>
       </Wrapper>
 
-      <ProjectTooltip ref={tooltipRef} text={tooltipText} isVisible={tooltipVisible} />
+      <ProjectTooltip ref={tooltipRef} text={tooltipText} isVisible={isTooltipVisible} />
     </div>
   )
 })
-
-export default ProjectCard

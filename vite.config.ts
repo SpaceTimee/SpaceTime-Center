@@ -6,14 +6,14 @@ import { VitePWA } from 'vite-plugin-pwa'
 import Sitemap from 'vite-plugin-sitemap'
 import { webfontDl } from 'vite-plugin-webfont-dl'
 import { description, name, themeColor, url } from './consts/site'
-import { AtomFeed } from './plugins/atom-feed'
+import { AtomFeed } from './plugins/atomFeed'
 
 export default defineConfig({
   server: { host: '0.0.0.0' },
   plugins: [
     react(),
     tailwindcss(),
-    webfontDl(),
+    webfontDl(undefined, { subsetsAllowed: ['latin', 'chinese-simplified'] }),
     basicSsl(),
     VitePWA({
       registerType: 'autoUpdate',
