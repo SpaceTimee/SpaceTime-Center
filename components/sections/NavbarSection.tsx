@@ -35,9 +35,15 @@ export default function NavbarSection() {
   useEffect(() => {
     const controller = new AbortController()
     let isRafPending = false
+    let wasScrolled = scrollY > 20
+
     const syncScrollState = () => {
       const currentScrollY = scrollY
-      setIsScrolled(currentScrollY > 20)
+      const nextScrolled = currentScrollY > 20
+      if (nextScrolled !== wasScrolled) {
+        wasScrolled = nextScrolled
+        setIsScrolled(nextScrolled)
+      }
       if (currentScrollY <= 0) setIsScrollingToTop(false)
     }
 

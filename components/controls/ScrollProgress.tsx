@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 
 export default function ScrollProgress() {
   const [isVisible, setIsVisible] = useState(false)
+  const isVisibleRef = useRef(false)
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const scaleX = useSpring(useScroll().scrollYProgress, followSpring)
@@ -11,9 +12,16 @@ export default function ScrollProgress() {
   useEffect(() => () => clearTimeout(hideTimeoutRef.current ?? undefined), [])
 
   useMotionValueEvent(scaleX, 'change', () => {
-    setIsVisible(true)
-    if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current)
-    hideTimeoutRef.current = setTimeout(() => setIsVisible(false), progressHideMs)
+    if (!isVisibleRef.current) {
+      isVisibleRef.current = true
+      setIsVisible(true)
+    }
+
+    clearTimeout(hideTimeoutRef.current ?? undefined)
+    hideTimeoutRef.current = setTimeout(() => {
+      isVisibleRef.current = false
+      setIsVisible(false)
+    }, progressHideMs)
   })
 
   return (

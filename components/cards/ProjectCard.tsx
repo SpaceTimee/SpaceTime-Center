@@ -25,6 +25,8 @@ interface ChatResponse {
 }
 
 const tooltipSummaryCache = new Map<string, string>()
+const tooltipClipOpen = 'inset(-3px round var(--radius-xl))'
+const tooltipGap = 12
 
 const cardMetaIcon = tw`text-grey-300 ${colorTransition} group-hover:text-primary dark:text-grey-600`
 
@@ -56,6 +58,7 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const tooltipPointerRef = useRef({ x: 0, y: 0, flipX: false, flipY: false, active: false })
+  const tooltipSizeRef = useRef({ width: 0, height: 0 })
   const tooltipFlipTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const tooltipRequestRef = useRef(0)
   const tooltipAbortRef = useRef<AbortController | null>(null)
@@ -78,37 +81,28 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
     tooltipAbortRef.current = null
   }
 
-  const showTooltip = (text: string) => {
-    setTooltipText(text)
-    setIsTooltipVisible(true)
-  }
-
   const updateTooltipPosition = useCallback((clientX: number, clientY: number) => {
     const tooltip = tooltipRef.current
     if (!tooltip) return
 
-    const offsetGap = 12
-    const { offsetWidth, offsetHeight } = tooltip
-    const flipX = clientX + 280 > innerWidth
-    const flipY = clientY + offsetGap + offsetHeight > innerHeight
-    const left = clientX + (flipX ? -offsetGap - offsetWidth : offsetGap)
-    const top = clientY + (flipY ? -offsetGap - offsetHeight : offsetGap)
+    const { width, height } = tooltipSizeRef.current
+    const flipX = clientX + tooltipGap + width > innerWidth
+    const flipY = clientY + tooltipGap + height > innerHeight
 
     const last = tooltipPointerRef.current
     const flipChanged = last.active && (flipX !== last.flipX || flipY !== last.flipY)
+    if (!last.active) tooltip.style.clipPath = tooltipClipOpen
     tooltipPointerRef.current = { x: clientX, y: clientY, flipX, flipY, active: true }
 
     if (flipChanged) {
-      tooltip.style.transitionProperty = 'left, top'
+      tooltip.style.transitionProperty = 'translate'
       clearTimeout(tooltipFlipTimeoutRef.current ?? undefined)
       tooltipFlipTimeoutRef.current = setTimeout(clearTooltipFlipTransition, 500)
     }
 
-    Object.assign(tooltip.style, {
-      left: `${left}px`,
-      top: `${top}px`,
-      clipPath: 'inset(-3px round var(--radius-xl))'
-    } satisfies Partial<CSSStyleDeclaration>)
+    const axis = (flip: boolean, coord: number) =>
+      flip ? `calc(${coord - tooltipGap}px - 100%)` : `${coord + tooltipGap}px`
+    tooltip.style.translate = `${axis(flipX, clientX)} ${axis(flipY, clientY)}`
   }, [])
 
   useEffect(
@@ -122,9 +116,24 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
 
   useEffect(() => {
     if (!isTooltipVisible) return
+
+    const tooltip = tooltipRef.current
+    if (!tooltip) return
+
+    const width = tooltip.offsetWidth
+    const height = tooltip.offsetHeight
+    const last = tooltipSizeRef.current
+    if (width === last.width && height === last.height && tooltipPointerRef.current.active) return
+
+    tooltipSizeRef.current = { width, height }
     const { x, y } = tooltipPointerRef.current
     updateTooltipPosition(x, y)
   }, [tooltipText, isTooltipVisible, updateTooltipPosition])
+
+  const showTooltip = (text: string) => {
+    setTooltipText(text)
+    setIsTooltipVisible(true)
+  }
 
   const handlePointerEnter = useCallback(
     async (event: PointerEvent<HTMLElement>) => {
@@ -229,9 +238,17 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
   const handlePointerMove = useCallback(
     (event: PointerEvent<HTMLElement>) => {
       handleCardPointerMove(event)
+
+      if (!isTooltipVisible) {
+        const pointer = tooltipPointerRef.current
+        pointer.x = event.clientX
+        pointer.y = event.clientY
+        return
+      }
+
       updateTooltipPosition(event.clientX, event.clientY)
     },
-    [handleCardPointerMove, updateTooltipPosition]
+    [handleCardPointerMove, isTooltipVisible, updateTooltipPosition]
   )
 
   const handlePointerLeave = useCallback(() => {

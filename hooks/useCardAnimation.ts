@@ -8,6 +8,8 @@ const tiltNeg = `${-tiltDeg}deg`
 
 export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const ref = useRef<T>(null)
+  const rafIdRef = useRef<number | null>(null)
+  const pointerClientRef = useRef({ x: 0, y: 0 })
   const prefersReducedMotion = useReducedMotion()
 
   const tiltX = useMotionValue(0)
@@ -23,31 +25,52 @@ export function useCardAnimation<T extends HTMLElement = HTMLElement>() {
   const spotlightBackground = useMotionTemplate`radial-gradient(${spotlightInner}px circle at ${springSpotlightX}px ${springSpotlightY}px, var(--color-primary), transparent 40%)`
   const spotlightBorder = useMotionTemplate`radial-gradient(${spotlightOuter}px circle at ${springSpotlightX}px ${springSpotlightY}px, var(--color-primary), transparent 40%)`
 
-  useEffect(() => {
-    if (!prefersReducedMotion) return
+  const cancelPendingFrame = () => {
+    if (rafIdRef.current === null) return
 
-    tiltX.set(0)
-    tiltY.set(0)
-  }, [prefersReducedMotion, tiltX, tiltY])
+    cancelAnimationFrame(rafIdRef.current)
+    rafIdRef.current = null
+  }
 
   const handlePointerLeave = () => {
+    cancelPendingFrame()
     tiltX.set(0)
     tiltY.set(0)
   }
 
+  useEffect(() => () => cancelPendingFrame(), [])
+
+  useEffect(() => {
+    if (!prefersReducedMotion) return
+
+    cancelPendingFrame()
+    tiltX.set(0)
+    tiltY.set(0)
+  }, [prefersReducedMotion, tiltX, tiltY])
+
   const handlePointerMove = (event: PointerEvent<T>) => {
-    const element = ref.current
-    if (prefersReducedMotion || !element || event.pointerType === 'touch') return
+    if (prefersReducedMotion || event.pointerType === 'touch') return
 
-    const rect = element.getBoundingClientRect()
-    if (rect.width === 0 || rect.height === 0) return
+    pointerClientRef.current = { x: event.clientX, y: event.clientY }
+    if (rafIdRef.current !== null) return
 
-    const localX = event.clientX - rect.left
-    const localY = event.clientY - rect.top
-    tiltX.set(localX / rect.width - 0.5)
-    tiltY.set(localY / rect.height - 0.5)
-    spotlightX.set(localX)
-    spotlightY.set(localY)
+    rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null
+
+      const element = ref.current
+      if (!element) return
+
+      const rect = element.getBoundingClientRect()
+      if (rect.width === 0 || rect.height === 0) return
+
+      const { x, y } = pointerClientRef.current
+      const localX = x - rect.left
+      const localY = y - rect.top
+      tiltX.set(localX / rect.width - 0.5)
+      tiltY.set(localY / rect.height - 0.5)
+      spotlightX.set(localX)
+      spotlightY.set(localY)
+    })
   }
 
   return {

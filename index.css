@@ -34,7 +34,7 @@
 
   --shadow-avatar: 0 10px 40px -10px color-mix(in srgb, var(--color-primary) 10%, transparent);
   --shadow-avatar-hover: 0 20px 40px -10px color-mix(in srgb, var(--color-primary) 20%, transparent);
-  --shadow-progress: 0 0 8px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  --shadow-progress: 0 0 8px color-mix(in srgb, var(--color-primary) 50%, transparent);
 
   --drop-shadow-title: 0 0 6px #fff;
   --drop-shadow-subtitle: 0 1px 3px rgb(0 0 0 / 80%);

@@ -32,6 +32,13 @@ export function useHeaderAnimation({
   const touchClientRef = useRef({ x: 0, y: 0 })
   const dimensionsRef = useRef({ width: 0, height: 0, left: 0, top: 0 })
 
+  const cancelPendingFrame = () => {
+    if (rafIdRef.current === null) return
+
+    cancelAnimationFrame(rafIdRef.current)
+    rafIdRef.current = null
+  }
+
   const parallaxX = useMotionValue(0)
   const parallaxY = useMotionValue(0)
   const springX = useSpring(parallaxX, followSpring)
@@ -91,7 +98,10 @@ export function useHeaderAnimation({
   }, [borderRef, meniscusRef, waveRef])
 
   const animateDecay = useCallback(() => {
-    if (isDraggingRef.current) return void (rafIdRef.current = null)
+    if (isDraggingRef.current) {
+      cancelPendingFrame()
+      return
+    }
 
     const { decayRate, maxPull } = headerConfig
     let needsFrame = false
@@ -161,7 +171,7 @@ export function useHeaderAnimation({
 
       if (pullTimeoutRef.current) clearTimeout(pullTimeoutRef.current)
       pullTimeoutRef.current = setTimeout(() => {
-        if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+        cancelPendingFrame()
         animateDecay()
       }, 20)
     }
@@ -179,8 +189,7 @@ export function useHeaderAnimation({
         touch.clientY -
         (Math.max(0, pullDistanceRef.current + headerConfig.maxPull) / headerConfig.pullDragDivisor) **
           (1 / headerConfig.pullDragPower)
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
-      rafIdRef.current = null
+      cancelPendingFrame()
       if (pullTimeoutRef.current) clearTimeout(pullTimeoutRef.current)
       pullTimeoutRef.current = null
     }
@@ -231,6 +240,7 @@ export function useHeaderAnimation({
     const handleTouchEnd = () => {
       isDraggingRef.current = false
       isWaveActiveRef.current = false
+      cancelPendingFrame()
       setParallaxTarget(0, 0)
       animateDecay()
     }
@@ -268,7 +278,7 @@ export function useHeaderAnimation({
       controller.abort()
       resizeObserver.disconnect()
       intersectionObserver.disconnect()
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current)
+      cancelPendingFrame()
       if (pullTimeoutRef.current) clearTimeout(pullTimeoutRef.current)
     }
   }, [

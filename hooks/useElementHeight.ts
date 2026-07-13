@@ -15,7 +15,7 @@ export function useElementHeight(
     const element = typeof refOrIndex === 'number' ? elementRefs?.current.at(refOrIndex) : refOrIndex.current
     if (!element) return
 
-    const applyHeight = (value: number) => setHeight(value)
+    const applyHeight = (value: number) => setHeight((prev) => (prev === value ? prev : value))
     applyHeight(element.offsetHeight)
 
     const observer = new ResizeObserver((entries) => {

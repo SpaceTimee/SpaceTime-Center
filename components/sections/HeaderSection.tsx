@@ -52,7 +52,6 @@ export default function HeaderSection() {
   const meniscusRef = useRef<SVGGElement>(null)
   const waveRef = useRef<HTMLDivElement>(null)
   const tagsListRef = useRef<HTMLUListElement>(null)
-  const isRafPendingRef = useRef(false)
   const rafIdRef = useRef<number | null>(null)
   const mouseClientRef = useRef({ x: 0, y: 0 })
 
@@ -70,25 +69,28 @@ export default function HeaderSection() {
   const { fallenTagIndices, handleTagClick, handleTagShakeEnd, shakingTagIndex } = useTagInteraction()
   const tagsListHeight = useElementHeight(tagsListRef)
 
-  useEffect(() => () => cancelAnimationFrame(rafIdRef.current ?? 0), [])
+  const cancelPendingFrame = () => {
+    if (rafIdRef.current === null) return
+
+    cancelAnimationFrame(rafIdRef.current)
+    rafIdRef.current = null
+  }
+
+  useEffect(() => () => cancelPendingFrame(), [])
 
   useEffect(() => {
     if (!prefersReducedMotion) return
 
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current)
-      rafIdRef.current = null
-    }
-
-    isRafPendingRef.current = false
+    cancelPendingFrame()
   }, [prefersReducedMotion])
 
   const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
     mouseClientRef.current = { x: event.clientX, y: event.clientY }
-    if (isRafPendingRef.current) return
+    if (rafIdRef.current !== null) return
 
-    isRafPendingRef.current = true
     rafIdRef.current = requestAnimationFrame(() => {
+      rafIdRef.current = null
+
       const { x, y } = mouseClientRef.current
       setParallaxTarget(
         (x - (dimensionsRef.current.left - scrollX) - dimensionsRef.current.width / 2) /
@@ -96,9 +98,12 @@ export default function HeaderSection() {
         (y - (dimensionsRef.current.top - scrollY) - dimensionsRef.current.height / 2) /
           headerConfig.parallaxFactor
       )
-
-      isRafPendingRef.current = false
     })
+  }
+
+  const handleMouseLeave = () => {
+    cancelPendingFrame()
+    setParallaxTarget(0, 0)
   }
 
   return (
@@ -107,7 +112,7 @@ export default function HeaderSection() {
       id={homeSection.id}
       aria-labelledby={homeTitleId}
       onMouseMove={prefersReducedMotion ? undefined : handleMouseMove}
-      onMouseLeave={prefersReducedMotion ? undefined : () => setParallaxTarget(0, 0)}
+      onMouseLeave={prefersReducedMotion ? undefined : handleMouseLeave}
       className={tw`relative overflow-hidden px-6 pt-28 pb-16 lg:pt-48 lg:pb-32 ${scrollMargin}`}
     >
       <div className="absolute inset-0 overflow-hidden">
