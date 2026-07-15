@@ -124,8 +124,16 @@ export const projects = [
     status: ProjectStatus.InProgress
   },
   {
+    name: 'Console CensorGenerator',
+    description: 'Tcping 批量拨测与审查检测脚本',
+    link: 'https://github.com/SpaceTimee/Console-CensorGenerator',
+    tags: ['Pwsh', 'Github Actions'],
+    type: 'Github',
+    status: ProjectStatus.InProgress
+  },
+  {
     name: 'Console HostChecker',
-    description: 'Cealing Host 自动化检查工具',
+    description: 'Cealing Host 自动化检查脚本',
     link: 'https://github.com/SpaceTimee/Console-HostChecker',
     tags: ['Pwsh', 'Github Workflows'],
     type: 'Github',
@@ -133,7 +141,7 @@ export const projects = [
   },
   {
     name: 'Console HostGenerator',
-    description: 'Cealing Host 自动化生成工具',
+    description: 'Cealing Host 自动化生成脚本',
     link: 'https://github.com/SpaceTimee/Console-HostGenerator',
     tags: ['Pwsh'],
     type: 'Github',
