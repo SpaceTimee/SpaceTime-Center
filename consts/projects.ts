@@ -124,10 +124,10 @@ export const projects = [
     status: ProjectStatus.InProgress
   },
   {
-    name: 'Console CensorGenerator',
+    name: 'Console CensorChecker',
     description: 'Tcping 批量拨测与审查检测脚本',
-    link: 'https://github.com/SpaceTimee/Console-CensorGenerator',
-    tags: ['Pwsh', 'Github Actions'],
+    link: 'https://github.com/SpaceTimee/Console-CensorChecker',
+    tags: ['Pwsh', 'Github Actions', 'Github Workflows'],
     type: 'Github',
     status: ProjectStatus.InProgress
   },
