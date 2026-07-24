@@ -192,7 +192,7 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
 
         const readmeText = readme?.trim()
         if (readmeText) {
-          const aiResponse = await fetch(`${serverUrl}/api/gateway/chat`, {
+          const aiResponse = await fetch(`${serverUrl}/api/provider/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
