@@ -207,7 +207,7 @@ export default memo(function ProjectCard({ info }: { readonly info: ProjectInfo 
           })
 
           const chat = aiResponse.ok ? ((await aiResponse.json()) as ChatResponse) : undefined
-          const content = chat?.content?.trim()
+          const content = chat?.content?.replaceAll('**', '').trim()
           if (content && !chat?.error) summary = content
         }
 
