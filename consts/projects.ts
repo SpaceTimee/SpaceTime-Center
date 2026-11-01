@@ -28,14 +28,6 @@ export const projects = [
     status: ProjectStatus.InProgress
   },
   {
-    name: 'Suri Simu 1 LoRA',
-    description: '像素猫猫 LoRA 模型',
-    link: 'https://huggingface.co/collections/SpaceTimee/suri-simu-1',
-    tags: ['Civitai'],
-    type: 'HuggingFace',
-    status: ProjectStatus.InProgress
-  },
-  {
     name: 'Suri Qwen 3 Uncensored',
     description: 'Qwen 3.x 无审查模型',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
@@ -56,6 +48,30 @@ export const projects = [
     description: 'Suri Qwen 3 自聊群',
     link: 'https://huggingface.co/collections/SpaceTimee/suri-qwen-3',
     tags: ['Chainlit', 'FastAPI'],
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
+  },
+  {
+    name: 'Suri Simu 1 LoRA',
+    description: '像素猫猫 LoRA 模型',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-simu-1',
+    tags: ['Civitai'],
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
+  },
+  {
+    name: 'Suri Quin 1 LoRA',
+    description: '像素狗狗 LoRA 模型',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-quin-1',
+    tags: ['Civitai'],
+    type: 'HuggingFace',
+    status: ProjectStatus.InProgress
+  },
+  {
+    name: 'Suri Dataset 1 LoRA',
+    description: 'Suri 训练数据集',
+    link: 'https://huggingface.co/collections/SpaceTimee/suri-dataset-1',
+    tags: ['Civitai'],
     type: 'HuggingFace',
     status: ProjectStatus.InProgress
   },
